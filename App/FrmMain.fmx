@@ -1,0 +1,77 @@
+object FormMain: TFormMain
+  Left = 0
+  Top = 0
+  Caption = 'FMX Meme Builder'
+  ClientHeight = 600
+  ClientWidth = 800
+  Fill.Color = claSlateblue
+  Fill.Kind = Solid
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop, iPhone, iPad]
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnKeyUp = FormKeyUp
+  OnMouseWheel = FormMouseWheel
+  OnResize = FormResize
+  DesignerMasterStyle = 0
+  object TopText: TText
+    Align = Top
+    AutoSize = True
+    HitTest = False
+    Margins.Top = 10.000000000000000000
+    Position.Y = 10.000000000000000000
+    Size.Width = 800.000000000000000000
+    Size.Height = 51.987304687500000000
+    Size.PlatformDefault = False
+    Text = 'Look'
+    TextSettings.Font.Family = 'Showcard Gothic'
+    TextSettings.Font.Size = 42.000000000000000000
+    TextSettings.FontColor = claWhite
+    object TopGlow: TGlowEffect
+      Softness = 0.400000005960464500
+      GlowColor = claBlack
+      Opacity = 0.500000000000000000
+    end
+  end
+  object BottomText: TText
+    Align = Bottom
+    AutoSize = True
+    HitTest = False
+    Margins.Bottom = 10.000000000000000000
+    Position.Y = 512.437500000000000000
+    Size.Width = 800.000000000000000000
+    Size.Height = 77.562500000000000000
+    Size.PlatformDefault = False
+    Text = 'This App is so cool !'
+    TextSettings.Font.Family = 'Vladimir Script'
+    TextSettings.Font.Size = 64.000000000000000000
+    TextSettings.Font.StyleExt = {00070000000000000004000000}
+    TextSettings.FontColor = claWhite
+    object BottomGlow: TGlowEffect
+      Softness = 0.400000005960464500
+      GlowColor = claBlack
+      Opacity = 0.500000000000000000
+    end
+  end
+  object TopEdit: TEdit
+    Touch.InteractiveGestures = [LongTap, DoubleTap]
+    TabOrder = 2
+    Position.X = 16.000000000000000000
+    Position.Y = 336.000000000000000000
+    Size.Width = 100.000000000000000000
+    Size.Height = 22.000000000000000000
+    Size.PlatformDefault = False
+    OnKeyUp = TopEditKeyUp
+  end
+  object BottomEdit: TEdit
+    Touch.InteractiveGestures = [LongTap, DoubleTap]
+    TabOrder = 3
+    Position.X = 16.000000000000000000
+    Position.Y = 368.000000000000000000
+    Size.Width = 100.000000000000000000
+    Size.Height = 22.000000000000000000
+    Size.PlatformDefault = False
+    OnKeyUp = BottomEditKeyUp
+  end
+end
