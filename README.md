@@ -5,7 +5,7 @@
 
 Website [link](https://federgraph.de/federgraph-meme-builder-source.html), has more pictures.
 
-Could be used as a companion app to the Federgraph application, just in case you wanted to build a Memo with the Federgraph "Emoji" picture.
+Could be used as a companion app to the Federgraph application, just in case you wanted to build a Meme with the Federgraph "Emoji" picture.
 
 ## Design
 
@@ -36,10 +36,9 @@ const
   faBottomGlow = 6;
 ```
 
-Use the keyboard to trigger the action.
-These actions will select the current parameter.
-
-You are supposed to select a parameter and then use the scroll wheel to change the value of that parameter.
+- Use the keyboard to trigger the action.
+- These actions will select the current parameter.
+- You are supposed to select a parameter and then use the scroll wheel to change the value of that parameter.
 
 ## Options
 
@@ -146,15 +145,10 @@ Other then selecting the current parameter you can
 Note that when you cycle through the fonts - it will apply the next font to the top or bottom text,
 depending on what the current parameter is.
 
-> You need to press Escape key to show the edit controls for the text (not visible in picture).
-
-( Press Escape key again to hide the edits (toggle them On/Off). )
+You need to press Escape key to show the edit controls for the text (not visible in picture).
+Press Escape key again to hide the edits (toggle them On/Off).
 
 ## The one an only Main Form
 
 *Main Form at design time.*<br>
 ![Meme Builder](images/Meme-Builder-02.png)
-
-( My global CopyBitmapToClipboard procedure is in folder Util.
-  Bitmap here means image, and you need to provide the routine as part of your homework.
-  If you don't you will be missing a feature, remove the application frame manually in Paint. )
