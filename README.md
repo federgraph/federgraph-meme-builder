@@ -1,30 +1,38 @@
 # Federgraph Meme Builder App
 
-*Federgraph Meme Builder App, initial look.*<br>
+*Federgraph Meme Builder App, no image loaded yet.*<br>
 ![Meme Builder](images/Meme-Builder-03.png)
 
-Website [link](https://federgraph.de/federgraph-meme-builder-source.html), has more pictures.
+Website [link](https://federgraph.de/federgraph-meme-builder-source.html) has more pictures.
 
-Could be used as a companion app to the Federgraph application, just in case you wanted to build a Meme with the Federgraph "Emoji" picture.
+It could be used as a companion app to the Federgraph application,
+just in case you wanted to build a Meme with one of the Federgraph *Emoji* pictures.
+
+Drop your image onto the drop target.
+
+Then press Escape key to show the edit controls for the text (not visible in picture above),
+and press Escape key again to hide the edits.
 
 ## Design
 
-This is a small one Form only Delphi FMX application.
+This is a small one-form-only Delphi FMX application.
 
-( There is no configuration, would be overkill. )
+( There is no configuration, because it would be overkill. )
 
-- There is a drop target where you can drop the image, initially shown.
-- You can hide the drop target.
+- It has a drop target where you can drop the image, initially shown.
+- The drop target can be hidden.
 - A checker bitmap is shown when no actual image is loaded.
-- There is a top text and a bottom text component.
+- It has an image component, of course.
+- It has top and bottom text components, always shown.
 - Both text components have a glow effect.
-- Default text is used, initially.
-- There are some actions and options.
-- You can edit, arrange and style the text.
+- It has top and bottom edit components to change the text, initially hidden.
+
+You can edit, arrange and style the text,
+and you should be able to copy the finished image to the clipboard. 
 
 ## Actions
 
-There are 6 actions defined, by means of action constants.
+There are 6 actions defined, by means of Integer action constants.
 
 ```pascal
 const
@@ -42,14 +50,15 @@ const
 
 ## Options
 
-- The Font Name is optional, choose the font from a limited set of hardcoded font names.
-- The Form Size is optional, you can switch between some standard sizes.
-- The Text Content is optional, you can play with some hardcoded combinations of top and bottom text.
+- **Font Name** used, choose the font from a limited set of hardcoded font names.
+- **Form Size** chosen, you can switch between some standard sizes.
+- **Default Text** used, you can play with some hardcoded combinations of top and bottom text.
 
 ## Keyboard usage
 
-This is a desktop application. You need to use the keyboard.
-If it was a tablet app, I would have included touch buttons, it would have been more complicated.
+This is a desktop application. You need to use the keyboard and mouse wheel.
+
+(If it was a tablet app, I would have included touch buttons, it would have been more complicated.)
 
 ```pascal
 procedure TFormMain.FormKeyUp(
@@ -134,21 +143,19 @@ begin
 end;
 ```
 
-Other then selecting the current parameter you can
+Using the keyboard you can
 
 - change the visibility of the text edits
 - change the size of the image (ClientWidth, ClientHeight)
 - reset the text to hardcoded default
 - cycle between alternative standard text definitions, if any
 - cycle the font using a range of predefined font names
+- select the current parameter to change with mouse wheel)
 
 Note that when you cycle through the fonts - it will apply the next font to the top or bottom text,
 depending on what the current parameter is.
 
-You need to press Escape key to show the edit controls for the text (not visible in picture).
-Press Escape key again to hide the edits (toggle them On/Off).
-
 ## The one an only Main Form
 
-*Main Form at design time.*<br>
-![Meme Builder](images/Meme-Builder-02.png)
+<a href="images/Meme-Builder-02.png">*Main Form at design time.*<br>
+![Meme Builder](images/Meme-Builder-02.png)</a>
