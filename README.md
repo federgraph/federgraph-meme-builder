@@ -58,8 +58,6 @@ const
 
 This is a desktop application. You need to use the keyboard and mouse wheel.
 
-(If it was a tablet app, I would have included touch buttons, it would have been more complicated.)
-
 ```pascal
 procedure TFormMain.FormKeyUp(
   Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
@@ -146,14 +144,31 @@ end;
 Using the keyboard you can
 
 - change the visibility of the text edits
+- show and hide the drop target
 - change the size of the image (ClientWidth, ClientHeight)
 - reset the text to hardcoded default
 - cycle between alternative standard text definitions, if any
 - cycle the font using a range of predefined font names
-- select the current parameter to change with mouse wheel)
+- select the current parameter, the value of which you want to change with the mouse wheel
 
 Note that when you cycle through the fonts - it will apply the next font to the top or bottom text,
 depending on what the current parameter is.
+
+Key mapping recap:
+
+| KeyChar(s) | Action |
+|:---:|:---|
+| Escape | toggle text edit controls |
+| d | toggle drop target |
+| 1, 2, 3, 8, 9, 0 | Window Format selection |
+| b, t| param: bottom and top text size |
+| m, n | param: bottom and top text margin |
+| f, F| cycle Font, plus or minus |
+| x | Cycle default Text plus Reset |
+| r | Reset Caption command |
+| R | Reset command |
+| c | clear image command |
+| ^c | copy image to clipboard command |
 
 ## The one an only Main Form
 

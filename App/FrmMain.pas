@@ -1,4 +1,20 @@
-unit FrmMain;
+﻿unit FrmMain;
+
+(*
+-
+-     F
+-    * * *
+-   *   *   G
+-  *     * *   *
+- E - - - H - - - I
+-  *     * *         *
+-   *   *   *           *
+-    * *     *             *
+-     D-------A---------------B
+-              *
+-              (C) federgraph.de
+-
+*)
 
 interface
 
@@ -8,6 +24,7 @@ uses
   System.Types,
   System.UITypes,
   System.UIConsts,
+  FMX.Platform,
   FMX.Graphics,
   FMX.Types,
   FMX.Controls,
@@ -51,6 +68,7 @@ type
     FDropTargetVisible: Boolean;
     DefaultCaption: string;
     TestID: Integer;
+    procedure CopyBitmapToClipboard(ABitmap: TBitmap);
     procedure CopyBitmap;
     procedure CreateCheckerBitmap;
     procedure InitChecker;
@@ -77,9 +95,6 @@ var
 implementation
 
 {$R *.fmx}
-
-//uses
-//  RiggVar.Util.FMX;
 
 const
   faTopMargin = 1;
@@ -335,7 +350,7 @@ begin
   finally
     bmp.Canvas.EndScene;
   end;
-//  CopyBitmapToClipboard(bmp);
+  CopyBitmapToClipboard(bmp);
   bmp.Free;
 end;
 
@@ -505,7 +520,6 @@ begin
   case TestID of
     0:
     begin
-      //DefaultCaption := 'Federgraph Meme Builder App, 2016 Victory Edition';
       DefaultCaption := Application.Title;
 
       TopText.Text := 'Made with Delphi';
@@ -522,9 +536,8 @@ begin
     begin
       DefaultCaption := 'Federgraph Meme Builder App';
 
-      // in dinghy sailing topic, right of way rules apply:
-      TopText.Text := 'Hau ab - Mach Platz - Raum !!!';
-      BottomText.Text := 'Here comes 420 GER 5XXXX';
+      TopText.Text := 'Show drop target for image import.';
+      BottomText.Text := 'Toggle text edit controls with Escape.';
 
       TopText.Font.Size := 70;
       BottomText.Font.Size := 70;
@@ -563,6 +576,17 @@ begin
       s := 'unknown param key';
   end;
   Caption := s;
+end;
+
+procedure TFormMain.CopyBitmapToClipboard(ABitmap: TBitmap);
+var
+  Svc: IFMXClipboardService;
+begin
+  if not Assigned(ABitmap) then
+    Exit;
+
+  if TPlatformServices.Current.SupportsPlatformService(IFMXClipboardService, Svc) then
+    Svc.SetClipboard(ABitmap);
 end;
 
 end.
