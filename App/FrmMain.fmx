@@ -58,7 +58,7 @@ object FormMain: TFormMain
     Touch.InteractiveGestures = [LongTap, DoubleTap]
     TabOrder = 2
     Position.X = 16.000000000000000000
-    Position.Y = 336.000000000000000000
+    Position.Y = 112.000000000000000000
     Size.Width = 100.000000000000000000
     Size.Height = 22.000000000000000000
     Size.PlatformDefault = False
@@ -68,10 +68,24 @@ object FormMain: TFormMain
     Touch.InteractiveGestures = [LongTap, DoubleTap]
     TabOrder = 3
     Position.X = 16.000000000000000000
-    Position.Y = 368.000000000000000000
+    Position.Y = 144.000000000000000000
     Size.Width = 100.000000000000000000
     Size.Height = 22.000000000000000000
     Size.PlatformDefault = False
     OnKeyUp = BottomEditKeyUp
+  end
+  object HelpText: TText
+    HitTest = False
+    Position.X = 16.000000000000000000
+    Position.Y = 179.000000000000000000
+    Size.Width = 600.000000000000000000
+    Size.Height = 18.000000000000000000
+    Size.PlatformDefault = False
+    Text = 'Help Text'
+    TextSettings.Font.Family = 'Courier New'
+    TextSettings.Font.Size = 16.000000000000000000
+    TextSettings.FontColor = claWhite
+    TextSettings.WordWrap = False
+    TextSettings.HorzAlign = Leading
   end
 end

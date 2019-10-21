@@ -38,6 +38,11 @@ uses
   FMX.Controls.Presentation;
 
 type
+  TSelectedText = (
+    stTop,
+    stBottom
+  );
+
   TFormMain = class(TForm)
     TopText: TText;
     BottomText: TText;
@@ -45,6 +50,7 @@ type
     TopGlow: TGlowEffect;
     TopEdit: TEdit;
     BottomEdit: TEdit;
+    HelpText: TText;
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -67,12 +73,14 @@ type
     CheckerImage: TImage;
     FDropTargetVisible: Boolean;
     DefaultCaption: string;
-    TestID: Integer;
+    TextID: Integer;
+    SelectedText: TSelectedText;
     procedure CopyBitmapToClipboard(ABitmap: TBitmap);
     procedure CopyBitmap;
     procedure CreateCheckerBitmap;
     procedure InitChecker;
     procedure InitDropTarget;
+    procedure InitHelpText;
     procedure UpdateChecker;
     procedure SetDropTargetVisible(const Value: Boolean);
     procedure OnDropTargetDropped(fn: string);
@@ -83,10 +91,15 @@ type
     procedure CycleFont(Value: Integer);
     procedure UpdateFormat(w, h: Integer);
     procedure Reset;
+    procedure UpdateCaption;
     procedure UpdateParam(afa: Integer);
+    procedure SetBitmap(value: TBitmap);
+    function GetParamText: string;
     property DropTargetVisible: Boolean read FDropTargetVisible write SetDropTargetVisible;
   protected
     function FindTarget(P: TPointF; const Data: TDragObject): IControl; override;
+  public
+    property Background: TBitmap read CheckerBitmap write SetBitmap;
   end;
 
 var
@@ -104,6 +117,8 @@ const
   faTopGlow = 5;
   faBottomGlow = 6;
 
+  MaxTextID = 2;
+
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
   ReportMemoryLeaksOnShutdown := True;
@@ -111,7 +126,7 @@ begin
   fo := 1;
   MaxFont := 9;
 
-  TestID := 0;
+  TextID := 0;
   Reset;
   Caption := DefaultCaption;
 
@@ -124,6 +139,7 @@ begin
   BottomEdit.Visible := false;
 
   DropTargetVisible := true;
+  InitHelpText;
 end;
 
 procedure TFormMain.FormDestroy(Sender: TObject);
@@ -136,6 +152,8 @@ procedure TFormMain.FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char;
 begin
   if Key = vkEscape then
   begin
+    HelpText.Visible := False;
+    DropTargetVisible := False;
     TopEdit.Visible := not TopEdit.Visible;
     BottomEdit.Visible := TopEdit.Visible;
     Caption := DefaultCaption;
@@ -149,6 +167,12 @@ begin
 
   else if TopEdit.Visible then
     //do nothing when editing
+
+  else if KeyChar = 'b' then
+  begin
+    SelectedText := TSelectedText.stBottom;
+    Caption := 'Bottom Text';
+  end
 
   else if KeyChar = 'd' then
     DropTargetVisible := not DropTargetVisible
@@ -165,31 +189,59 @@ begin
   else if KeyChar = 'g' then
     UpdateParam(faTopGlow)
 
-  else if KeyChar = 'h' then
+  else if KeyChar = 'G' then
     UpdateParam(faBottomGlow)
 
-  else if KeyChar = 't' then
-    UpdateParam(faTopSize)
-
-  else if KeyChar = 'b' then
-    UpdateParam(faBottomSize)
-
-  else if KeyChar = 'n' then
-    UpdateParam(faTopMargin)
+  else if KeyChar = 'h' then
+  begin
+    DropTargetVisible := False;
+    HelpText.Visible := not HelpText.Visible;
+  end
 
   else if KeyChar = 'm' then
+    UpdateParam(faTopMargin)
+
+  else if KeyChar = 'M' then
     UpdateParam(faBottomMargin)
 
   else if KeyChar = 'r' then
-    Caption := DefaultCaption
+    UpdateCaption
 
   else if KeyChar = 'R' then
     Reset
 
+  else if KeyChar = 's' then
+    UpdateParam(faTopSize)
+
+  else if KeyChar = 'S' then
+    UpdateParam(faBottomSize)
+
+  else if KeyChar = 't' then
+  begin
+    SelectedText := TSelectedText.stTop;
+    Caption := 'Top Text';
+  end
+
   else if KeyChar = 'x' then
   begin
-    Inc(TestID);
-    TestID := TestID mod 2;
+    Inc(TextID);
+    TextID := TextID mod 2;
+    Reset;
+  end
+
+  else if KeyChar = 'y' then
+  begin
+    Inc(TextID);
+    if TextID > MaxTextID then
+      TextID := 0;
+    Reset;
+  end
+
+  else if KeyChar = 'Y' then
+  begin
+    Dec(TextID);
+    if TextID < 0 then
+      TextID := MaxTextID;
     Reset;
   end
 
@@ -210,6 +262,35 @@ begin
 
   else if KeyChar = '0' then
     UpdateFormat(1024, 1024)
+end;
+
+procedure TFormMain.InitHelpText;
+var
+  ML: TStringList;
+begin
+  ML := TStringList.Create;
+
+  ML.Add('KeyChar Legend (active when edits not visible):');
+  ML.Add('  h    - toggle help text');
+  ML.Add('  d    - toggle drop target');
+  ML.Add('  b, t - select bottom or top text for font change');
+  ML.Add('  f, F - cycle Font for current text (forward, backwards)');
+  ML.Add('  s, S - param Font Size for top or bottom text');
+  ML.Add('  m, M - param Margin for top or bottom text');
+  ML.Add('  g, G - param Glow Softness for top or bottom text');
+  ML.Add('  x    - toggle between Text0 and Text1');
+  ML.Add('  y, Y - cycle through Text templates');
+  ML.Add('  r, R - reset Caption (and Text)');
+  ML.Add('  c    - clear image command');
+  ML.Add('  ^c   - copy image to clipboard command');
+  ML.Add('  1, 2, 3, 8, 9, 0 - Window Format selection');
+
+  HelpText.Text := ML.Text;
+  HelpText.AutoSize := False;
+  HelpText.AutoSize := True;
+  HelpText.Visible := False;
+
+  ML.Free;
 end;
 
 procedure TFormMain.UpdateFormat(w, h: Integer);
@@ -243,6 +324,20 @@ begin
   BottomEdit.Width := ClientWidth - 20;
 
   UpdateChecker;
+end;
+
+function TFormMain.GetParamText: string;
+begin
+  case fa of
+    faTopMargin: result := 'Margin Top';
+    faBottomMargin: result := 'Margin Bottom';
+    faTopSize: result := 'Font Size Top';
+    faBottomSize: result := 'Font Size Bottom';
+    faTopGlow: result := 'Glow Softness Top';
+    faBottomGlow: result := 'Glow Softness Botton';
+    else
+      result := 'None';
+  end;
 end;
 
 procedure TFormMain.HandleWheel(Delta: Integer);
@@ -399,6 +494,7 @@ begin
   FDropTargetVisible := Value;
   if Value then
   begin
+    HelpText.Visible := False;
     if not Assigned(DropTarget) then
     begin
       DropTarget := TDropTarget.Create(Self);
@@ -411,7 +507,7 @@ begin
       DropTarget.BringToFront;
     end;
   end
-  else
+  else if DropTarget <> nil then
   begin
     DropTarget.Visible := False;
   end;
@@ -484,9 +580,9 @@ begin
     9: s := 'Comic Sans MS';
   end;
 
-  if fa = faTopSize then
-    TopText.Font.Family := s;
-  if fa = faBottomSize then
+  if SelectedText = TSelectedText.stTop then
+    TopText.Font.Family := s
+  else
     BottomText.Font.Family := s;
 
   Caption := s;
@@ -517,13 +613,14 @@ end;
 
 procedure TFormMain.Reset;
 begin
-  case TestID of
-    0:
+  case TextID of
+
+    1:
     begin
       DefaultCaption := Application.Title;
 
       TopText.Text := 'Made with Delphi';
-      BottomText.Text := 'FMX Meme Builder !!!';
+      BottomText.Text := 'FMX Meme Builder.';
 
       TopText.Font.Size := 58;
       BottomText.Font.Size := 84;
@@ -532,18 +629,35 @@ begin
       BottomText.Font.Family := 'Vladimir Script';
     end;
 
-    1:
+    // insert new text templates here, ( and update MaxTextID )
+
+    MaxTextID:
     begin
       DefaultCaption := 'Federgraph Meme Builder App';
 
-      TopText.Text := 'Show drop target for image import.';
-      BottomText.Text := 'Toggle text edit controls with Escape.';
+      TopText.Text := 'Press Escape to edit text';
+      BottomText.Text := 'Select Tulsi for 2020';
 
-      TopText.Font.Size := 70;
-      BottomText.Font.Size := 70;
+      TopText.Font.Size := 32;
+      BottomText.Font.Size := 80;
 
-      TopText.Font.Family := 'Vladimir Script';
+      TopText.Font.Family := 'Stencil';
       BottomText.Font.Family := 'Stencil';
+    end;
+
+    else
+    begin
+      // case TextID === 0;
+      DefaultCaption := 'Federgraph Meme Builder App';
+
+      TopText.Text := 'federgraph.de/federgraph-meme-builder.html';
+      BottomText.Text := 'press h to toggle help text';
+
+      TopText.Font.Size := 24;
+      BottomText.Font.Size := 40;
+
+      TopText.Font.Family := 'Courier New';
+      BottomText.Font.Family := 'Courier New';
     end;
 
   end;
@@ -560,33 +674,84 @@ begin
   Caption := DefaultCaption;
 end;
 
-procedure TFormMain.UpdateParam(afa: Integer);
+procedure TFormMain.UpdateCaption;
 var
-  s: string;
+  sa, sb, sc: string;
 begin
-  fa := afa;
-  case fa of
-    faTopMargin: s := 'Margin Top';
-    faBottomMargin: s := 'Margin Bottom';
-    faTopSize: s := 'Font Size Top';
-    faBottomSize: s := 'Font Size Bottom';
-    faTopGlow: s := 'Glow Softness Top';
-    faBottomGlow: s := 'Glow Softness Botton';
-    else
-      s := 'unknown param key';
-  end;
-  Caption := s;
+  sa := Application.Title;
+
+  if SelectedText = stTop then
+    sb := 'Top'
+  else
+    sb := 'Bottom';
+
+  sc := GetParamText;
+
+  Caption := Format('%s, Selected: %s, Param: %s, TextID: %d', [sa, sb, sc, TextID]);
 end;
 
+procedure TFormMain.UpdateParam(afa: Integer);
+begin
+  fa := afa;
+
+  case fa of
+    faTopMargin,
+    faTopSize,
+    faTopGlow: SelectedText := TSelectedText.stTop;
+    else
+      SelectedText := stBottom;
+  end;
+
+  Caption := GetParamText;
+end;
+
+{$ifdef MSWINDOWS}
 procedure TFormMain.CopyBitmapToClipboard(ABitmap: TBitmap);
 var
+//  dn, fn: string;
   Svc: IFMXClipboardService;
 begin
   if not Assigned(ABitmap) then
     Exit;
 
+//  if HardCopyFlag then
+//  begin
+//    dn := TAppUtils.GetUserPicturesDir;
+//    dn := dn + 'Screenshot';
+//    fn := dn + '\MB-00.png';
+//    if DirectoryExists(dn) then
+//      ABitmap.SaveToFile(fn);
+//  end;
+
+//  if NoCopyFlag then
+//    //do nothing
+//  else
+
   if TPlatformServices.Current.SupportsPlatformService(IFMXClipboardService, Svc) then
     Svc.SetClipboard(ABitmap);
+end;
+{$endif}
+
+{$ifdef MACOS}
+procedure TFormMain.CopyBitmapToClipboard(ABitmap: TBitmap);
+var
+  Svc: IFMXClipboardService;
+begin
+  if TPlatformServices.Current.SupportsPlatformService(IFMXClipboardService, Svc) then
+    Svc.SetClipboard(ABitmap);
+end;
+{$endif}
+
+procedure TFormMain.SetBitmap(value: TBitmap);
+begin
+  CheckerImage.Bitmap.Clear(claPurple);
+  //CheckerBitmap.LoadFromFile(fn);
+
+  ClientWidth := value.Width;
+  ClientWidth := value.Height;
+
+  CheckerImage.Bitmap := value;
+  CheckerImage.WrapMode := TImageWrapMode.Fit;
 end;
 
 end.
