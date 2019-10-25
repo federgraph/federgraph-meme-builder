@@ -19,16 +19,25 @@ This is a small one-form-only Delphi FMX application.
 
 ( There is no configuration, because it would be overkill. )
 
-- It has an image component, of course.
+- It has an image component of course, initially empty.
 - It has a drop target where you can drop the image, initially shown.
 - The drop target can be hidden.
-- ( A checker bitmap is shown when no actual image is loaded. )
+- A checker bitmap is shown when no actual image is loaded.
 - It has top and bottom text components, always shown.
+- Font size is a parameter
+- Text control Margin is a parameter
 - Both text components have a glow effect.
-- It has top and bottom text edit components, initially hidden.
+- Glow softness is a parameter
+- It has top and bottom text Edit components, initially hidden.
 
 You can edit, arrange and style the text to some extent,
 and you should be able to copy the finished image to the clipboard. 
+
+The *invisible* application state includes the selected text (top or bottom) and the selected parameter.
+You need to remember, hold a copy of those values in your head.
+
+- If you cycle through fonts, it effects the selected text.
+- If you scroll the mouse wheel, it effects the selected param, for the selected text.
 
 ## Fonts
 
@@ -54,7 +63,7 @@ const
 ```
 
 As in the Federgraph App, the action values are defined as Integer constants.
-They could be Enumeration values here, but not in the Federgraph app,
+They could be Enumeration values here, but not in the Federgraph App,
 because a Delphi enum can hold a maximum of 256 values,
 and Federgraph App has more.
 
@@ -62,13 +71,14 @@ Some of the actions are *mapped* to params.
 When the action is triggered, a parameter is selected as current.
 Then the mouse wheel can be used to change this parameter.
 
-Parameters are at the heart of the App and I will keep it that way, for now.
+Parameters are at the heart of the App.
 
-First use the keyboard to select a param,
-then use the scroll wheel of the mouse to change the value of the current parameter.
+- First use the keyboard to select a param,
+- then use the scroll wheel of the mouse to change the value of the current parameter.
+
 This is the very basic principle of using the App, exactly as in the Federgraph App.
 
-( And then there are Options, which you toggle on or off. )
+> And then there are Options, which you toggle on or off.
 
 ## Keyboard usage
 

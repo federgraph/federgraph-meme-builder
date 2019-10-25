@@ -154,7 +154,9 @@ begin
   TopEdit.Visible := false;
   BottomEdit.Visible := false;
 
-  DropTargetVisible := true;
+  if Application.Title = 'FC96' then
+    DropTargetVisible := true;
+
   InitHelpText;
 end;
 
