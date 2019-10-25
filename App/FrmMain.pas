@@ -19,6 +19,14 @@
 interface
 
 uses
+{$IFDEF MACOS}
+  MacApi.Appkit,Macapi.CoreFoundation,
+  Macapi.Foundation,
+{$ENDIF}
+{$IFDEF MSWINDOWS}
+  Winapi.Messages,
+  Winapi.Windows,
+{$ENDIF}
   System.SysUtils,
   System.Classes,
   System.Types,
@@ -67,7 +75,6 @@ type
   private
     fa: Integer;
     fo: Integer;
-    MaxFont: Integer;
     DropTarget: TDropTarget;
     CheckerBitmap: TBitmap;
     CheckerImage: TImage;
@@ -75,6 +82,10 @@ type
     DefaultCaption: string;
     TextID: Integer;
     SelectedText: TSelectedText;
+    FontFamilyList: TStringList;
+    HasOfficeFonts: Boolean;
+    WantOfficeFonts: Boolean;
+    UseOfficeFonts: Boolean;
     procedure CopyBitmapToClipboard(ABitmap: TBitmap);
     procedure CopyBitmap;
     procedure CreateCheckerBitmap;
@@ -95,6 +106,10 @@ type
     procedure UpdateParam(afa: Integer);
     procedure SetBitmap(value: TBitmap);
     function GetParamText: string;
+    procedure InitOfficeFonts;
+    procedure InitNormalFonts;
+    procedure CollectFonts(FontList: TStringList);
+    procedure InitFontList;
     property DropTargetVisible: Boolean read FDropTargetVisible write SetDropTargetVisible;
   protected
     function FindTarget(P: TPointF; const Data: TDragObject): IControl; override;
@@ -123,10 +138,11 @@ procedure TFormMain.FormCreate(Sender: TObject);
 begin
   ReportMemoryLeaksOnShutdown := True;
 
-  fo := 1;
-  MaxFont := 9;
+  FontFamilyList := TStringList.Create;
 
-  TextID := 0;
+  WantOfficeFonts := True;
+  InitFontList;
+
   Reset;
   Caption := DefaultCaption;
 
@@ -145,6 +161,7 @@ end;
 procedure TFormMain.FormDestroy(Sender: TObject);
 begin
   CheckerBitmap.Free;
+  FontFamilyList.Free;
 end;
 
 procedure TFormMain.FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char;
@@ -203,6 +220,17 @@ begin
 
   else if KeyChar = 'M' then
     UpdateParam(faBottomMargin)
+
+  else if KeyChar = 'o' then
+  begin
+    if HasOfficeFonts then
+      InitOfficeFonts;
+  end
+
+  else if KeyChar = 'O' then
+  begin
+    InitNormalFonts;
+  end
 
   else if KeyChar = 'r' then
     UpdateCaption
@@ -270,6 +298,8 @@ var
 begin
   ML := TStringList.Create;
 
+  ML.Add('  Esc  - toggle text edit controls');
+  ML.Add('');
   ML.Add('KeyChar Legend (active when edits not visible):');
   ML.Add('  h    - toggle help text');
   ML.Add('  d    - toggle drop target');
@@ -551,41 +581,73 @@ end;
 procedure TFormMain.CycleFontP;
 begin
   Inc(fo);
-  if fo > MaxFont then
-    fo := 1;
+  if fo >= FontFamilyList.Count then
+    fo := 0;
   CycleFont(fo);
 end;
 
 procedure TFormMain.CycleFontM;
 begin
   Dec(fo);
-  if fo < 1 then
-    fo := MaxFont;
+  if fo < 0 then
+    fo := FontFamilyList.Count-1;
   CycleFont(fo);
+end;
+
+procedure TFormMain.InitOfficeFonts;
+var
+  ML: TStrings;
+begin
+  UseOfficeFonts := True;
+  ML := FontFamilyList;
+  ML.Clear;
+  { I thought these fonts would be usefull }
+  ML.Add('Stencil'); // ?
+  ML.Add('Showcard Gothic'); // ?
+  ML.Add('Sitka Text'); // 8.1
+  ML.Add('Playbill'); // Office Font
+  ML.Add('Old English Text MT'); // ?
+  ML.Add('Small Fonts'); // ?
+  ML.Add('Vivaldi'); // Office Font
+  ML.Add('Vladimir Script'); // Office Font
+  ML.Add('Comic Sans MS'); // 95
+end;
+
+procedure TFormMain.InitNormalFonts;
+var
+  ML: TStrings;
+begin
+  UseOfficeFonts := False;
+//en.wikipedia.org/wiki/List_of_typefaces_included_with_Microsoft_Windows
+  ML := FontFamilyList;
+  ML.Clear;
+  { What fonts should I use when Office Fonts are not available ? }
+  ML.Add('Arial'); // 3.1
+  ML.Add('Courier New'); // 3.1
+  ML.Add('Times New Roman'); // 3.1
+  ML.Add('Consolas'); // Vista
+  ML.Add('Verdana'); // 95
+  ML.Add('Calibri'); // Vista
+  ML.Add('Lucida Handwriting'); // 98
+  ML.Add('Impact'); // 98
+  ML.Add('Comic Sans MS'); // 95
 end;
 
 procedure TFormMain.CycleFont(Value: Integer);
 var
   s: string;
 begin
-  case Value of
-    1: s := 'Stencil';
-    2: s := 'Showcard Gothic';
-    3: s := 'Sitka Text';
-    4: s := 'Playbill';
-    5: s := 'Old English Text MT';
-    6: s := 'Small Fonts';
-    7: s := 'Vivaldi';
-    8: s := 'Vladimir Script';
-    9: s := 'Comic Sans MS';
-  end;
+  if (Value >= 0) and (Value < FontFamilyList.Count) then
+    s := FontFamilyList[Value]
+  else
+    s := 'Arial';
 
   if SelectedText = TSelectedText.stTop then
     TopText.Font.Family := s
   else
     BottomText.Font.Family := s;
 
-  Caption := s;
+  Caption := IntToStr(Value) + ' ' + s;
 end;
 
 procedure TFormMain.OnDropTargetDropped(fn: string);
@@ -625,8 +687,16 @@ begin
       TopText.Font.Size := 58;
       BottomText.Font.Size := 84;
 
-      TopText.Font.Family := 'Showcard Gothic';
-      BottomText.Font.Family := 'Vladimir Script';
+      if UseOfficeFonts then
+      begin
+        TopText.Font.Family := 'Showcard Gothic';
+        BottomText.Font.Family := 'Vladimir Script';
+      end
+      else
+      begin
+        TopText.Font.Family := 'Times New Roman';
+        BottomText.Font.Family := 'Lucida Handwriting';
+      end;
     end;
 
     // insert new text templates here, ( and update MaxTextID )
@@ -636,13 +706,21 @@ begin
       DefaultCaption := 'Federgraph Meme Builder App';
 
       TopText.Text := 'Press Escape to edit text';
-      BottomText.Text := 'Select Tulsi for 2020';
+      BottomText.Text := '#Remain';
 
       TopText.Font.Size := 32;
       BottomText.Font.Size := 80;
 
-      TopText.Font.Family := 'Stencil';
-      BottomText.Font.Family := 'Stencil';
+      if UseOfficeFonts then
+      begin
+        TopText.Font.Family := 'Stencil';
+        BottomText.Font.Family := 'Stencil';
+      end
+      else
+      begin
+        TopText.Font.Family := 'Impact';
+        BottomText.Font.Family := 'Impact';
+      end;
     end;
 
     else
@@ -705,45 +783,21 @@ begin
   Caption := GetParamText;
 end;
 
-{$ifdef MSWINDOWS}
 procedure TFormMain.CopyBitmapToClipboard(ABitmap: TBitmap);
 var
-//  dn, fn: string;
   Svc: IFMXClipboardService;
 begin
   if not Assigned(ABitmap) then
     Exit;
-
-//  if HardCopyFlag then
-//  begin
-//    dn := TAppUtils.GetUserPicturesDir;
-//    dn := dn + 'Screenshot';
-//    fn := dn + '\MB-00.png';
-//    if DirectoryExists(dn) then
-//      ABitmap.SaveToFile(fn);
-//  end;
-
-//  if NoCopyFlag then
-//    //do nothing
-//  else
-
   if TPlatformServices.Current.SupportsPlatformService(IFMXClipboardService, Svc) then
     Svc.SetClipboard(ABitmap);
 end;
-{$endif}
-
-{$ifdef MACOS}
-procedure TFormMain.CopyBitmapToClipboard(ABitmap: TBitmap);
-var
-  Svc: IFMXClipboardService;
-begin
-  if TPlatformServices.Current.SupportsPlatformService(IFMXClipboardService, Svc) then
-    Svc.SetClipboard(ABitmap);
-end;
-{$endif}
 
 procedure TFormMain.SetBitmap(value: TBitmap);
 begin
+  { In Federgraph App you will not show the droptarget initially,
+    but assign the Bitmap before the form is shown. }
+
   CheckerImage.Bitmap.Clear(claPurple);
   //CheckerBitmap.LoadFromFile(fn);
 
@@ -752,6 +806,88 @@ begin
 
   CheckerImage.Bitmap := value;
   CheckerImage.WrapMode := TImageWrapMode.Fit;
+end;
+
+{$IFDEF MSWINDOWS}
+function EnumFontsProc(var LogFont: TLogFont; var TextMetric: TTextMetric;
+  FontType: Integer; Data: Pointer): Integer; stdcall;
+var
+  S: TStrings;
+  Temp: string;
+begin
+  S := TStrings(Data);
+  Temp := LogFont.lfFaceName;
+  if (S.Count = 0) or (AnsiCompareText(S[S.Count-1], Temp) <> 0) then
+    S.Add(Temp);
+  Result := 1;
+end;
+{$ENDIF}
+
+procedure TFormMain.CollectFonts(FontList: TStringList);
+// https://stackoverflow.com/questions/13346620/how-to-get-the-list-of-fonts-available-delphi-xe3-firemonkey-2
+var
+// not yet tested on MACOS at all
+{$IFDEF MACOS}
+  fManager: NsFontManager;
+  list:NSArray;
+  lItem:NSString;
+  i: Integer;
+{$ENDIF}
+{$IFDEF MSWINDOWS}
+  DC: HDC;
+  LFont: TLogFont;
+{$ENDIF}
+begin
+{$IFDEF MACOS}
+  fManager := TNsFontManager.Wrap(TNsFontManager.OCClass.sharedFontManager);
+  list := fManager.availableFontFamilies;
+  if (List <> nil) and (List.count > 0) then
+  begin
+    for i := 0 to List.Count-1 do
+    begin
+      lItem := TNSString.Wrap(List.objectAtIndex(i));
+      FontList.Add(String(lItem.UTF8String))
+    end;
+  end;
+{$ENDIF}
+{$IFDEF MSWINDOWS}
+  DC := GetDC(0);
+  FillChar(LFont, sizeof(LFont), 0);
+  LFont.lfCharset := DEFAULT_CHARSET;
+  EnumFontFamiliesEx(DC, LFont, @EnumFontsProc, Winapi.Windows.LPARAM(FontList), 0);
+  ReleaseDC(0, DC);
+{$ENDIF}
+end;
+
+procedure TFormMain.InitFontList;
+var
+  f: string;
+  SL: TStringList;
+begin
+  HasOfficeFonts := True;
+  InitOfficeFonts;
+
+  SL := TStringList.Create;
+  try
+    CollectFonts(SL);
+
+    for f in FontFamilyList do
+    begin
+      if SL.IndexOf(f) = -1 then
+      begin
+        HasOfficeFonts := False;
+        break;
+      end;
+    end;
+
+  finally
+    SL.Free;
+  end;
+
+  UseOfficeFonts := HasOfficeFonts and WantOfficeFonts;
+
+  if not UseOfficeFonts then
+    InitNormalFonts;
 end;
 
 end.

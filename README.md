@@ -3,15 +3,15 @@
 *Federgraph Meme Builder App, no image loaded yet.*<br>
 ![Meme Builder](images/Meme-Builder-03.png)
 
-Website [link](https://federgraph.de/federgraph-meme-builder-source.html) has more pictures.
+Website [link](https://federgraph.de/federgraph-meme-builder-examples.html) has more pictures.
 
 It could be used as a companion app to the Federgraph application,
 just in case you wanted to build a Meme with one of the Federgraph *Emoji* pictures.
 
 Drop your image onto the drop target.
+The press Escape to show the text edit controls.
 
-Then press Escape key to show the edit controls for the text (not visible in picture above),
-and press Escape key again to hide the edits.
+> Press h key to toggle keyboard shortcut help text.
 
 ## Design
 
@@ -30,6 +30,9 @@ This is a small one-form-only Delphi FMX application.
 You can edit, arrange and style the text to some extent,
 and you should be able to copy the finished image to the clipboard. 
 
+Currently the list of hardcoded font family names are optimized for Windows 10 with Office installed.
+I have just started to implement a fallback mode when those Office fonts are not available.
+
 ## Params
 
 There are 6 actions defined, by means of Integer action constants.
@@ -44,12 +47,15 @@ const
   faBottomGlow = 6;
 ```
 
-- First use the keyboard to select a param.
-- Then use the scroll wheel of the mouse to change the value of the current parameter.
+First use the keyboard to select a param,
+then use the scroll wheel of the mouse to change the value of the current parameter.
+This is the very basic principle of using the App, exactly as in the Federgraph App.
+
+( And then there are Options, which you toggle on or off. )
 
 ## Keyboard usage
 
-It is a desktop application. You need a keyboard.
+You need a keyboard.
 
 Using the keyboard you can:
 
@@ -58,11 +64,9 @@ Using the keyboard you can:
 - change the size of the image (ClientWidth, ClientHeight)
 - change the visibility of the text edit controls
 - edit the text !
-- cycle the predefined fonts
+- cycle trough the list of predefined fonts
 - select the current parameter
 - and change current param value with mouse wheel.
-
-## The one and only Main Form
 
 <a href="images/Meme-Builder-02.png">*Main Form at design time.*<br>
 ![Meme Builder](images/Meme-Builder-02.png)</a>
