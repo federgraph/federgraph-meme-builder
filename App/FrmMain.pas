@@ -19,14 +19,15 @@
 interface
 
 uses
-{$IFDEF MACOS}
-  MacApi.Appkit,Macapi.CoreFoundation,
+{$ifdef MACOS}
+  MacApi.Appkit,
+  Macapi.CoreFoundation,
   Macapi.Foundation,
-{$ENDIF}
-{$IFDEF MSWINDOWS}
+{$endif}
+{$ifdef MSWINDOWS}
   Winapi.Messages,
   Winapi.Windows,
-{$ENDIF}
+{$endif}
   System.SysUtils,
   System.Classes,
   System.Types,
@@ -185,7 +186,7 @@ begin
   end
 
   else if TopEdit.Visible then
-    //do nothing when editing
+    { do nothing when editing, exit here }
 
   else if KeyChar = 'b' then
   begin
@@ -604,13 +605,13 @@ begin
   UseOfficeFonts := True;
   ML := FontFamilyList;
   ML.Clear;
-  { I thought these fonts would be usefull }
-  ML.Add('Stencil'); // ?
-  ML.Add('Showcard Gothic'); // ?
+  { I thought these fonts would be useful }
+  ML.Add('Stencil');
+  ML.Add('Showcard Gothic');
   ML.Add('Sitka Text'); // 8.1
   ML.Add('Playbill'); // Office Font
-  ML.Add('Old English Text MT'); // ?
-  ML.Add('Small Fonts'); // ?
+  ML.Add('Old English Text MT');
+  ML.Add('Small Fonts');
   ML.Add('Vivaldi'); // Office Font
   ML.Add('Vladimir Script'); // Office Font
   ML.Add('Comic Sans MS'); // 95
@@ -620,8 +621,9 @@ procedure TFormMain.InitNormalFonts;
 var
   ML: TStrings;
 begin
+// wikipedia: List_of_typefaces_included_with_Microsoft_Windows
+
   UseOfficeFonts := False;
-//en.wikipedia.org/wiki/List_of_typefaces_included_with_Microsoft_Windows
   ML := FontFamilyList;
   ML.Clear;
   { What fonts should I use when Office Fonts are not available ? }
@@ -702,7 +704,7 @@ begin
       end;
     end;
 
-    // insert new text templates here, ( and update MaxTextID )
+    { insert new text templates here, and update MaxTextID }
 
     MaxTextID:
     begin
@@ -728,7 +730,7 @@ begin
 
     else
     begin
-      // case TextID === 0;
+      { TextID === 0 }
       DefaultCaption := 'Federgraph Meme Builder App';
 
       TopText.Text := 'federgraph.de/federgraph-meme-builder.html';
@@ -802,7 +804,6 @@ begin
     but assign the Bitmap before the form is shown. }
 
   CheckerImage.Bitmap.Clear(claPurple);
-  //CheckerBitmap.LoadFromFile(fn);
 
   ClientWidth := value.Width;
   ClientWidth := value.Height;
@@ -811,7 +812,7 @@ begin
   CheckerImage.WrapMode := TImageWrapMode.Fit;
 end;
 
-{$IFDEF MSWINDOWS}
+{$ifdef MSWINDOWS}
 function EnumFontsProc(var LogFont: TLogFont; var TextMetric: TTextMetric;
   FontType: Integer; Data: Pointer): Integer; stdcall;
 var
@@ -824,24 +825,26 @@ begin
     S.Add(Temp);
   Result := 1;
 end;
-{$ENDIF}
+{$endif}
 
 procedure TFormMain.CollectFonts(FontList: TStringList);
-// https://stackoverflow.com/questions/13346620/how-to-get-the-list-of-fonts-available-delphi-xe3-firemonkey-2
 var
-// not yet tested on MACOS at all
-{$IFDEF MACOS}
+{$ifdef MACOS}
   fManager: NsFontManager;
   list:NSArray;
   lItem:NSString;
   i: Integer;
-{$ENDIF}
-{$IFDEF MSWINDOWS}
+{$endif}
+{$ifdef MSWINDOWS}
   DC: HDC;
   LFont: TLogFont;
-{$ENDIF}
+{$endif}
 begin
-{$IFDEF MACOS}
+// stackoverflow: how-to-get-the-list-of-fonts-available-delphi-xe3-firemonkey-2
+
+{ not yet tested on MACOS at all }
+
+{$ifdef MACOS}
   fManager := TNsFontManager.Wrap(TNsFontManager.OCClass.sharedFontManager);
   list := fManager.availableFontFamilies;
   if (List <> nil) and (List.count > 0) then
@@ -852,14 +855,14 @@ begin
       FontList.Add(String(lItem.UTF8String))
     end;
   end;
-{$ENDIF}
-{$IFDEF MSWINDOWS}
+{$endif}
+{$ifdef MSWINDOWS}
   DC := GetDC(0);
   FillChar(LFont, sizeof(LFont), 0);
   LFont.lfCharset := DEFAULT_CHARSET;
   EnumFontFamiliesEx(DC, LFont, @EnumFontsProc, Winapi.Windows.LPARAM(FontList), 0);
   ReleaseDC(0, DC);
-{$ENDIF}
+{$endif}
 end;
 
 procedure TFormMain.InitFontList;

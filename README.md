@@ -8,8 +8,8 @@ Website [link](https://federgraph.de/federgraph-meme-builder-examples.html) has 
 It could be used as a companion app to the Federgraph application,
 just in case you wanted to build a Meme with one of the Federgraph *Emoji* pictures.
 
-First drop your image onto the drop target,
-next press Escape key to show the text edit controls.
+Drop the background image onto the drop target,
+then press Escape key to show the text edit controls.
 
 > Press h key to toggle keyboard shortcut help text.
 
@@ -24,10 +24,11 @@ This is a small one-form-only Delphi FMX application.
 - The drop target can be hidden.
 - A checker bitmap is shown when no actual image is loaded.
 - It has top and bottom text components, always shown.
-- Font size is a parameter
-- Text control Margin is a parameter
+- Font family name can be chosen from a hardcoded set.
+- Font size is a parameter.
+- Distance of text from border (Margin) is a parameter.
 - Both text components have a glow effect.
-- Glow softness is a parameter
+- Glow softness is a parameter.
 - It has top and bottom text Edit components, initially hidden.
 
 You can edit, arrange and style the text to some extent,
@@ -41,7 +42,7 @@ You need to remember, hold a copy of those values in your head.
 
 ## Fonts
 
-Currently the list of hardcoded font family names are optimized for Windows 10 with Office installed.
+Currently the list of hardcoded font family names is optimized for Windows 10 with Office installed.
 
 I have just started to implement a fallback mode when those Office fonts are not available.
 
@@ -69,7 +70,7 @@ and Federgraph App has more.
 
 Some of the actions are *mapped* to params.
 When the action is triggered, a parameter is selected as current.
-Then the mouse wheel can be used to change this parameter.
+Then the mouse wheel can be used to change the value of this parameter.
 
 Parameters are at the heart of the App.
 
@@ -78,7 +79,7 @@ Parameters are at the heart of the App.
 
 This is the very basic principle of using the App, exactly as in the Federgraph App.
 
-> And then there are Options, which you toggle on or off.
+> And then there are Options, which you can toggle on or off.
 
 ## Keyboard usage
 
