@@ -8,8 +8,8 @@ Website [link](https://federgraph.de/federgraph-meme-builder-examples.html) has 
 It could be used as a companion app to the Federgraph application,
 just in case you wanted to build a Meme with one of the Federgraph *Emoji* pictures.
 
-Drop your image onto the drop target.
-The press Escape to show the text edit controls.
+First drop your image onto the drop target,
+next press Escape key to show the text edit controls.
 
 > Press h key to toggle keyboard shortcut help text.
 
@@ -19,26 +19,32 @@ This is a small one-form-only Delphi FMX application.
 
 ( There is no configuration, because it would be overkill. )
 
+- It has an image component, of course.
 - It has a drop target where you can drop the image, initially shown.
 - The drop target can be hidden.
 - ( A checker bitmap is shown when no actual image is loaded. )
-- It has an image component, of course.
 - It has top and bottom text components, always shown.
 - Both text components have a glow effect.
-- It has top and bottom edit components to change the text, initially hidden.
+- It has top and bottom text edit components, initially hidden.
 
 You can edit, arrange and style the text to some extent,
 and you should be able to copy the finished image to the clipboard. 
 
+## Fonts
+
 Currently the list of hardcoded font family names are optimized for Windows 10 with Office installed.
+
 I have just started to implement a fallback mode when those Office fonts are not available.
+
+> I guess you want to change the Font used.
 
 ## Params
 
-There are 6 actions defined, by means of Integer action constants.
+Look at actions first, because you need to trigger an action to select a parameter.
 
 ```pascal
 const
+  //fa = Federgraph Action
   faTopMargin = 1;
   faBottomMargin = 2;
   faTopSize = 3;
@@ -46,6 +52,17 @@ const
   faTopGlow = 5;
   faBottomGlow = 6;
 ```
+
+As in the Federgraph App, the action values are defined as Integer constants.
+They could be Enumeration values here, but not in the Federgraph app,
+because a Delphi enum can hold a maximum of 256 values,
+and Federgraph App has more.
+
+Some of the actions are *mapped* to params.
+When the action is triggered, a parameter is selected as current.
+Then the mouse wheel can be used to change this parameter.
+
+Parameters are at the heart of the App and I will keep it that way, for now.
 
 First use the keyboard to select a param,
 then use the scroll wheel of the mouse to change the value of the current parameter.
@@ -61,12 +78,8 @@ Using the keyboard you can:
 
 - toggle the visibility of help text
 - toggle the visibility of the drop target for the background image
-- change the size of the image (ClientWidth, ClientHeight)
 - change the visibility of the text edit controls
 - edit the text !
 - cycle trough the list of predefined fonts
+- change the size of the image (ClientWidth, ClientHeight)
 - select the current parameter
-- and change current param value with mouse wheel.
-
-<a href="images/Meme-Builder-02.png">*Main Form at design time.*<br>
-![Meme Builder](images/Meme-Builder-02.png)</a>

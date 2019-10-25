@@ -305,6 +305,7 @@ begin
   ML.Add('  d    - toggle drop target');
   ML.Add('  b, t - select bottom or top text for font change');
   ML.Add('  f, F - cycle Font for current text (forward, backwards)');
+  ML.Add('  o, O - use Office fonts or not');
   ML.Add('  s, S - param Font Size for top or bottom text');
   ML.Add('  m, M - param Margin for top or bottom text');
   ML.Add('  g, G - param Glow Softness for top or bottom text');
