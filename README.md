@@ -34,11 +34,10 @@ This is a small one-form-only Delphi FMX application.
 You can edit, arrange and style the text to some extent,
 and you should be able to copy the finished image to the clipboard. 
 
-The *invisible* application state includes the selected text (top or bottom) and the selected parameter.
-You need to remember, hold a copy of those values in your head.
+The *invisible* application state (no visual feedback) includes the selected text (top or bottom) and the selected parameter.
 
-- If you cycle through fonts, it effects the selected text.
-- If you scroll the mouse wheel, it effects the selected param, for the selected text.
+- If you cycle through fonts, it effects the **selected text**.
+- If you scroll the mouse wheel, it effects the **selected param**, for the selected text.
 
 ## Fonts
 
@@ -63,21 +62,17 @@ const
   faBottomGlow = 6;
 ```
 
-As in the Federgraph App, the action values are defined as Integer constants.
-They could be Enumeration values here, but not in the Federgraph App,
-because a Delphi enum can hold a maximum of 256 values,
-and Federgraph App has more.
+The actions in the snippet above are *mapped* to params,
+meaning that when the action is triggered, a parameter is selected as current.
 
-Some of the actions are *mapped* to params.
-When the action is triggered, a parameter is selected as current.
-Then the mouse wheel can be used to change the value of this parameter.
+> The **mouse wheel** can be used to change the value of this parameter.
 
 Parameters are at the heart of the App.
 
 - First use the keyboard to select a param,
 - then use the scroll wheel of the mouse to change the value of the current parameter.
 
-This is the very basic principle of using the App, exactly as in the Federgraph App.
+This is the very basic principle of using the App, as in the Federgraph App.
 
 > And then there are Options, which you can toggle on or off.
 
@@ -91,6 +86,13 @@ Using the keyboard you can:
 - toggle the visibility of the drop target for the background image
 - change the visibility of the text edit controls
 - edit the text !
-- cycle trough the list of predefined fonts
+- cycle through the list of predefined fonts
 - change the size of the image (ClientWidth, ClientHeight)
 - select the current parameter
+
+The OnKeyUp event of the Form looks at the key strokes.
+But note that it does so only if the text edit controls are hidden.
+When the text edit controls are visible the keyboard is used to edit the text of course.
+
+First thing you do after the application starts up is to press key h for help,
+which I hope, helps.

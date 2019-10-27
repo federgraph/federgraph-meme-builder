@@ -137,7 +137,9 @@ const
 
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
+{$ifdef DEBUG}
   ReportMemoryLeaksOnShutdown := True;
+{$endif}
 
   FontFamilyList := TStringList.Create;
 
@@ -179,14 +181,16 @@ begin
     Caption := DefaultCaption;
   end;
 
-  if Key = vkC then
+  if TopEdit.Visible then
+  begin
+    { do nothing when editing, exit here }
+  end
+
+  else if Key = vkC then
   begin
     CopyBitmap;
     Caption := 'Bitmap copied.';
   end
-
-  else if TopEdit.Visible then
-    { do nothing when editing, exit here }
 
   else if KeyChar = 'b' then
   begin
@@ -401,7 +405,7 @@ begin
     begin
       f := TopText.Margins.Top;
       f := f + Delta;
-      if (f >= 0) and (f <= 30) then
+      if (f >= 0) and (f <= 60) then
         TopText.Margins.Top := Round(f);
       Caption := Format('TopText.Margins.Top = %d', [Round(f)]);
     end;
@@ -410,7 +414,7 @@ begin
     begin
       f := BottomText.Margins.Bottom;
       f := f + Delta;
-      if (f >= 0) and (f <= 30) then
+      if (f >= 0) and (f <= 60) then
         BottomText.Margins.Bottom := Round(f);
       Caption := Format('BottomText.Margins.Bottom = %d', [Round(f)]);
     end;
