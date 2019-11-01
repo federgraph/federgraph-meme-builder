@@ -1,4 +1,4 @@
-﻿object FormMain: TFormMain
+object FormMeme: TFormMeme
   Left = 0
   Top = 0
   Caption = 'FMX Meme Builder'

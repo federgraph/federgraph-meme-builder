@@ -1,4 +1,4 @@
-﻿unit FrmMain;
+﻿unit FrmMeme;
 
 (*
 -
@@ -52,7 +52,7 @@ type
     stBottom
   );
 
-  TFormMain = class(TForm)
+  TFormMeme = class(TForm)
     TopText: TText;
     BottomText: TText;
     BottomGlow: TGlowEffect;
@@ -123,7 +123,7 @@ type
   end;
 
 var
-  FormMain: TFormMain;
+  FormMeme: TFormMeme;
 
 implementation
 
@@ -141,7 +141,7 @@ const
   MaxEdgeDistance = 200;
   BoolStr: array[Boolean] of string = ('False', 'True');
 
-procedure TFormMain.FormCreate(Sender: TObject);
+procedure TFormMeme.FormCreate(Sender: TObject);
 begin
 {$ifdef DEBUG}
   ReportMemoryLeaksOnShutdown := True;
@@ -171,14 +171,14 @@ begin
   SL := TStringList.Create;
 end;
 
-procedure TFormMain.FormDestroy(Sender: TObject);
+procedure TFormMeme.FormDestroy(Sender: TObject);
 begin
   CheckerBitmap.Free;
   FontFamilyList.Free;
   SL.Free;
 end;
 
-procedure TFormMain.FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char;
+procedure TFormMeme.FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char;
   Shift: TShiftState);
 begin
   if Key = vkEscape then
@@ -330,7 +330,7 @@ begin
     UpdateReport;
 end;
 
-procedure TFormMain.InitHelpText;
+procedure TFormMeme.InitHelpText;
 var
   ML: TStringList;
 begin
@@ -363,7 +363,7 @@ begin
   ML.Free;
 end;
 
-procedure TFormMain.UpdateReport;
+procedure TFormMeme.UpdateReport;
 begin
   SL.Clear;
   SL.Add(Application.Title + ' see Federgraph.de');
@@ -383,14 +383,14 @@ begin
   ReportText.Visible := True;
 end;
 
-procedure TFormMain.UpdateFormat(w, h: Integer);
+procedure TFormMeme.UpdateFormat(w, h: Integer);
 begin
   ClientWidth := w;
   ClientHeight := h;
   Caption := Format('%d x %d', [ClientWidth, ClientHeight]);
 end;
 
-procedure TFormMain.FormMouseWheel(Sender: TObject; Shift: TShiftState;
+procedure TFormMeme.FormMouseWheel(Sender: TObject; Shift: TShiftState;
   WheelDelta: Integer; var Handled: Boolean);
 begin
   if WheelDelta > 0 then
@@ -399,7 +399,7 @@ begin
     HandleWheel(-1)
 end;
 
-procedure TFormMain.FormResize(Sender: TObject);
+procedure TFormMeme.FormResize(Sender: TObject);
 begin
   BottomText.AutoSize := False;
   BottomText.AutoSize := True;
@@ -416,7 +416,7 @@ begin
   UpdateChecker;
 end;
 
-function TFormMain.GetSelectedText: string;
+function TFormMeme.GetSelectedText: string;
 begin
   if SelectedText = stTop then
     result := 'Top'
@@ -424,7 +424,7 @@ begin
     result := 'Bottom';
 end;
 
-function TFormMain.GetParamText: string;
+function TFormMeme.GetParamText: string;
 begin
   case fa of
     faTopMargin: result := 'Margin Top';
@@ -438,7 +438,7 @@ begin
   end;
 end;
 
-procedure TFormMain.HandleWheel(Delta: Integer);
+procedure TFormMeme.HandleWheel(Delta: Integer);
 var
   f: single;
 begin
@@ -506,7 +506,7 @@ begin
   end;
 end;
 
-procedure TFormMain.InitChecker;
+procedure TFormMeme.InitChecker;
 begin
   CreateCheckerBitmap;
 
@@ -520,18 +520,18 @@ begin
   UpdateChecker;
 end;
 
-procedure TFormMain.BottomEditKeyUp(Sender: TObject; var Key: Word;
+procedure TFormMeme.BottomEditKeyUp(Sender: TObject; var Key: Word;
   var KeyChar: Char; Shift: TShiftState);
 begin
   BottomText.Text := BottomEdit.Text;
 end;
 
-procedure TFormMain.ClearImage;
+procedure TFormMeme.ClearImage;
 begin
   CheckerImage.Bitmap.Clear(claPurple);
 end;
 
-procedure TFormMain.CopyBitmap;
+procedure TFormMeme.CopyBitmap;
 var
   bmp: TBitmap;
 begin
@@ -547,7 +547,7 @@ begin
   bmp.Free;
 end;
 
-procedure TFormMain.UpdateChecker;
+procedure TFormMeme.UpdateChecker;
 begin
   CheckerImage.Position.X := 0;
   CheckerImage.Position.Y := 0;
@@ -555,7 +555,7 @@ begin
   CheckerImage.Height := ClientHeight;
 end;
 
-procedure TFormMain.InitDropTarget;
+procedure TFormMeme.InitDropTarget;
 begin
   if Assigned(DropTarget) then
   begin
@@ -569,7 +569,7 @@ begin
   end;
 end;
 
-procedure TFormMain.DropTargetDropped(Sender: TObject; const Data: TDragObject;
+procedure TFormMeme.DropTargetDropped(Sender: TObject; const Data: TDragObject;
   const Point: TPointF);
 var
   fn: string;
@@ -581,13 +581,13 @@ begin
   end;
 end;
 
-procedure TFormMain.TopEditKeyUp(Sender: TObject; var Key: Word;
+procedure TFormMeme.TopEditKeyUp(Sender: TObject; var Key: Word;
   var KeyChar: Char; Shift: TShiftState);
 begin
   TopText.Text := TopEdit.Text;
 end;
 
-procedure TFormMain.SetDropTargetVisible(const Value: Boolean);
+procedure TFormMeme.SetDropTargetVisible(const Value: Boolean);
 begin
   FDropTargetVisible := Value;
   if Value then
@@ -611,7 +611,7 @@ begin
   end;
 end;
 
-procedure TFormMain.CreateCheckerBitmap;
+procedure TFormMeme.CreateCheckerBitmap;
 var
   cb: TBitmap;
   sr, dr: TRectF;
@@ -646,7 +646,7 @@ begin
   cb.Free;
 end;
 
-procedure TFormMain.CycleFontP;
+procedure TFormMeme.CycleFontP;
 begin
   Inc(fo);
   if fo >= FontFamilyList.Count then
@@ -654,7 +654,7 @@ begin
   CycleFont(fo);
 end;
 
-procedure TFormMain.CycleFontM;
+procedure TFormMeme.CycleFontM;
 begin
   Dec(fo);
   if fo < 0 then
@@ -662,7 +662,7 @@ begin
   CycleFont(fo);
 end;
 
-procedure TFormMain.InitOfficeFonts;
+procedure TFormMeme.InitOfficeFonts;
 var
   ML: TStrings;
 begin
@@ -681,7 +681,7 @@ begin
   ML.Add('Comic Sans MS'); // 95
 end;
 
-procedure TFormMain.InitNormalFonts;
+procedure TFormMeme.InitNormalFonts;
 var
   ML: TStrings;
 begin
@@ -702,7 +702,7 @@ begin
   ML.Add('Comic Sans MS'); // 95
 end;
 
-procedure TFormMain.CycleFont(Value: Integer);
+procedure TFormMeme.CycleFont(Value: Integer);
 var
   s: string;
 begin
@@ -719,14 +719,14 @@ begin
   Caption := IntToStr(Value) + ' ' + s;
 end;
 
-procedure TFormMain.OnDropTargetDropped(fn: string);
+procedure TFormMeme.OnDropTargetDropped(fn: string);
 begin
   CheckerBitmap.LoadFromFile(fn);
   CheckerImage.Bitmap := CheckerBitmap;
   CheckerImage.WrapMode := TImageWrapMode.Fit;
 end;
 
-function TFormMain.FindTarget(P: TPointF; const Data: TDragObject): IControl;
+function TFormMeme.FindTarget(P: TPointF; const Data: TDragObject): IControl;
 var
   i: Integer;
   NewObj: IControl;
@@ -742,7 +742,7 @@ begin
     end;
 end;
 
-procedure TFormMain.Reset;
+procedure TFormMeme.Reset;
 var
  fs: Integer;
  fn: string;
@@ -830,7 +830,7 @@ begin
   Caption := DefaultCaption;
 end;
 
-procedure TFormMain.UpdateCaption;
+procedure TFormMeme.UpdateCaption;
 var
   sa, sb, sc: string;
 begin
@@ -840,7 +840,7 @@ begin
   Caption := Format('%s, Selected: %s, Param: %s, TextID: %d', [sa, sb, sc, TextID]);
 end;
 
-procedure TFormMain.UpdateParam(afa: Integer);
+procedure TFormMeme.UpdateParam(afa: Integer);
 begin
   fa := afa;
 
@@ -855,7 +855,7 @@ begin
   Caption := GetParamText;
 end;
 
-procedure TFormMain.CopyBitmapToClipboard(ABitmap: TBitmap);
+procedure TFormMeme.CopyBitmapToClipboard(ABitmap: TBitmap);
 var
   Svc: IFMXClipboardService;
 begin
@@ -865,7 +865,7 @@ begin
     Svc.SetClipboard(ABitmap);
 end;
 
-procedure TFormMain.SetBitmap(value: TBitmap);
+procedure TFormMeme.SetBitmap(value: TBitmap);
 begin
   { In Federgraph App you will not show the droptarget initially,
     but assign the Bitmap before the form is shown. }
@@ -894,7 +894,7 @@ begin
 end;
 {$endif}
 
-procedure TFormMain.CollectFonts(FontList: TStringList);
+procedure TFormMeme.CollectFonts(FontList: TStringList);
 var
 {$ifdef MACOS}
   fManager: NsFontManager;
@@ -932,7 +932,7 @@ begin
 {$endif}
 end;
 
-procedure TFormMain.InitFontList;
+procedure TFormMeme.InitFontList;
 var
   f: string;
   SL: TStringList;

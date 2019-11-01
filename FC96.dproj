@@ -112,8 +112,8 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="App\FrmMain.pas">
-            <Form>FormMain</Form>
+        <DCCReference Include="App\FrmMeme.pas">
+            <Form>FormMeme</Form>
             <FormType>fmx</FormType>
         </DCCReference>
         <BuildConfiguration Include="Release">
