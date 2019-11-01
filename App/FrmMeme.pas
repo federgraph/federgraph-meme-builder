@@ -105,7 +105,7 @@ type
     procedure CycleFont(Value: Integer);
     procedure UpdateFormat(w, h: Integer);
     procedure Reset;
-    procedure UpdateCaption;
+//    procedure UpdateCaption;
     procedure UpdateParam(afa: Integer);
     procedure SetBitmap(value: TBitmap);
     function GetParamText: string;
@@ -115,6 +115,8 @@ type
     procedure InitFontList;
     function GetSelectedText: string;
     procedure UpdateReport;
+    function IsShiftKeyPressed: Boolean;
+    procedure AdaptFormSize;
     property DropTargetVisible: Boolean read FDropTargetVisible write SetDropTargetVisible;
   protected
     function FindTarget(P: TPointF; const Data: TDragObject): IControl; override;
@@ -378,6 +380,7 @@ begin
   SL.Add('Current Text = ' + GetSelectedText);
   SL.Add('Current Param = ' + GetParamText);
   SL.Add(Format('Client-W-H = (%d, %d)', [ClientWidth, ClientHeight]));
+  SL.Add(Format('Bitmap-W-H = (%d, %d)', [CheckerBitmap.Width, CheckerBitmap.Height]));
 
   ReportText.Text := SL.Text;
   ReportText.Visible := True;
@@ -617,7 +620,7 @@ var
   sr, dr: TRectF;
   d: Integer;
 begin
-  d := 30;
+  d := 100;
   sr := RectF(0, 0, d, d);
 
   cb := TBitmap.Create(d, d);
@@ -724,6 +727,9 @@ begin
   CheckerBitmap.LoadFromFile(fn);
   CheckerImage.Bitmap := CheckerBitmap;
   CheckerImage.WrapMode := TImageWrapMode.Fit;
+
+  if IsShiftKeyPressed then
+    AdaptFormSize;
 end;
 
 function TFormMeme.FindTarget(P: TPointF; const Data: TDragObject): IControl;
@@ -830,15 +836,15 @@ begin
   Caption := DefaultCaption;
 end;
 
-procedure TFormMeme.UpdateCaption;
-var
-  sa, sb, sc: string;
-begin
-  sa := Application.Title;
-  sb := GetSelectedText;
-  sc := GetParamText;
-  Caption := Format('%s, Selected: %s, Param: %s, TextID: %d', [sa, sb, sc, TextID]);
-end;
+//procedure TFormMeme.UpdateCaption;
+//var
+//  sa, sb, sc: string;
+//begin
+//  sa := Application.Title;
+//  sb := GetSelectedText;
+//  sc := GetParamText;
+//  Caption := Format('%s, Selected: %s, Param: %s, TextID: %d', [sa, sb, sc, TextID]);
+//end;
 
 procedure TFormMeme.UpdateParam(afa: Integer);
 begin
@@ -961,6 +967,64 @@ begin
 
   if not UseOfficeFonts then
     InitNormalFonts;
+end;
+
+function TFormMeme.IsShiftKeyPressed: Boolean;
+begin
+// stackoverflow: getkeystate-in-firemonkey
+{$IFDEF MSWINDOWS}
+  Result := GetKeyState(VK_SHIFT) < 0;
+{$ELSE}
+  Result := NSShiftKeyMask and TNSEvent.OCClass.modifierFlags = NSShiftKeyMask;
+{$ENDIF}
+end;
+
+procedure TFormMeme.AdaptFormSize;
+var
+  w, h: Integer;
+  wmin, hmin: Integer;
+  wmax, hmax: Integer;
+begin
+  wmin := 480;
+  hmin := 480;
+
+  wmax := 1920;
+  hmax := 1001;
+
+  w := CheckerBitmap.Width;
+  h := CheckerBitmap.Height;
+
+  if (w < wmin) or (h < hmin) then
+    Exit;
+
+  { scale down height }
+  if h > hmax then
+  begin
+    w := Round(w * hmax / h);
+    h := hmax;
+  end;
+
+  { then scale down width }
+  if w > wmax then
+  begin
+    h := Round(h * wmax / w);
+    w := wmax;
+  end;
+
+  { check again }
+  if (w < wmin) or (h < hmin) then
+    Exit;
+
+  if w <> ClientWidth then
+    ClientWidth := w;
+  if h <> ClientHeight then
+    ClientHeight := h;
+
+  if Top + Height > Screen.Height then
+    Top := 0;
+
+  if Left + Width > Screen.Width then
+    Left := 0;
 end;
 
 end.

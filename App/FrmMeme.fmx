@@ -1,7 +1,7 @@
-object FormMeme: TFormMeme
+﻿object FormMeme: TFormMeme
   Left = 0
   Top = 0
-  Caption = 'FMX Meme Builder'
+  Caption = 'FC Meme Builder'
   ClientHeight = 600
   ClientWidth = 800
   Fill.Color = claSlateblue
