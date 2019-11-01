@@ -60,6 +60,7 @@ type
     TopEdit: TEdit;
     BottomEdit: TEdit;
     HelpText: TText;
+    ReportText: TText;
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -87,6 +88,7 @@ type
     HasOfficeFonts: Boolean;
     WantOfficeFonts: Boolean;
     UseOfficeFonts: Boolean;
+    SL: TStringList;
     procedure CopyBitmapToClipboard(ABitmap: TBitmap);
     procedure CopyBitmap;
     procedure CreateCheckerBitmap;
@@ -111,6 +113,8 @@ type
     procedure InitNormalFonts;
     procedure CollectFonts(FontList: TStringList);
     procedure InitFontList;
+    function GetSelectedText: string;
+    procedure UpdateReport;
     property DropTargetVisible: Boolean read FDropTargetVisible write SetDropTargetVisible;
   protected
     function FindTarget(P: TPointF; const Data: TDragObject): IControl; override;
@@ -133,7 +137,9 @@ const
   faTopGlow = 5;
   faBottomGlow = 6;
 
-  MaxTextID = 2;
+  MaxTextID = 4;
+  MaxEdgeDistance = 200;
+  BoolStr: array[Boolean] of string = ('False', 'True');
 
 procedure TFormMain.FormCreate(Sender: TObject);
 begin
@@ -156,17 +162,20 @@ begin
 
   TopEdit.Visible := false;
   BottomEdit.Visible := false;
+  ReportText.Visible := false;
 
   if Application.Title = 'FC96' then
     DropTargetVisible := true;
 
   InitHelpText;
+  SL := TStringList.Create;
 end;
 
 procedure TFormMain.FormDestroy(Sender: TObject);
 begin
   CheckerBitmap.Free;
   FontFamilyList.Free;
+  SL.Free;
 end;
 
 procedure TFormMain.FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char;
@@ -175,6 +184,7 @@ begin
   if Key = vkEscape then
   begin
     HelpText.Visible := False;
+    ReportText.Visible := False;
     DropTargetVisible := False;
     TopEdit.Visible := not TopEdit.Visible;
     BottomEdit.Visible := TopEdit.Visible;
@@ -199,7 +209,10 @@ begin
   end
 
   else if KeyChar = 'd' then
-    DropTargetVisible := not DropTargetVisible
+  begin
+    DropTargetVisible := not DropTargetVisible;
+    ReportText.Visible := false;
+  end
 
   else if KeyChar = 'c' then
     ClearImage
@@ -220,6 +233,7 @@ begin
   begin
     DropTargetVisible := False;
     HelpText.Visible := not HelpText.Visible;
+    ReportText.Visible := False;
   end
 
   else if KeyChar = 'm' then
@@ -240,7 +254,13 @@ begin
   end
 
   else if KeyChar = 'r' then
-    UpdateCaption
+  begin
+    Caption := DefaultCaption;
+    DropTargetVisible := False;
+    HelpText.Visible := False;
+    if not ReportText.Visible then
+      ReportText.Visible := True;
+  end
 
   else if KeyChar = 'R' then
     Reset
@@ -281,13 +301,16 @@ begin
   end
 
   else if KeyChar = '1' then
-    UpdateFormat(640, 480)
+  begin
+    { new default landscape }
+    UpdateFormat(1000, 750);
+  end
 
   else if KeyChar = '2' then
     UpdateFormat(800, 600)
 
   else if KeyChar = '3' then
-    UpdateFormat(1024, 768)
+    UpdateFormat(640, 480)
 
   else if KeyChar = '8' then
     UpdateFormat(800, 800)
@@ -296,7 +319,15 @@ begin
     UpdateFormat(900, 900)
 
   else if KeyChar = '0' then
-    UpdateFormat(1024, 1024)
+  begin
+    { new default portrait }
+    { iPad Screenshot Portrait, scaled to fit on HD Screen }
+    Top := 0;
+    UpdateFormat(750, 1000)
+  end;
+
+  if ReportText.Visible then
+    UpdateReport;
 end;
 
 procedure TFormMain.InitHelpText;
@@ -318,7 +349,8 @@ begin
   ML.Add('  g, G - param Glow Softness for top or bottom text');
   ML.Add('  x    - toggle between Text0 and Text1');
   ML.Add('  y, Y - cycle through Text templates');
-  ML.Add('  r, R - reset Caption (and Text)');
+  ML.Add('  r    - togle Report');
+  ML.Add('  R    - Reset');
   ML.Add('  c    - clear image command');
   ML.Add('  ^c   - copy image to clipboard command');
   ML.Add('  1, 2, 3, 8, 9, 0 - Window Format selection');
@@ -329,6 +361,26 @@ begin
   HelpText.Visible := False;
 
   ML.Free;
+end;
+
+procedure TFormMain.UpdateReport;
+begin
+  SL.Clear;
+  SL.Add(Application.Title + ' see Federgraph.de');
+  Sl.Add('');
+  SL.Add('TopText.Font.Family = ' + TopText.Font.Family);
+  SL.Add('BottomText.Font.Family = ' + BottomText.Font.Family);
+  SL.Add(Format('TopText.Font.Family = %.g', [TopText.Font.Size]));
+  SL.Add(Format('BottomText.Font.Family = %.g', [BottomText.Font.Size]));
+  SL.Add('');
+  SL.Add('UseOfficeFonts = ' + BoolStr[UseOfficeFonts]);
+  SL.Add('TextID = ' + IntToStr(TextID));
+  SL.Add('Current Text = ' + GetSelectedText);
+  SL.Add('Current Param = ' + GetParamText);
+  SL.Add(Format('Client-W-H = (%d, %d)', [ClientWidth, ClientHeight]));
+
+  ReportText.Text := SL.Text;
+  ReportText.Visible := True;
 end;
 
 procedure TFormMain.UpdateFormat(w, h: Integer);
@@ -362,6 +414,14 @@ begin
   BottomEdit.Width := ClientWidth - 20;
 
   UpdateChecker;
+end;
+
+function TFormMain.GetSelectedText: string;
+begin
+  if SelectedText = stTop then
+    result := 'Top'
+  else
+    result := 'Bottom';
 end;
 
 function TFormMain.GetParamText: string;
@@ -405,7 +465,7 @@ begin
     begin
       f := TopText.Margins.Top;
       f := f + Delta;
-      if (f >= 0) and (f <= 60) then
+      if (f >= 0) and (f <= MaxEdgeDistance) then
         TopText.Margins.Top := Round(f);
       Caption := Format('TopText.Margins.Top = %d', [Round(f)]);
     end;
@@ -414,7 +474,7 @@ begin
     begin
       f := BottomText.Margins.Bottom;
       f := f + Delta;
-      if (f >= 0) and (f <= 60) then
+      if (f >= 0) and (f <= MaxEdgeDistance) then
         BottomText.Margins.Bottom := Round(f);
       Caption := Format('BottomText.Margins.Bottom = %d', [Round(f)]);
     end;
@@ -683,29 +743,34 @@ begin
 end;
 
 procedure TFormMain.Reset;
+var
+ fs: Integer;
+ fn: string;
 begin
+  DefaultCaption := Application.Title;
+
+  TopText.Text := 'Made with Delphi';
+  BottomText.Text := 'FMX Meme Builder.';
+
+  fs := 84;
+  fn := 'Impact';
+
   case TextID of
 
-    1:
+    1: ;
+
+    2:
     begin
-      DefaultCaption := Application.Title;
-
-      TopText.Text := 'Made with Delphi';
-      BottomText.Text := 'FMX Meme Builder.';
-
-      TopText.Font.Size := 58;
-      BottomText.Font.Size := 84;
-
       if UseOfficeFonts then
-      begin
-        TopText.Font.Family := 'Showcard Gothic';
-        BottomText.Font.Family := 'Vladimir Script';
-      end
+        fn := 'Vladimir Script';
+    end;
+
+    3:
+    begin
+      if UseOfficeFonts then
+        fn := 'Vivaldi'
       else
-      begin
-        TopText.Font.Family := 'Times New Roman';
-        BottomText.Font.Family := 'Lucida Handwriting';
-      end;
+        fn := 'Verdana';
     end;
 
     { insert new text templates here, and update MaxTextID }
@@ -717,19 +782,14 @@ begin
       TopText.Text := 'Press Escape to edit text';
       BottomText.Text := '#Remain';
 
+      fs := 60;
       TopText.Font.Size := 32;
-      BottomText.Font.Size := 80;
+      BottomText.Font.Size := fs;
 
       if UseOfficeFonts then
-      begin
-        TopText.Font.Family := 'Stencil';
-        BottomText.Font.Family := 'Stencil';
-      end
+        fn := 'Stencil'
       else
-      begin
-        TopText.Font.Family := 'Impact';
-        BottomText.Font.Family := 'Impact';
-      end;
+        fn := 'Impact';
     end;
 
     else
@@ -740,14 +800,23 @@ begin
       TopText.Text := 'federgraph.de/federgraph-meme-builder.html';
       BottomText.Text := 'press h to toggle help text';
 
-      TopText.Font.Size := 24;
-      BottomText.Font.Size := 40;
+      fs := 24;
+      TopText.Font.Size := fs;
+      BottomText.Font.Size := fs;
 
-      TopText.Font.Family := 'Courier New';
-      BottomText.Font.Family := 'Courier New';
+      fn := 'Courier New';
     end;
 
   end;
+
+  if fs = 84 then
+  begin
+    TopText.Font.Size := fs;
+    BottomText.Font.Size := fs;
+  end;
+
+  TopText.Font.Family := fn;
+  BottomText.Font.Family := TopText.Font.Family;
 
   TopEdit.Text := TopText.Text;
   BottomEdit.Text := BottomText.Text;
@@ -766,14 +835,8 @@ var
   sa, sb, sc: string;
 begin
   sa := Application.Title;
-
-  if SelectedText = stTop then
-    sb := 'Top'
-  else
-    sb := 'Bottom';
-
+  sb := GetSelectedText;
   sc := GetParamText;
-
   Caption := Format('%s, Selected: %s, Param: %s, TextID: %d', [sa, sb, sc, TextID]);
 end;
 
