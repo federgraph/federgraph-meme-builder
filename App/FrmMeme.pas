@@ -878,8 +878,10 @@ begin
 
   CheckerImage.Bitmap.Clear(claPurple);
 
-  ClientWidth := value.Width;
-  ClientWidth := value.Height;
+  //ToDo: scale value.Width before assignment ?
+//  ClientWidth := value.Width;
+//  ClientHeight := value.Height;
+  //ClientWidth and ClientHeight will be assigned later
 
   CheckerImage.Bitmap := value;
   CheckerImage.WrapMode := TImageWrapMode.Fit;
@@ -984,12 +986,20 @@ var
   w, h: Integer;
   wmin, hmin: Integer;
   wmax, hmax: Integer;
+  dw, dh: Integer;
 begin
-  wmin := 480;
-  hmin := 480;
+  wmin := 512;
+  hmin := 512;
 
-  wmax := 1920;
-  hmax := 1001;
+//  wmax := 1920;
+//  hmax := 1001;
+
+  Screen.UpdateDisplayInformation;
+
+  dw := Width - ClientWidth;
+  dh := Height - ClientHeight;
+  wmax := Round(Screen.WorkAreaWidth / Handle.Scale) - dw;
+  hmax := Round(Screen.WorkAreaHeight / Handle.Scale) - dh;
 
   w := CheckerBitmap.Width;
   h := CheckerBitmap.Height;
@@ -1020,10 +1030,10 @@ begin
   if h <> ClientHeight then
     ClientHeight := h;
 
-  if Top + Height > Screen.Height then
+  if Top + Height >= Round(Screen.WorkAreaHeight / Handle.Scale) then
     Top := 0;
 
-  if Left + Width > Screen.Width then
+  if Left + Width >= Round(Screen.WorkAreaWidth / Handle.Scale) then
     Left := 0;
 end;
 
