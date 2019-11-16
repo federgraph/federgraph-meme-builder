@@ -33,6 +33,7 @@ uses
   System.Types,
   System.UITypes,
   System.UIConsts,
+  System.Rtti,
   FMX.Platform,
   FMX.Graphics,
   FMX.Types,
@@ -44,6 +45,7 @@ uses
   FMX.Objects,
   FMX.ExtCtrls,
   FMX.Edit,
+  FMX.Surfaces,
   FMX.Controls.Presentation;
 
 type
@@ -117,6 +119,7 @@ type
     procedure UpdateReport;
     function IsShiftKeyPressed: Boolean;
     procedure AdaptFormSize;
+    procedure PasteBitmapFromClipboard;
     property DropTargetVisible: Boolean read FDropTargetVisible write SetDropTargetVisible;
   protected
     function FindTarget(P: TPointF; const Data: TDragObject): IControl; override;
@@ -148,6 +151,7 @@ begin
 {$ifdef DEBUG}
   ReportMemoryLeaksOnShutdown := True;
 {$endif}
+  FormatSettings.DecimalSeparator := '.';
 
   FontFamilyList := TStringList.Create;
 
@@ -204,11 +208,20 @@ begin
     Caption := 'Bitmap copied.';
   end
 
+  else if Key = vkV then
+  begin
+    PasteBitmapFromClipboard;
+    Caption := 'Bitmap pasted.';
+  end
+
   else if KeyChar = 'b' then
   begin
     SelectedText := TSelectedText.stBottom;
     Caption := 'Bottom Text';
   end
+
+  else if KeyChar = 'a' then
+    AdaptFormSize
 
   else if KeyChar = 'd' then
   begin
@@ -353,6 +366,7 @@ begin
   ML.Add('  y, Y - cycle through Text templates');
   ML.Add('  r    - togle Report');
   ML.Add('  R    - Reset');
+//  ML.Add('  a    - adapt form size');
   ML.Add('  c    - clear image command');
   ML.Add('  ^c   - copy image to clipboard command');
   ML.Add('  1, 2, 3, 8, 9, 0 - Window Format selection');
@@ -381,6 +395,7 @@ begin
   SL.Add('Current Param = ' + GetParamText);
   SL.Add(Format('Client-W-H = (%d, %d)', [ClientWidth, ClientHeight]));
   SL.Add(Format('Bitmap-W-H = (%d, %d)', [CheckerBitmap.Width, CheckerBitmap.Height]));
+  SL.Add(Format('Handle.Scale = %.1f', [Handle.Scale]));
 
   ReportText.Text := SL.Text;
   ReportText.Visible := True;
@@ -871,20 +886,66 @@ begin
     Svc.SetClipboard(ABitmap);
 end;
 
-procedure TFormMeme.SetBitmap(value: TBitmap);
+procedure TFormMeme.PasteBitmapFromClipboard;
+var
+  Svc: IFMXClipboardService;
+  Value: TValue;
+  Bitmap: TBitmap;
 begin
-  { In Federgraph App you will not show the droptarget initially,
-    but assign the Bitmap before the form is shown. }
+  if TPlatformServices.Current.SupportsPlatformService(IFMXClipboardService, Svc) then
+  begin
+    Value := Svc.GetClipboard;
+    if not Value.IsEmpty then
+    begin
+      if Value.IsType<string> then
+      begin
+        { do nothing }
+      end
+      else if Value.IsType<TBitmapSurface> then
+      try
+        Bitmap := TBitmap.Create;
+        try
+          Bitmap.Assign(Value.AsType<TBitmapSurface>);
+          Background := Bitmap;
+        finally
+          Bitmap.Free;
+        end;
+      finally
+        Value.AsType<TBitmapSurface>.Free;
+      end;
+    end;
+  end;
+end;
 
+procedure TFormMeme.SetBitmap(value: TBitmap);
+// var
+//   s: single;
+begin
   CheckerImage.Bitmap.Clear(claPurple);
 
-  //ToDo: scale value.Width before assignment ?
-//  ClientWidth := value.Width;
-//  ClientHeight := value.Height;
-  //ClientWidth and ClientHeight will be assigned later
+  if Application.Title = 'FC96' then
+  begin
+    { scale value.Width before assignment ? }
+//    s := Handle.Scale;
+//    ClientWidth := Round(value.Width / s);
+//    ClientHeight := Round(value.Height / s);
+
+    ClientWidth := value.Width;
+    ClientHeight := value.Height;
+  end
+  else
+  begin
+    {
+      In Federgraph App the droptarget is not shown initially,
+      Bitmap will be assigned before the form is shown.
+      ClientWidth and ClientHeight will be assigned there.
+    }
+  end;
 
   CheckerImage.Bitmap := value;
   CheckerImage.WrapMode := TImageWrapMode.Fit;
+
+  AdaptFormSize;
 end;
 
 {$ifdef MSWINDOWS}
@@ -988,11 +1049,11 @@ var
   wmax, hmax: Integer;
   dw, dh: Integer;
 begin
+  if CheckerImage.Bitmap = nil then
+    Exit;
+
   wmin := 512;
   hmin := 512;
-
-//  wmax := 1920;
-//  hmax := 1001;
 
   Screen.UpdateDisplayInformation;
 
@@ -1001,8 +1062,8 @@ begin
   wmax := Round(Screen.WorkAreaWidth / Handle.Scale) - dw;
   hmax := Round(Screen.WorkAreaHeight / Handle.Scale) - dh;
 
-  w := CheckerBitmap.Width;
-  h := CheckerBitmap.Height;
+  w := CheckerImage.Bitmap.Width;
+  h := CheckerImage.Bitmap.Height;
 
   if (w < wmin) or (h < hmin) then
     Exit;

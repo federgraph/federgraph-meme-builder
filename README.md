@@ -11,7 +11,7 @@ just in case you wanted to build a Meme with one of the Federgraph *Emoji* pictu
 Drop the background image onto the drop target,
 then press Escape key to show the text edit controls.
 
-> Press h key to toggle keyboard shortcut help text.
+Press key h to toggle keyboard shortcut help text.
 
 ## Design
 
@@ -62,10 +62,10 @@ const
   faBottomGlow = 6;
 ```
 
-The actions in the snippet above are *mapped* to params,
-meaning that when the action is triggered, a parameter is selected as current.
+The actions in the snippet above are *mapped* to params.
+If one of those actions is triggered, the corresponding parameter is selected as current.
 
-> The **mouse wheel** can be used to change the value of this parameter.
+> The **mouse wheel** can be used to change the value of the current parameter.
 
 Parameters are at the heart of the App.
 
