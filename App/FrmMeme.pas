@@ -91,10 +91,12 @@ type
     WantOfficeFonts: Boolean;
     UseOfficeFonts: Boolean;
     SL: TStringList;
+    WantNormal: Boolean;
+    FScale: single;
     procedure CopyBitmapToClipboard(ABitmap: TBitmap);
     procedure CopyBitmap;
     procedure CreateCheckerBitmap;
-    procedure InitChecker;
+    procedure InitChecker(WantNewChecker: Boolean = true);
     procedure InitDropTarget;
     procedure InitHelpText;
     procedure UpdateChecker;
@@ -107,7 +109,6 @@ type
     procedure CycleFont(Value: Integer);
     procedure UpdateFormat(w, h: Integer);
     procedure Reset;
-//    procedure UpdateCaption;
     procedure UpdateParam(afa: Integer);
     procedure SetBitmap(value: TBitmap);
     function GetParamText: string;
@@ -120,6 +121,13 @@ type
     function IsShiftKeyPressed: Boolean;
     procedure AdaptFormSize;
     procedure PasteBitmapFromClipboard;
+    procedure ToggleTiling;
+    procedure ToggleFontColor;
+    procedure GotoLandscape;
+    procedure GotoNormal;
+    procedure GotoPortrait;
+    procedure GotoSquare;
+    procedure Flash(s: string);
     property DropTargetVisible: Boolean read FDropTargetVisible write SetDropTargetVisible;
   protected
     function FindTarget(P: TPointF; const Data: TDragObject): IControl; override;
@@ -152,6 +160,7 @@ begin
   ReportMemoryLeaksOnShutdown := True;
 {$endif}
   FormatSettings.DecimalSeparator := '.';
+  FScale := Handle.Scale;
 
   FontFamilyList := TStringList.Create;
 
@@ -159,9 +168,8 @@ begin
   InitFontList;
 
   Reset;
-  Caption := DefaultCaption;
 
-  InitChecker;
+  InitChecker(True);
 
   TopText.BringToFront;
   BottomText.BringToFront;
@@ -175,6 +183,8 @@ begin
 
   InitHelpText;
   SL := TStringList.Create;
+
+  Caption := 'press h for help'
 end;
 
 procedure TFormMeme.FormDestroy(Sender: TObject);
@@ -194,7 +204,7 @@ begin
     DropTargetVisible := False;
     TopEdit.Visible := not TopEdit.Visible;
     BottomEdit.Visible := TopEdit.Visible;
-    Caption := DefaultCaption;
+    Flash(DefaultCaption);
   end;
 
   if TopEdit.Visible then
@@ -203,34 +213,30 @@ begin
   end
 
   else if Key = vkC then
-  begin
-    CopyBitmap;
-    Caption := 'Bitmap copied.';
-  end
+    CopyBitmap
 
   else if Key = vkV then
-  begin
-    PasteBitmapFromClipboard;
-    Caption := 'Bitmap pasted.';
-  end
+    PasteBitmapFromClipboard
 
   else if KeyChar = 'b' then
   begin
     SelectedText := TSelectedText.stBottom;
-    Caption := 'Bottom Text';
+    Flash('Bottom Text');
   end
 
   else if KeyChar = 'a' then
     AdaptFormSize
+
+  else if KeyChar = 'c' then
+    ClearImage
+  else if KeyChar = 'C' then
+    InitChecker(True)
 
   else if KeyChar = 'd' then
   begin
     DropTargetVisible := not DropTargetVisible;
     ReportText.Visible := false;
   end
-
-  else if KeyChar = 'c' then
-    ClearImage
 
   else if KeyChar = 'f' then
     CycleFontP
@@ -251,6 +257,9 @@ begin
     ReportText.Visible := False;
   end
 
+  else if KeyChar = 'l' then
+    GotoLandscape
+
   else if KeyChar = 'm' then
     UpdateParam(faTopMargin)
 
@@ -264,13 +273,17 @@ begin
   end
 
   else if KeyChar = 'O' then
-  begin
-    InitNormalFonts;
-  end
+    InitNormalFonts
+
+  else if KeyChar = 'p' then
+    GotoPortrait
+
+  else if KeyChar = 'q' then
+    GotoSquare
 
   else if KeyChar = 'r' then
   begin
-    Caption := DefaultCaption;
+    Flash(DefaultCaption);
     DropTargetVisible := False;
     HelpText.Visible := False;
     if not ReportText.Visible then
@@ -289,8 +302,12 @@ begin
   else if KeyChar = 't' then
   begin
     SelectedText := TSelectedText.stTop;
-    Caption := 'Top Text';
+    Flash('Top Text');
   end
+  else if KeyChar = 'u' then
+    ToggleTiling
+  else if KeyChar = 'v' then
+    ToggleFontColor
 
   else if KeyChar = 'x' then
   begin
@@ -316,27 +333,25 @@ begin
   end
 
   else if KeyChar = '1' then
-  begin
-    { new default landscape }
-    UpdateFormat(1000, 750);
-  end
-
+    UpdateFormat(1000, 750)
   else if KeyChar = '2' then
     UpdateFormat(800, 600)
-
   else if KeyChar = '3' then
     UpdateFormat(640, 480)
-
+  else if KeyChar = '4' then
+    UpdateFormat(480, 480)
+  else if KeyChar = '5' then
+    UpdateFormat(512, 512)
+  else if KeyChar = '6' then
+    UpdateFormat(600, 600)
+  else if KeyChar = '7' then
+    UpdateFormat(700, 700)
   else if KeyChar = '8' then
     UpdateFormat(800, 800)
-
   else if KeyChar = '9' then
     UpdateFormat(900, 900)
-
   else if KeyChar = '0' then
   begin
-    { new default portrait }
-    { iPad Screenshot Portrait, scaled to fit on HD Screen }
     Top := 0;
     UpdateFormat(750, 1000)
   end;
@@ -366,10 +381,13 @@ begin
   ML.Add('  y, Y - cycle through Text templates');
   ML.Add('  r    - togle Report');
   ML.Add('  R    - Reset');
-//  ML.Add('  a    - adapt form size');
-  ML.Add('  c    - clear image command');
+  ML.Add('  u    - toggle tile/fit');
+  ML.Add('  v    - toggle text color');
+  ML.Add('  a    - adapt form size');
+  ML.Add('  c, C   - clear image command');
   ML.Add('  ^c   - copy image to clipboard command');
-  ML.Add('  1, 2, 3, 8, 9, 0 - Window Format selection');
+  ML.Add('  1..9, 0 - Format selection');
+  ML.Add('  1, p, q - Landscape, Portrait, Square');
 
   HelpText.Text := ML.Text;
   HelpText.AutoSize := False;
@@ -405,7 +423,7 @@ procedure TFormMeme.UpdateFormat(w, h: Integer);
 begin
   ClientWidth := w;
   ClientHeight := h;
-  Caption := Format('%d x %d', [ClientWidth, ClientHeight]);
+  Flash(Format('%d x %d', [ClientWidth, ClientHeight]));
 end;
 
 procedure TFormMeme.FormMouseWheel(Sender: TObject; Shift: TShiftState;
@@ -467,7 +485,7 @@ begin
       f := f + Delta;
       if (f > 10) and (f < 150) then
         TopText.Font.Size := Round(f);
-      Caption := Format('TopText.Font.Size = %d', [Round(f)]);
+      Flash(Format('TopText.Font.Size = %d', [Round(f)]));
     end;
 
     faBottomSize:
@@ -476,7 +494,7 @@ begin
       f := f + Delta;
       if (f > 10) and (f < 150) then
         BottomText.Font.Size := Round(f);
-      Caption := Format('BottomText.Font.Size = %d', [Round(f)]);
+      Flash(Format('BottomText.Font.Size = %d', [Round(f)]));
     end;
 
     faTopMargin:
@@ -485,7 +503,7 @@ begin
       f := f + Delta;
       if (f >= 0) and (f <= MaxEdgeDistance) then
         TopText.Margins.Top := Round(f);
-      Caption := Format('TopText.Margins.Top = %d', [Round(f)]);
+      Flash(Format('TopText.Margins.Top = %d', [Round(f)]));
     end;
 
     faBottomMargin:
@@ -494,7 +512,7 @@ begin
       f := f + Delta;
       if (f >= 0) and (f <= MaxEdgeDistance) then
         BottomText.Margins.Bottom := Round(f);
-      Caption := Format('BottomText.Margins.Bottom = %d', [Round(f)]);
+      Flash(Format('BottomText.Margins.Bottom = %d', [Round(f)]));
     end;
 
     faTopGlow:
@@ -506,7 +524,7 @@ begin
       if f > 0.99 then
         f := 0.99;
       TopGlow.Softness := f;
-      Caption := Format('TopGlow.Softness = %.1g', [f]);
+      Flash(Format('TopGlow.Softness = %.1g', [f]));
     end;
 
     faBottomGlow:
@@ -518,24 +536,55 @@ begin
       if f > 0.99 then
         f := 0.99;
       BottomGlow.Softness := f;
-      Caption := Format('BottomGlow.Softness = %.1g', [f]);
+      Flash(Format('BottomGlow.Softness = %.1g', [f]));
     end;
 
   end;
 end;
 
-procedure TFormMeme.InitChecker;
+procedure TFormMeme.InitChecker(WantNewChecker: Boolean);
 begin
-  CreateCheckerBitmap;
+  if CheckerImage = nil then
+  begin
+    CheckerImage := TImage.Create(Self);
+    CheckerImage.Parent := Self;
+  end;
 
-  CheckerImage := TImage.Create(Self);
-  CheckerImage.Parent := Self;
+  CheckerImage.Bitmap.Clear(claPurple);
+  if WantNewChecker then
+  begin
+    CheckerBitmap.Free;
+    CreateCheckerBitmap;
+  end;
+
   CheckerImage.Bitmap := CheckerBitmap;
   CheckerImage.WrapMode := TImageWrapMode.Tile;
   CheckerImage.CanFocus := False;
   CheckerImage.SendToBack;
 
   UpdateChecker;
+end;
+
+procedure TFormMeme.ToggleTiling;
+begin
+  if CheckerImage.WrapMode = TImageWrapMode.Tile then
+    CheckerImage.WrapMode := TImageWrapMode.Fit
+  else
+    CheckerImage.WrapMode := TImageWrapMode.Tile;
+end;
+
+procedure TFormMeme.ToggleFontColor;
+begin
+  if ReportText.TextSettings.FontColor = claWhite then
+  begin
+    ReportText.TextSettings.FontColor := claBlack;
+    HelpText.TextSettings.FontColor := claBlack;
+  end
+  else
+  begin
+    ReportText.TextSettings.FontColor := claWhite;
+    HelpText.TextSettings.FontColor := claWhite;
+  end;
 end;
 
 procedure TFormMeme.BottomEditKeyUp(Sender: TObject; var Key: Word;
@@ -563,6 +612,7 @@ begin
   end;
   CopyBitmapToClipboard(bmp);
   bmp.Free;
+  Flash('Bitmap copied.');
 end;
 
 procedure TFormMeme.UpdateChecker;
@@ -734,7 +784,7 @@ begin
   else
     BottomText.Font.Family := s;
 
-  Caption := IntToStr(Value) + ' ' + s;
+  Flash(IntToStr(Value) + ' ' + s);
 end;
 
 procedure TFormMeme.OnDropTargetDropped(fn: string);
@@ -776,6 +826,7 @@ begin
   fs := 84;
   fn := 'Impact';
 
+  { only assign what is different from default for given TextID }
   case TextID of
 
     1: ;
@@ -848,18 +899,8 @@ begin
   TopGlow.Softness := 0.4;
   BottomGlow.Softness := 0.4;
 
-  Caption := DefaultCaption;
+  Flash(DefaultCaption);
 end;
-
-//procedure TFormMeme.UpdateCaption;
-//var
-//  sa, sb, sc: string;
-//begin
-//  sa := Application.Title;
-//  sb := GetSelectedText;
-//  sc := GetParamText;
-//  Caption := Format('%s, Selected: %s, Param: %s, TextID: %d', [sa, sb, sc, TextID]);
-//end;
 
 procedure TFormMeme.UpdateParam(afa: Integer);
 begin
@@ -873,7 +914,7 @@ begin
       SelectedText := stBottom;
   end;
 
-  Caption := GetParamText;
+  Flash(GetParamText);
 end;
 
 procedure TFormMeme.CopyBitmapToClipboard(ABitmap: TBitmap);
@@ -907,6 +948,7 @@ begin
         try
           Bitmap.Assign(Value.AsType<TBitmapSurface>);
           Background := Bitmap;
+          Flash('Bitmap pasted.');
         finally
           Bitmap.Free;
         end;
@@ -918,18 +960,12 @@ begin
 end;
 
 procedure TFormMeme.SetBitmap(value: TBitmap);
-// var
-//   s: single;
 begin
   CheckerImage.Bitmap.Clear(claPurple);
 
+  { Application.Title is assigned/hardcoded in .dpr file }
   if Application.Title = 'FC96' then
   begin
-    { scale value.Width before assignment ? }
-//    s := Handle.Scale;
-//    ClientWidth := Round(value.Width / s);
-//    ClientHeight := Round(value.Height / s);
-
     ClientWidth := value.Width;
     ClientHeight := value.Height;
   end
@@ -1096,6 +1132,84 @@ begin
 
   if Left + Width >= Round(Screen.WorkAreaWidth / Handle.Scale) then
     Left := 0;
+
+  Flash('AdpatFormSize');
+end;
+
+procedure TFormMeme.GotoNormal;
+begin
+  if WindowState = TWindowState.wsMaximized then
+    WindowState := TWindowState.wsNormal;
+
+  Screen.UpdateDisplayInformation;
+
+  if WantNormal then
+  begin
+    Top := 100;
+    Left := 100;
+    ClientWidth := 800;
+    ClientHeight := 600;
+  end;
+end;
+
+procedure TFormMeme.GotoLandscape;
+begin
+  GotoNormal;
+  if Screen.Width > Screen.Height then
+  begin
+    Height := Round(Screen.WorkAreaHeight / FScale);
+    ClientWidth := Round(ClientHeight * 4 / 3);
+    Top := 0;
+  end
+  else
+  begin
+    Width := Round(Screen.WorkAreaWidth / FScale);
+    ClientHeight := Round(ClientWidth * 3 / 4);
+    Left := 0;
+  end;
+  Flash('Landscape');
+end;
+
+procedure TFormMeme.GotoPortrait;
+begin
+  GotoNormal;
+  if Screen.Width > Screen.Height then
+  begin
+    Height := Round(Screen.WorkAreaHeight / FScale);
+    ClientWidth := Round(ClientHeight * 3 / 4);
+    Top := 0;
+  end
+  else
+  begin
+    Width := Round(Screen.WorkAreaWidth / FScale);
+    ClientHeight := Round(ClientWidth * 4 / 3);
+    Left := 0;
+    Top := 0;
+  end;
+  Flash('Portrait');
+end;
+
+procedure TFormMeme.GotoSquare;
+begin
+  GotoNormal;
+  if Screen.Width > Screen.Height then
+  begin
+    Height := Round(Screen.WorkAreaHeight / FScale);
+    ClientWidth := Round(ClientHeight);
+    Top := 0;
+  end
+  else
+  begin
+    Width := Round(Screen.WorkAreaWidth / FScale);
+    ClientHeight := Round(ClientWidth);
+    Left := 0
+  end;
+  Flash('Square');
+end;
+
+procedure TFormMeme.Flash(s: string);
+begin
+  Caption := s;
 end;
 
 end.
