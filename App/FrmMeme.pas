@@ -128,6 +128,7 @@ type
     procedure GotoPortrait;
     procedure GotoSquare;
     procedure Flash(s: string);
+    procedure ToggleTextColor;
     property DropTargetVisible: Boolean read FDropTargetVisible write SetDropTargetVisible;
   protected
     function FindTarget(P: TPointF; const Data: TDragObject): IControl; override;
@@ -308,6 +309,8 @@ begin
     ToggleTiling
   else if KeyChar = 'v' then
     ToggleFontColor
+  else if KeyChar = 'V' then
+    ToggleTextColor
 
   else if KeyChar = 'x' then
   begin
@@ -382,7 +385,7 @@ begin
   ML.Add('  r    - togle Report');
   ML.Add('  R    - Reset');
   ML.Add('  u    - toggle tile/fit');
-  ML.Add('  v    - toggle text color');
+  ML.Add('  v, V - toggle color, help text and meme text');
   ML.Add('  a    - adapt form size');
   ML.Add('  c, C   - clear image command');
   ML.Add('  ^c   - copy image to clipboard command');
@@ -584,6 +587,20 @@ begin
   begin
     ReportText.TextSettings.FontColor := claWhite;
     HelpText.TextSettings.FontColor := claWhite;
+  end;
+end;
+
+procedure TFormMeme.ToggleTextColor;
+begin
+  if TopText.TextSettings.FontColor = claWhite then
+  begin
+    TopText.TextSettings.FontColor := claBlack;
+    BottomText.TextSettings.FontColor := claBlack;
+  end
+  else
+  begin
+    TopText.TextSettings.FontColor := claWhite;
+    BottomText.TextSettings.FontColor := claWhite;
   end;
 end;
 
