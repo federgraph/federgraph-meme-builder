@@ -155,6 +155,9 @@ const
   MaxEdgeDistance = 200;
   BoolStr: array[Boolean] of string = ('False', 'True');
 
+  HelpCaptionText = 'press h for help';
+  ApplicationTitleText = 'FC96';
+
 procedure TFormMeme.FormCreate(Sender: TObject);
 begin
 {$ifdef DEBUG}
@@ -185,7 +188,7 @@ begin
   InitHelpText;
   SL := TStringList.Create;
 
-  Caption := 'press h for help'
+  Caption := HelpCaptionText;
 end;
 
 procedure TFormMeme.FormDestroy(Sender: TObject);
@@ -284,11 +287,10 @@ begin
 
   else if KeyChar = 'r' then
   begin
-    Flash(DefaultCaption);
+    Flash(HelpCaptionText);
     DropTargetVisible := False;
     HelpText.Visible := False;
-    if not ReportText.Visible then
-      ReportText.Visible := True;
+    ReportText.Visible := not ReportText.Visible;
   end
 
   else if KeyChar = 'R' then
@@ -382,7 +384,7 @@ begin
   ML.Add('  g, G - param Glow Softness for top or bottom text');
   ML.Add('  x    - toggle between Text0 and Text1');
   ML.Add('  y, Y - cycle through Text templates');
-  ML.Add('  r    - togle Report');
+  ML.Add('  r    - toggle Report');
   ML.Add('  R    - Reset');
   ML.Add('  u    - toggle tile/fit');
   ML.Add('  v, V - toggle color, help text and meme text');
@@ -403,7 +405,7 @@ end;
 procedure TFormMeme.UpdateReport;
 begin
   SL.Clear;
-  SL.Add(Application.Title + ' see Federgraph.de');
+  SL.Add(Application.Title + ', see Federgraph.de');
   Sl.Add('');
   SL.Add('TopText.Font.Family = ' + TopText.Font.Family);
   SL.Add('BottomText.Font.Family = ' + BottomText.Font.Family);
@@ -981,7 +983,7 @@ begin
   CheckerImage.Bitmap.Clear(claPurple);
 
   { Application.Title is assigned/hardcoded in .dpr file }
-  if Application.Title = 'FC96' then
+  if Application.Title = ApplicationTitleText then
   begin
     ClientWidth := value.Width;
     ClientHeight := value.Height;
