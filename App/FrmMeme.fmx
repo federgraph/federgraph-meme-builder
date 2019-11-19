@@ -1,4 +1,4 @@
-object FormMeme: TFormMeme
+﻿object FormMeme: TFormMeme
   Left = 0
   Top = 0
   Caption = 'FC Meme Builder'
@@ -46,7 +46,6 @@ object FormMeme: TFormMeme
     Text = 'This App is so cool !'
     TextSettings.Font.Family = 'Vladimir Script'
     TextSettings.Font.Size = 64.000000000000000000
-    TextSettings.Font.StyleExt = {00070000000000000004000000}
     TextSettings.FontColor = claWhite
     object BottomGlow: TGlowEffect
       Softness = 0.400000005960464500

@@ -15,7 +15,7 @@ Press key h to toggle keyboard shortcut help text.
 
 ## Design
 
-This is a small one-form-only Delphi FMX application.
+This is a small Delphi FMX application.
 
 ( There is no configuration, because it would be overkill. )
 

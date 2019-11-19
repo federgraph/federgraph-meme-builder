@@ -46,71 +46,14 @@ uses
   FMX.ExtCtrls,
   FMX.Edit,
   FMX.Surfaces,
-  FMX.Controls.Presentation;
+  FMX.Controls.Presentation,
+  RiggVar.MB.Def;
 
 type
   TSelectedText = (
     stTop,
     stBottom
   );
-
-  TSampleTextProps = record
-    Text: string;
-    FontName: string;
-    FontSize: single;
-  end;
-
-  TSampleTextItem = record
-    Caption: string;
-    Top: TSampleTextProps;
-    Bottom: TSampleTextProps;
-  end;
-
-  { will change without notice, I am playing ... }
-  ISampleTextManager = interface
-  ['{B8BEB01B-AC6F-4DB2-9F5F-E0B747705F62}']
-    function GetCount: Integer;
-    function GetCurrentIndex: Integer;
-    function GetSampleItem: TSampleTextItem;
-    procedure SetUseOfficeFonts(const Value: Boolean);
-
-    procedure Next;
-    procedure Previous;
-    procedure Toggle;
-  end;
-
-  TSampleTextManagerBase = class(TInterfacedObject, ISampleTextManager)
-  private
-    FUseOfficeFonts: Boolean;
-    function GetCount: Integer;
-    function GetCurrentIndex: Integer;
-    procedure SetUseOfficeFonts(const Value: Boolean);
-  protected
-    TextID: Integer;
-    MaxTextID: Integer;
-    function GetSample0: TSampleTextItem;
-    function GetSample1: TSampleTextItem;
-    function GetSample(Index: Integer): TSampleTextItem; virtual;
-  public
-    constructor Create;
-
-    function GetSampleItem: TSampleTextItem;
-
-    procedure Next;
-    procedure Previous;
-    procedure Toggle;
-
-    property Count: Integer read GetCount;
-    property CurrentIndex: Integer read GetCurrentIndex;
-    property UseOfficeFonts: Boolean read FUseOfficeFonts write SetUseOfficeFonts;
-  end;
-
-  TDefaultSampleTextManager = class(TSampleTextManagerBase)
-  protected
-    function GetSample(Index: Integer): TSampleTextItem; override;
-  public
-    constructor Create;
-  end;
 
   TFormMeme = class(TForm)
     TopText: TText;
@@ -203,6 +146,10 @@ implementation
 
 {$R *.fmx}
 
+uses
+  RiggVar.MB.SampleText01,
+  RiggVar.MB.SampleText00;
+
 const
   faTopMargin = 1;
   faBottomMargin = 2;
@@ -226,7 +173,10 @@ begin
   FScale := Handle.Scale;
 
   FontFamilyList := TStringList.Create;
+
+//  SampleManager := TSampleTextManagerBase.Create;
   SampleManager := TDefaultSampleTextManager.Create;
+//  SampleManager := TSampleTextManager02.Create;
 
   WantOfficeFonts := True;
   InitFontList;
@@ -234,6 +184,12 @@ begin
   Reset;
 
   InitChecker(True);
+
+  TopText.Margins.Left := 10;
+  TopText.Margins.Right := 10;
+
+  BottomText.Margins.Left := 10;
+  BottomText.Margins.Right := 10;
 
   TopText.BringToFront;
   BottomText.BringToFront;
@@ -335,10 +291,14 @@ begin
   begin
     if HasOfficeFonts then
       InitOfficeFonts;
+    CycleFont(fo);
   end
 
   else if KeyChar = 'O' then
-    InitNormalFonts
+  begin
+    InitNormalFonts;
+    CycleFont(fo);
+  end
 
   else if KeyChar = 'p' then
     GotoPortrait
@@ -1231,149 +1191,6 @@ end;
 procedure TFormMeme.Flash(s: string);
 begin
   Caption := s;
-end;
-
-{ TSampleTextManagerBase }
-
-constructor TSampleTextManagerBase.Create;
-begin
-  MaxTextID := 1;
-end;
-
-function TSampleTextManagerBase.GetCount: Integer;
-begin
-  result := MaxTextID;
-end;
-
-function TSampleTextManagerBase.GetCurrentIndex: Integer;
-begin
-  result := TextID;
-end;
-
-function TSampleTextManagerBase.GetSampleItem: TSampleTExtItem;
-begin
-  result := GetSample(TextID);
-end;
-
-procedure TSampleTextManagerBase.Toggle;
-begin
-  Inc(TextID);
-  TextID := TextID mod 2;
-end;
-
-procedure TSampleTextManagerBase.Next;
-begin
-  Inc(TextID);
-  if TextID > MaxTextID then
-    TextID := 0;
-end;
-
-procedure TSampleTextManagerBase.Previous;
-begin
-  Dec(TextID);
-  if TextID < 0 then
-    TextID := MaxTextID;
-end;
-
-procedure TSampleTextManagerBase.SetUseOfficeFonts(const Value: Boolean);
-begin
-  FUseOfficeFonts := Value;
-end;
-
-function TSampleTextManagerBase.GetSample0: TSampleTextItem;
-begin
-  result.Caption := 'Federgraph Meme Builder App';
-
-  result.Top.Text := 'federgraph.de/federgraph-meme-builder.html';
-  result.Bottom.Text := 'press h to toggle help text';
-
-  result.Top.FontName := 'Courier New';
-  result.Bottom.FontName := 'Courier New';
-
-  result.Top.FontSize := 24;
-  result.Bottom.FontSize := 24;
-end;
-
-function TSampleTextManagerBase.GetSample1: TSampleTextItem;
-begin
-  result.Caption := Application.Title;
-
-  result.Top.Text := 'Made with Delphi';
-  result.Top.FontName := 'Impact';
-  result.Top.FontSize := 84;
-
-  result.Bottom.Text := 'FMX Meme Builder';
-  result.Bottom.FontName := 'Impact';
-  result.Bottom.FontSize := 84;
-end;
-
-function TSampleTextManagerBase.GetSample(Index: Integer): TSampleTextItem;
-begin
-  if Index = 1 then
-    result := GetSample1
-  else
-    result := GetSample0;
-end;
-
-{ TDefaultSampleTextManager }
-
-constructor TDefaultSampleTextManager.Create;
-begin
-  inherited;
-  MaxTextID := 4;
-end;
-
-function TDefaultSampleTextManager.GetSample(Index: Integer): TSampleTextItem;
-var
-  i: TSampleTextItem;
-begin
-  i := GetSample1;
-
-  case Index of
-
-    1: ;
-
-    2:
-    begin
-      if UseOfficeFonts then
-        i.Top.FontName := 'Vladimir Script';
-      i.Bottom.FontName := i.Top.FontName;
-    end;
-
-    3:
-    begin
-      if UseOfficeFonts then
-        i.Top.FontName := 'Vivaldi'
-      else
-        i.Top.FontName := 'Verdana';
-      i.Bottom.FontName := i.Top.FontName;
-    end;
-
-    4:
-    begin
-      i.Caption := 'Federgraph Meme Builder App';
-
-      i.Top.Text := 'Press Escape to edit text';
-      i.Bottom.Text := '#Remain';
-
-      i.Top.FontSize := 32;
-      i.Bottom.FontSize := 60;
-
-      if UseOfficeFonts then
-        i.Top.FontName := 'Stencil'
-      else
-        i.Top.FontName := 'Impact';
-      i.Bottom.FontName := i.Top.FontName;
-    end;
-
-    else
-    begin
-      i := GetSample0;
-    end;
-
-  end;
-
-  result := i;
 end;
 
 end.
