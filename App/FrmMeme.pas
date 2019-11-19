@@ -79,17 +79,18 @@ type
     procedure Toggle;
   end;
 
-  TDefaultSampleTextManager = class(TInterfacedObject, ISampleTextManager)
+  TSampleTextManagerBase = class(TInterfacedObject, ISampleTextManager)
   private
-    TextID: Integer;
-    MaxTextID: Integer;
     FUseOfficeFonts: Boolean;
     function GetCount: Integer;
-    function GetSample0: TSampleTextItem;
-    function GetSample1: TSampleTextItem;
-    function GetSample(Index: Integer): TSampleTextItem;
     function GetCurrentIndex: Integer;
     procedure SetUseOfficeFonts(const Value: Boolean);
+  protected
+    TextID: Integer;
+    MaxTextID: Integer;
+    function GetSample0: TSampleTextItem;
+    function GetSample1: TSampleTextItem;
+    function GetSample(Index: Integer): TSampleTextItem; virtual;
   public
     constructor Create;
 
@@ -102,6 +103,13 @@ type
     property Count: Integer read GetCount;
     property CurrentIndex: Integer read GetCurrentIndex;
     property UseOfficeFonts: Boolean read FUseOfficeFonts write SetUseOfficeFonts;
+  end;
+
+  TDefaultSampleTextManager = class(TSampleTextManagerBase)
+  protected
+    function GetSample(Index: Integer): TSampleTextItem; override;
+  public
+    constructor Create;
   end;
 
   TFormMeme = class(TForm)
@@ -1225,54 +1233,54 @@ begin
   Caption := s;
 end;
 
-{ TSampleTextManager }
+{ TSampleTextManagerBase }
 
-constructor TDefaultSampleTextManager.Create;
+constructor TSampleTextManagerBase.Create;
 begin
-  MaxTextID := 4;
+  MaxTextID := 1;
 end;
 
-function TDefaultSampleTextManager.GetCount: Integer;
+function TSampleTextManagerBase.GetCount: Integer;
 begin
   result := MaxTextID;
 end;
 
-function TDefaultSampleTextManager.GetCurrentIndex: Integer;
+function TSampleTextManagerBase.GetCurrentIndex: Integer;
 begin
   result := TextID;
 end;
 
-function TDefaultSampleTextManager.GetSampleItem: TSampleTExtItem;
+function TSampleTextManagerBase.GetSampleItem: TSampleTExtItem;
 begin
   result := GetSample(TextID);
 end;
 
-procedure TDefaultSampleTextManager.Toggle;
+procedure TSampleTextManagerBase.Toggle;
 begin
   Inc(TextID);
   TextID := TextID mod 2;
 end;
 
-procedure TDefaultSampleTextManager.Next;
+procedure TSampleTextManagerBase.Next;
 begin
   Inc(TextID);
   if TextID > MaxTextID then
     TextID := 0;
 end;
 
-procedure TDefaultSampleTextManager.Previous;
+procedure TSampleTextManagerBase.Previous;
 begin
   Dec(TextID);
   if TextID < 0 then
     TextID := MaxTextID;
 end;
 
-procedure TDefaultSampleTextManager.SetUseOfficeFonts(const Value: Boolean);
+procedure TSampleTextManagerBase.SetUseOfficeFonts(const Value: Boolean);
 begin
   FUseOfficeFonts := Value;
 end;
 
-function TDefaultSampleTextManager.GetSample0: TSampleTextItem;
+function TSampleTextManagerBase.GetSample0: TSampleTextItem;
 begin
   result.Caption := 'Federgraph Meme Builder App';
 
@@ -1286,7 +1294,7 @@ begin
   result.Bottom.FontSize := 24;
 end;
 
-function TDefaultSampleTextManager.GetSample1: TSampleTextItem;
+function TSampleTextManagerBase.GetSample1: TSampleTextItem;
 begin
   result.Caption := Application.Title;
 
@@ -1297,6 +1305,22 @@ begin
   result.Bottom.Text := 'FMX Meme Builder';
   result.Bottom.FontName := 'Impact';
   result.Bottom.FontSize := 84;
+end;
+
+function TSampleTextManagerBase.GetSample(Index: Integer): TSampleTextItem;
+begin
+  if Index = 1 then
+    result := GetSample1
+  else
+    result := GetSample0;
+end;
+
+{ TDefaultSampleTextManager }
+
+constructor TDefaultSampleTextManager.Create;
+begin
+  inherited;
+  MaxTextID := 4;
 end;
 
 function TDefaultSampleTextManager.GetSample(Index: Integer): TSampleTextItem;
