@@ -54,6 +54,56 @@ type
     stBottom
   );
 
+  TSampleTextProps = record
+    Text: string;
+    FontName: string;
+    FontSize: single;
+  end;
+
+  TSampleTextItem = record
+    Caption: string;
+    Top: TSampleTextProps;
+    Bottom: TSampleTextProps;
+  end;
+
+  { will change without notice, I am playing ... }
+  ISampleTextManager = interface
+  ['{B8BEB01B-AC6F-4DB2-9F5F-E0B747705F62}']
+    function GetCount: Integer;
+    function GetCurrentIndex: Integer;
+    function GetSampleItem: TSampleTextItem;
+    procedure SetUseOfficeFonts(const Value: Boolean);
+
+    procedure Next;
+    procedure Previous;
+    procedure Toggle;
+  end;
+
+  TDefaultSampleTextManager = class(TInterfacedObject, ISampleTextManager)
+  private
+    TextID: Integer;
+    MaxTextID: Integer;
+    FUseOfficeFonts: Boolean;
+    function GetCount: Integer;
+    function GetSample0: TSampleTextItem;
+    function GetSample1: TSampleTextItem;
+    function GetSample(Index: Integer): TSampleTextItem;
+    function GetCurrentIndex: Integer;
+    procedure SetUseOfficeFonts(const Value: Boolean);
+  public
+    constructor Create;
+
+    function GetSampleItem: TSampleTextItem;
+
+    procedure Next;
+    procedure Previous;
+    procedure Toggle;
+
+    property Count: Integer read GetCount;
+    property CurrentIndex: Integer read GetCurrentIndex;
+    property UseOfficeFonts: Boolean read FUseOfficeFonts write SetUseOfficeFonts;
+  end;
+
   TFormMeme = class(TForm)
     TopText: TText;
     BottomText: TText;
@@ -84,15 +134,15 @@ type
     CheckerImage: TImage;
     FDropTargetVisible: Boolean;
     DefaultCaption: string;
-    TextID: Integer;
     SelectedText: TSelectedText;
     FontFamilyList: TStringList;
     HasOfficeFonts: Boolean;
     WantOfficeFonts: Boolean;
-    UseOfficeFonts: Boolean;
     SL: TStringList;
     WantNormal: Boolean;
     FScale: single;
+    SampleManager: ISampleTextManager;
+    FUseOfficeFonts: Boolean;
     procedure CopyBitmapToClipboard(ABitmap: TBitmap);
     procedure CopyBitmap;
     procedure CreateCheckerBitmap;
@@ -129,7 +179,9 @@ type
     procedure GotoSquare;
     procedure Flash(s: string);
     procedure ToggleTextColor;
+    procedure SetUseOfficeFonts(const Value: Boolean);
     property DropTargetVisible: Boolean read FDropTargetVisible write SetDropTargetVisible;
+    property UseOfficeFonts: Boolean read FUseOfficeFonts write SetUseOfficeFonts;
   protected
     function FindTarget(P: TPointF; const Data: TDragObject): IControl; override;
   public
@@ -151,7 +203,6 @@ const
   faTopGlow = 5;
   faBottomGlow = 6;
 
-  MaxTextID = 4;
   MaxEdgeDistance = 200;
   BoolStr: array[Boolean] of string = ('False', 'True');
 
@@ -167,6 +218,7 @@ begin
   FScale := Handle.Scale;
 
   FontFamilyList := TStringList.Create;
+  SampleManager := TDefaultSampleTextManager.Create;
 
   WantOfficeFonts := True;
   InitFontList;
@@ -193,6 +245,7 @@ end;
 
 procedure TFormMeme.FormDestroy(Sender: TObject);
 begin
+//  SampleManager.Free; // using interface
   CheckerBitmap.Free;
   FontFamilyList.Free;
   SL.Free;
@@ -316,24 +369,19 @@ begin
 
   else if KeyChar = 'x' then
   begin
-    Inc(TextID);
-    TextID := TextID mod 2;
+    SampleManager.Toggle;
     Reset;
   end
 
   else if KeyChar = 'y' then
   begin
-    Inc(TextID);
-    if TextID > MaxTextID then
-      TextID := 0;
+    SampleManager.Next;
     Reset;
   end
 
   else if KeyChar = 'Y' then
   begin
-    Dec(TextID);
-    if TextID < 0 then
-      TextID := MaxTextID;
+    SampleManager.Previous;
     Reset;
   end
 
@@ -413,7 +461,7 @@ begin
   SL.Add(Format('BottomText.Font.Family = %.g', [BottomText.Font.Size]));
   SL.Add('');
   SL.Add('UseOfficeFonts = ' + BoolStr[UseOfficeFonts]);
-  SL.Add('TextID = ' + IntToStr(TextID));
+  SL.Add('TextID = ' + IntToStr(SampleManager.GetCurrentIndex));
   SL.Add('Current Text = ' + GetSelectedText);
   SL.Add('Current Param = ' + GetParamText);
   SL.Add(Format('Client-W-H = (%d, %d)', [ClientWidth, ClientHeight]));
@@ -505,7 +553,7 @@ begin
     faTopMargin:
     begin
       f := TopText.Margins.Top;
-      f := f + Delta;
+      f := f + 4 * Delta;
       if (f >= 0) and (f <= MaxEdgeDistance) then
         TopText.Margins.Top := Round(f);
       Flash(Format('TopText.Margins.Top = %d', [Round(f)]));
@@ -514,7 +562,7 @@ begin
     faBottomMargin:
     begin
       f := BottomText.Margins.Bottom;
-      f := f + Delta;
+      f := f + 4 * Delta;
       if (f >= 0) and (f <= MaxEdgeDistance) then
         BottomText.Margins.Bottom := Round(f);
       Flash(Format('BottomText.Margins.Bottom = %d', [Round(f)]));
@@ -698,6 +746,12 @@ begin
   end;
 end;
 
+procedure TFormMeme.SetUseOfficeFonts(const Value: Boolean);
+begin
+  FUseOfficeFonts := Value;
+  SampleManager.SetUseOfficeFonts(Value);
+end;
+
 procedure TFormMeme.CreateCheckerBitmap;
 var
   cb: TBitmap;
@@ -834,89 +888,29 @@ end;
 
 procedure TFormMeme.Reset;
 var
- fs: Integer;
- fn: string;
+  i: TSampleTextItem;
 begin
-  DefaultCaption := Application.Title;
+  i := SampleManager.GetSampleItem;
 
-  TopText.Text := 'Made with Delphi';
-  BottomText.Text := 'FMX Meme Builder.';
+  TopText.Font.Size := i.Top.FontSize;
+  BottomText.Font.Size := i.Bottom.FontSize;
 
-  fs := 84;
-  fn := 'Impact';
+  TopText.Font.Family := i.Top.FontName;
+  BottomText.Font.Family := i.Bottom.FontName;
 
-  { only assign what is different from default for given TextID }
-  case TextID of
+  TopText.Text := i.Top.Text;
+  BottomText.Text := i.Bottom.Text;
 
-    1: ;
-
-    2:
-    begin
-      if UseOfficeFonts then
-        fn := 'Vladimir Script';
-    end;
-
-    3:
-    begin
-      if UseOfficeFonts then
-        fn := 'Vivaldi'
-      else
-        fn := 'Verdana';
-    end;
-
-    { insert new text templates here, and update MaxTextID }
-
-    MaxTextID:
-    begin
-      DefaultCaption := 'Federgraph Meme Builder App';
-
-      TopText.Text := 'Press Escape to edit text';
-      BottomText.Text := '#Remain';
-
-      fs := 60;
-      TopText.Font.Size := 32;
-      BottomText.Font.Size := fs;
-
-      if UseOfficeFonts then
-        fn := 'Stencil'
-      else
-        fn := 'Impact';
-    end;
-
-    else
-    begin
-      { TextID === 0 }
-      DefaultCaption := 'Federgraph Meme Builder App';
-
-      TopText.Text := 'federgraph.de/federgraph-meme-builder.html';
-      BottomText.Text := 'press h to toggle help text';
-
-      fs := 24;
-      TopText.Font.Size := fs;
-      BottomText.Font.Size := fs;
-
-      fn := 'Courier New';
-    end;
-
-  end;
-
-  if fs = 84 then
-  begin
-    TopText.Font.Size := fs;
-    BottomText.Font.Size := fs;
-  end;
-
-  TopText.Font.Family := fn;
-  BottomText.Font.Family := TopText.Font.Family;
-
-  TopEdit.Text := TopText.Text;
-  BottomEdit.Text := BottomText.Text;
+  TopEdit.Text := i.Top.Text;
+  BottomEdit.Text := i.Bottom.Text;
 
   TopText.Margins.Top := 10;
   BottomText.Margins.Bottom := 10;
 
   TopGlow.Softness := 0.4;
   BottomGlow.Softness := 0.4;
+
+  DefaultCaption := i.Caption;
 
   Flash(DefaultCaption);
 end;
@@ -1229,6 +1223,133 @@ end;
 procedure TFormMeme.Flash(s: string);
 begin
   Caption := s;
+end;
+
+{ TSampleTextManager }
+
+constructor TDefaultSampleTextManager.Create;
+begin
+  MaxTextID := 4;
+end;
+
+function TDefaultSampleTextManager.GetCount: Integer;
+begin
+  result := MaxTextID;
+end;
+
+function TDefaultSampleTextManager.GetCurrentIndex: Integer;
+begin
+  result := TextID;
+end;
+
+function TDefaultSampleTextManager.GetSampleItem: TSampleTExtItem;
+begin
+  result := GetSample(TextID);
+end;
+
+procedure TDefaultSampleTextManager.Toggle;
+begin
+  Inc(TextID);
+  TextID := TextID mod 2;
+end;
+
+procedure TDefaultSampleTextManager.Next;
+begin
+  Inc(TextID);
+  if TextID > MaxTextID then
+    TextID := 0;
+end;
+
+procedure TDefaultSampleTextManager.Previous;
+begin
+  Dec(TextID);
+  if TextID < 0 then
+    TextID := MaxTextID;
+end;
+
+procedure TDefaultSampleTextManager.SetUseOfficeFonts(const Value: Boolean);
+begin
+  FUseOfficeFonts := Value;
+end;
+
+function TDefaultSampleTextManager.GetSample0: TSampleTextItem;
+begin
+  result.Caption := 'Federgraph Meme Builder App';
+
+  result.Top.Text := 'federgraph.de/federgraph-meme-builder.html';
+  result.Bottom.Text := 'press h to toggle help text';
+
+  result.Top.FontName := 'Courier New';
+  result.Bottom.FontName := 'Courier New';
+
+  result.Top.FontSize := 24;
+  result.Bottom.FontSize := 24;
+end;
+
+function TDefaultSampleTextManager.GetSample1: TSampleTextItem;
+begin
+  result.Caption := Application.Title;
+
+  result.Top.Text := 'Made with Delphi';
+  result.Top.FontName := 'Impact';
+  result.Top.FontSize := 84;
+
+  result.Bottom.Text := 'FMX Meme Builder';
+  result.Bottom.FontName := 'Impact';
+  result.Bottom.FontSize := 84;
+end;
+
+function TDefaultSampleTextManager.GetSample(Index: Integer): TSampleTextItem;
+var
+  i: TSampleTextItem;
+begin
+  i := GetSample1;
+
+  case Index of
+
+    1: ;
+
+    2:
+    begin
+      if UseOfficeFonts then
+        i.Top.FontName := 'Vladimir Script';
+      i.Bottom.FontName := i.Top.FontName;
+    end;
+
+    3:
+    begin
+      if UseOfficeFonts then
+        i.Top.FontName := 'Vivaldi'
+      else
+        i.Top.FontName := 'Verdana';
+      i.Bottom.FontName := i.Top.FontName;
+    end;
+
+    4:
+    begin
+      i.Caption := 'Federgraph Meme Builder App';
+
+      i.Top.Text := 'Press Escape to edit text';
+      i.Bottom.Text := '#Remain';
+
+      i.Top.FontSize := 32;
+      i.Bottom.FontSize := 60;
+
+      if UseOfficeFonts then
+        i.Top.FontName := 'Stencil'
+      else
+        i.Top.FontName := 'Impact';
+      i.Bottom.FontName := i.Top.FontName;
+    end;
+
+    else
+    begin
+      i := GetSample0;
+    end;
+
+  end;
+
+  result := i;
 end;
 
 end.
