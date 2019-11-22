@@ -47,23 +47,20 @@ uses
   FMX.Edit,
   FMX.Surfaces,
   FMX.Controls.Presentation,
-  RiggVar.MB.Def;
+  RiggVar.MB.Def,
+  FMX.ScrollBox,
+  FMX.Memo;
 
 type
-  TSelectedText = (
-    stTop,
-    stBottom
-  );
-
   TFormMeme = class(TForm)
     TopText: TText;
     BottomText: TText;
     BottomGlow: TGlowEffect;
     TopGlow: TGlowEffect;
-    TopEdit: TEdit;
-    BottomEdit: TEdit;
     HelpText: TText;
     ReportText: TText;
+    TopEdit: TMemo;
+    BottomEdit: TMemo;
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -92,8 +89,14 @@ type
     SL: TStringList;
     WantNormal: Boolean;
     FScale: single;
+    ScreenshotSaver: IScreenshotSaver;
+    SampleManager00: ISampleTextManager;
+    SampleManager01: ISampleTextManager;
+    SampleManager02: ISampleTextManager;
     SampleManager: ISampleTextManager;
     FUseOfficeFonts: Boolean;
+    ColorIndexDark: Integer;
+    ColorIndexLight: Integer;
     procedure CopyBitmapToClipboard(ABitmap: TBitmap);
     procedure CopyBitmap;
     procedure CreateCheckerBitmap;
@@ -131,6 +134,12 @@ type
     procedure Flash(s: string);
     procedure ToggleTextColor;
     procedure SetUseOfficeFonts(const Value: Boolean);
+    procedure InitMemo(Memo: TMemo);
+    procedure SwapText;
+    function GetScreenshot: TBitmap;
+    procedure SaveBitmap;
+    procedure CycleColorDark(delta: Integer = 1);
+    procedure CycleColorLight(delta: Integer = 1);
     property DropTargetVisible: Boolean read FDropTargetVisible write SetDropTargetVisible;
     property UseOfficeFonts: Boolean read FUseOfficeFonts write SetUseOfficeFonts;
   protected
@@ -147,8 +156,9 @@ implementation
 {$R *.fmx}
 
 uses
+  RiggVar.MB.SampleText00,
   RiggVar.MB.SampleText01,
-  RiggVar.MB.SampleText00;
+  RiggVar.MB.SampleText02;
 
 const
   faTopMargin = 1;
@@ -174,9 +184,13 @@ begin
 
   FontFamilyList := TStringList.Create;
 
-//  SampleManager := TSampleTextManagerBase.Create;
-  SampleManager := TDefaultSampleTextManager.Create;
-//  SampleManager := TSampleTextManager02.Create;
+  ScreenshotSaver := TScreenshotSaver.Create;
+
+  SampleManager00 := TSampleTextManagerBase.Create;
+  SampleManager01 := TSampleTextManager01.Create;
+  SampleManager02 := TSampleTextManager02.Create;
+
+  SampleManager := SampleManager00;
 
   WantOfficeFonts := True;
   InitFontList;
@@ -191,6 +205,9 @@ begin
   BottomText.Margins.Left := 10;
   BottomText.Margins.Right := 10;
 
+  InitMemo(TopEdit);
+  InitMemo(BottomEdit);
+
   TopText.BringToFront;
   BottomText.BringToFront;
 
@@ -199,7 +216,12 @@ begin
   ReportText.Visible := false;
 
   if Application.Title = 'FC96' then
-    DropTargetVisible := true;
+  begin
+//    DropTargetVisible := true;
+
+    { show a solid color background, better for reading }
+    ClearImage;
+  end;
 
   InitHelpText;
   SL := TStringList.Create;
@@ -209,7 +231,7 @@ end;
 
 procedure TFormMeme.FormDestroy(Sender: TObject);
 begin
-//  SampleManager.Free; // using interface
+  { SampleManagers are ref-counted interfaces }
   CheckerBitmap.Free;
   FontFamilyList.Free;
   SL.Free;
@@ -233,11 +255,32 @@ begin
     { do nothing when editing, exit here }
   end
 
+  else if Key = vkF12 then
+    SaveBitmap
+
   else if Key = vkC then
     CopyBitmap
 
   else if Key = vkV then
     PasteBitmapFromClipboard
+
+  else if KeyChar = '=' then
+  begin
+    SampleManager := SampleManager00;
+    Flash('using SampleManager00');
+  end
+
+  else if KeyChar = '?' then
+  begin
+    SampleManager := SampleManager01;
+    Flash('using SampleManager01');
+  end
+
+  else if KeyChar = '!' then
+  begin
+    SampleManager := SampleManager02;
+    Flash('using SampleManager02');
+   end
 
   else if KeyChar = 'b' then
   begin
@@ -290,15 +333,34 @@ begin
   else if KeyChar = 'o' then
   begin
     if HasOfficeFonts then
-      InitOfficeFonts;
-    CycleFont(fo);
+    begin
+      if UseOfficeFonts then
+        InitNormalFonts
+      else
+        InitOfficeFonts;
+    end;
+    Reset;
+    if UseOfficeFonts then
+      Flash('Office Fonts')
+    else
+      Flash('Normal Fonts');
   end
 
   else if KeyChar = 'O' then
   begin
     InitNormalFonts;
-    CycleFont(fo);
+    Reset;
   end
+
+  else if KeyChar = 'ö' then
+    CycleColorDark(1)
+  else if KeyChar = 'Ö' then
+    CycleColorDark(-1)
+
+  else if KeyChar = 'ü' then
+    CycleColorLight(1)
+  else if KeyChar = 'Ü' then
+    CycleColorLight(-1)
 
   else if KeyChar = 'p' then
     GotoPortrait
@@ -352,6 +414,9 @@ begin
     SampleManager.Previous;
     Reset;
   end
+
+  else if KeyChar = 'Z' then
+    SwapText
 
   else if KeyChar = '1' then
     UpdateFormat(1000, 750)
@@ -463,12 +528,6 @@ begin
 
   TopText.AutoSize := False;
   TopText.AutoSize := True;
-
-  TopEdit.Position.X := 10;
-  TopEdit.Width := ClientWidth - 20;
-
-  BottomEdit.Position.X := 10;
-  BottomEdit.Width := ClientWidth - 20;
 
   UpdateChecker;
 end;
@@ -633,7 +692,7 @@ begin
   CheckerImage.Bitmap.Clear(claPurple);
 end;
 
-procedure TFormMeme.CopyBitmap;
+function TFormMeme.GetScreenshot: TBitmap;
 var
   bmp: TBitmap;
 begin
@@ -645,9 +704,48 @@ begin
   finally
     bmp.Canvas.EndScene;
   end;
-  CopyBitmapToClipboard(bmp);
-  bmp.Free;
-  Flash('Bitmap copied.');
+  result := bmp;
+end;
+
+procedure TFormMeme.CopyBitmap;
+var
+  bmp: TBitmap;
+begin
+  bmp := GetScreenshot;
+  try
+    CopyBitmapToClipboard(bmp);
+    Flash('Bitmap copied.');
+  finally
+    bmp.Free;
+  end;
+end;
+
+procedure TFormMeme.SaveBitmap;
+var
+  bmp: TBitmap;
+  ret: Boolean;
+begin
+  if not ScreenshotSaver.CanSave then
+  begin
+    Flash('saving screenshot not possible');
+    Exit;
+  end;
+
+  ret := False;
+  bmp := GetScreenshot;
+  try
+    try
+      ret := ScreenshotSaver.SaveScreenshot(bmp);
+    except
+    end;
+  finally
+    bmp.Free;
+  end;
+
+  if ret then
+    Flash('Screenshot saved.')
+  else
+    Flash('TODO: check implementation of SaveScreenshot()');
 end;
 
 procedure TFormMeme.UpdateChecker;
@@ -717,7 +815,10 @@ end;
 procedure TFormMeme.SetUseOfficeFonts(const Value: Boolean);
 begin
   FUseOfficeFonts := Value;
-  SampleManager.SetUseOfficeFonts(Value);
+
+  SampleManager00.SetUseOfficeFonts(Value);
+  SampleManager01.SetUseOfficeFonts(Value);
+  SampleManager02.SetUseOfficeFonts(Value);
 end;
 
 procedure TFormMeme.CreateCheckerBitmap;
@@ -859,6 +960,15 @@ var
   i: TSampleTextItem;
 begin
   i := SampleManager.GetSampleItem;
+
+  if i.Top.Text = '' then
+    i.Top.Text := ' ';
+  if i.Bottom.Text = '' then
+    i.Bottom.Text := ' ';
+  if i.Top.FontSize < 12 then
+    i.Top.FontSize := 12;
+  if i.Bottom.FontSize < 12 then
+    i.Bottom.FontSize := 12;
 
   TopText.Font.Size := i.Top.FontSize;
   BottomText.Font.Size := i.Bottom.FontSize;
@@ -1191,6 +1301,92 @@ end;
 procedure TFormMeme.Flash(s: string);
 begin
   Caption := s;
+end;
+
+procedure TFormMeme.InitMemo(Memo: TMemo);
+begin
+  Memo.Position.X := 10;
+  Memo.Width := ClientWidth - 2 * 10;
+
+  Memo.ControlType := TControlType.Styled;
+  Memo.StyledSettings := [];
+  Memo.ShowScrollBars := True;
+  Memo.TextSettings.Font.Family := 'Consolas';
+  Memo.TextSettings.Font.Size := 15;
+  Memo.TextSettings.FontColor := claBlue;
+
+  Memo.WordWrap := True;
+
+  Memo.Anchors := [
+    TAnchorKind.akLeft,
+    TAnchorKind.akTop,
+    TAnchorKind.akRight
+    ];
+end;
+
+procedure TFormMeme.SwapText;
+var
+  s: string;
+begin
+  s := TopText.Text;
+  TopText.Text := BottomText.Text;
+  BottomText.Text := s;
+end;
+
+procedure TFormMeme.CycleColorDark(delta: Integer);
+var
+  tt: TText;
+  cla: TColor;
+  l: Integer;
+begin
+  l := Length(LightColors);
+  if delta > 0 then
+  begin
+    Inc(ColorIndexDark);
+    ColorIndexDark := ColorIndexDark mod l;
+  end
+  else
+  begin
+    Dec(ColorIndexDark);
+    if ColorIndexDark < 0 then
+      ColorIndexDark := l-1;
+  end;
+
+  if SelectedText = TSelectedText.stTop then
+    tt := TopText
+  else
+    tt := BottomText;
+
+  cla := DarkColors[ColorIndexDark];
+  tt.TextSettings.FontColor := cla;
+end;
+
+procedure TFormMeme.CycleColorLight(delta: Integer);
+var
+  tt: TText;
+  cla: TColor;
+  l: Integer;
+begin
+  l := Length(LightColors);
+  if delta > 0 then
+  begin
+    Inc(ColorIndexLight);
+    ColorIndexLight := ColorIndexLight mod l;
+  end
+  else
+  begin
+    Dec(ColorIndexLight);
+    if ColorIndexLight < 0 then
+      ColorIndexLight := l-1;
+  end;
+
+  if SelectedText = TSelectedText.stTop then
+    tt := TopText
+  else
+    tt := BottomText;
+
+  cla := LightColors[ColorIndexLight];
+  tt.TextSettings.FontColor := cla;
 end;
 
 end.

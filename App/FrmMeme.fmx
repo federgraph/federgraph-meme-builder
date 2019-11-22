@@ -53,26 +53,6 @@
       Opacity = 0.500000000000000000
     end
   end
-  object TopEdit: TEdit
-    Touch.InteractiveGestures = [LongTap, DoubleTap]
-    TabOrder = 2
-    Position.X = 16.000000000000000000
-    Position.Y = 240.000000000000000000
-    Size.Width = 100.000000000000000000
-    Size.Height = 22.000000000000000000
-    Size.PlatformDefault = False
-    OnKeyUp = TopEditKeyUp
-  end
-  object BottomEdit: TEdit
-    Touch.InteractiveGestures = [LongTap, DoubleTap]
-    TabOrder = 3
-    Position.X = 16.000000000000000000
-    Position.Y = 272.000000000000000000
-    Size.Width = 100.000000000000000000
-    Size.Height = 22.000000000000000000
-    Size.PlatformDefault = False
-    OnKeyUp = BottomEditKeyUp
-  end
   object HelpText: TText
     HitTest = False
     Position.X = 16.000000000000000000
@@ -101,5 +81,31 @@
     TextSettings.FontColor = claWhite
     TextSettings.WordWrap = False
     TextSettings.HorzAlign = Leading
+  end
+  object TopEdit: TMemo
+    Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
+    DataDetectorTypes = []
+    Position.X = 16.000000000000000000
+    Position.Y = 200.000000000000000000
+    Size.Width = 297.000000000000000000
+    Size.Height = 97.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 2
+    OnKeyUp = TopEditKeyUp
+    Viewport.Width = 293.000000000000000000
+    Viewport.Height = 93.000000000000000000
+  end
+  object BottomEdit: TMemo
+    Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
+    DataDetectorTypes = []
+    Position.X = 16.000000000000000000
+    Position.Y = 312.000000000000000000
+    Size.Width = 297.000000000000000000
+    Size.Height = 89.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 4
+    OnKeyUp = BottomEditKeyUp
+    Viewport.Width = 293.000000000000000000
+    Viewport.Height = 85.000000000000000000
   end
 end

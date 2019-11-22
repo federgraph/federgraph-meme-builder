@@ -1,8 +1,18 @@
-unit RiggVar.MB.Def;
+﻿unit RiggVar.MB.Def;
 
 interface
 
+uses
+  System.UIConsts,
+  System.UITypes,
+  FMX.Graphics;
+
 type
+  TSelectedText = (
+    stTop,
+    stBottom
+  );
+
   TSampleTextProps = record
     Text: string;
     FontName: string;
@@ -28,6 +38,51 @@ type
     procedure Toggle;
   end;
 
+  IScreenshotSaver = interface
+  ['{6A887F21-1AF1-4AA4-9B83-BC9D5136E8FF}']
+    function CanSave: Boolean;
+    function SaveScreenshot(ABitmap: TBitmap): Boolean;
+  end;
+
+  TScreenshotSaver = class(TInterfacedObject, IScreenshotSaver)
+  public
+    function CanSave: Boolean;
+    function SaveScreenshot(ABitmap: TBitmap): Boolean;
+  end;
+
+const
+  slb = sLineBreak;
+  dlb = sLineBreak + sLineBreak;
+
+  DarkColors: array of TAlphaColor = [
+    claBlack,
+    claRed,
+    claCrimson,
+    claBlue,
+    claNavy
+  ];
+
+  LightColors: array of TAlphaColor = [
+    claWhite,
+    claYellow,
+    claFuchsia,
+    claLime,
+    claCornflowerBlue,
+    claPlum
+  ];
+
 implementation
+
+{ TScreenshotSaver }
+
+function TScreenshotSaver.CanSave: Boolean;
+begin
+  result := false;
+end;
+
+function TScreenshotSaver.SaveScreenshot(ABitmap: TBitmap): Boolean;
+begin
+  result := false;
+end;
 
 end.

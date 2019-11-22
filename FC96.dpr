@@ -5,7 +5,8 @@ uses
   FrmMeme in 'App\FrmMeme.pas' {FormMeme},
   RiggVar.MB.Def in 'MB\RiggVar.MB.Def.pas',
   RiggVar.MB.SampleText00 in 'MB\RiggVar.MB.SampleText00.pas',
-  RiggVar.MB.SampleText01 in 'MB\RiggVar.MB.SampleText01.pas';
+  RiggVar.MB.SampleText01 in 'MB\RiggVar.MB.SampleText01.pas',
+  RiggVar.MB.SampleText02 in 'MB\RiggVar.MB.SampleText02.pas';
 
 {$R *.res}
 
