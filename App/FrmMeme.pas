@@ -97,6 +97,7 @@ type
     FUseOfficeFonts: Boolean;
     ColorIndexDark: Integer;
     ColorIndexLight: Integer;
+    Picker: IPicker;
     procedure CopyBitmapToClipboard(ABitmap: TBitmap);
     procedure CopyBitmap;
     procedure CreateCheckerBitmap;
@@ -136,8 +137,11 @@ type
     procedure SetUseOfficeFonts(const Value: Boolean);
     procedure InitMemo(Memo: TMemo);
     procedure SwapText;
+    function GetCurrentTextControl: TText;
     function GetScreenshot: TBitmap;
     procedure SaveBitmap;
+    procedure PickFont;
+    procedure PickColor;
     procedure CycleColorDark(delta: Integer = 1);
     procedure CycleColorLight(delta: Integer = 1);
     property DropTargetVisible: Boolean read FDropTargetVisible write SetDropTargetVisible;
@@ -156,6 +160,7 @@ implementation
 {$R *.fmx}
 
 uses
+  RiggVar.MB.Picker,
   RiggVar.MB.SampleText00,
   RiggVar.MB.SampleText01,
   RiggVar.MB.SampleText02;
@@ -192,6 +197,8 @@ begin
 
   SampleManager := SampleManager00;
 
+  Picker := TPicker.Create;
+
   WantOfficeFonts := True;
   InitFontList;
 
@@ -205,11 +212,14 @@ begin
   BottomText.Margins.Left := 10;
   BottomText.Margins.Right := 10;
 
+  TopText.BringToFront;
+  BottomText.BringToFront;
+
   InitMemo(TopEdit);
   InitMemo(BottomEdit);
 
-  TopText.BringToFront;
-  BottomText.BringToFront;
+  TopEdit.BringToFront;
+  BottomEdit.BringToFront;
 
   TopEdit.Visible := false;
   BottomEdit.Visible := false;
@@ -361,6 +371,11 @@ begin
     CycleColorLight(1)
   else if KeyChar = 'Ü' then
     CycleColorLight(-1)
+
+  else if KeyChar = 'ä' then
+    PickFont
+  else if KeyChar = 'Ä' then
+    PickColor
 
   else if KeyChar = 'p' then
     GotoPortrait
@@ -1050,6 +1065,37 @@ begin
   end;
 end;
 
+function TFormMeme.GetCurrentTextControl: TText;
+begin
+  if SelectedText = TSelectedText.stTop then
+    result := TopText
+  else
+    result := BottomText;
+end;
+
+procedure TFormMeme.PickColor;
+var
+  tt: TText;
+  cla: TAlphaColor;
+begin
+  tt := GetCurrentTextControl;
+  cla := tt.TextSettings.FontColor;
+  cla := Picker.SelectAlphaColor(cla);
+  tt.TextSettings.FontColor := cla;
+end;
+
+procedure TFormMeme.PickFont;
+var
+  tt: TText;
+  fn: string;
+begin
+  tt := GetCurrentTextControl;
+//  fn := tt.TextSettings.Font.Family;
+  fn := tt.Font.Family;
+  fn := Picker.SelectFontFamilyName(fn);
+  tt.Font.Family := fn;
+end;
+
 procedure TFormMeme.SetBitmap(value: TBitmap);
 begin
   CheckerImage.Bitmap.Clear(claPurple);
@@ -1335,7 +1381,6 @@ end;
 
 procedure TFormMeme.CycleColorDark(delta: Integer);
 var
-  tt: TText;
   cla: TColor;
   l: Integer;
 begin
@@ -1352,18 +1397,12 @@ begin
       ColorIndexDark := l-1;
   end;
 
-  if SelectedText = TSelectedText.stTop then
-    tt := TopText
-  else
-    tt := BottomText;
-
   cla := DarkColors[ColorIndexDark];
-  tt.TextSettings.FontColor := cla;
+  GetCurrentTextControl.TextSettings.FontColor := cla;
 end;
 
 procedure TFormMeme.CycleColorLight(delta: Integer);
 var
-  tt: TText;
   cla: TColor;
   l: Integer;
 begin
@@ -1379,14 +1418,8 @@ begin
     if ColorIndexLight < 0 then
       ColorIndexLight := l-1;
   end;
-
-  if SelectedText = TSelectedText.stTop then
-    tt := TopText
-  else
-    tt := BottomText;
-
   cla := LightColors[ColorIndexLight];
-  tt.TextSettings.FontColor := cla;
+  GetCurrentTextControl.TextSettings.FontColor := cla;
 end;
 
 end.

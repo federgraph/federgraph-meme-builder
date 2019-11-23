@@ -38,6 +38,12 @@ type
     procedure Toggle;
   end;
 
+  IPicker = interface
+['{736BA227-0249-475F-AE02-AB9F3C5EB3FB}']
+    function SelectAlphaColor(AColor: TAlphaColor): TAlphaColor;
+    function SelectFontFamilyName(AFontName: string): string;
+ end;
+
   IScreenshotSaver = interface
   ['{6A887F21-1AF1-4AA4-9B83-BC9D5136E8FF}']
     function CanSave: Boolean;
