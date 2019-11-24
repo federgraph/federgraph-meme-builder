@@ -3,6 +3,7 @@
 interface
 
 uses
+  System.Classes,
   System.UIConsts,
   System.UITypes,
   FMX.Graphics;
@@ -42,6 +43,8 @@ type
 ['{736BA227-0249-475F-AE02-AB9F3C5EB3FB}']
     function SelectAlphaColor(AColor: TAlphaColor): TAlphaColor;
     function SelectFontFamilyName(AFontName: string): string;
+    procedure CollectFontFamilyNames(ML: TStrings);
+    function IsShiftKeyPressed: Boolean;
  end;
 
   IScreenshotSaver = interface

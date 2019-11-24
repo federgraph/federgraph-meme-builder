@@ -19,15 +19,6 @@
 interface
 
 uses
-{$ifdef MACOS}
-  MacApi.Appkit,
-  Macapi.CoreFoundation,
-  Macapi.Foundation,
-{$endif}
-{$ifdef MSWINDOWS}
-  Winapi.Messages,
-  Winapi.Windows,
-{$endif}
   System.SysUtils,
   System.Classes,
   System.Types,
@@ -119,11 +110,9 @@ type
     function GetParamText: string;
     procedure InitOfficeFonts;
     procedure InitNormalFonts;
-    procedure CollectFonts(FontList: TStringList);
     procedure InitFontList;
     function GetSelectedText: string;
     procedure UpdateReport;
-    function IsShiftKeyPressed: Boolean;
     procedure AdaptFormSize;
     procedure PasteBitmapFromClipboard;
     procedure ToggleTiling;
@@ -227,10 +216,7 @@ begin
 
   if Application.Title = 'FC96' then
   begin
-//    DropTargetVisible := true;
-
-    { show a solid color background, better for reading }
-    ClearImage;
+    DropTargetVisible := true;
   end;
 
   InitHelpText;
@@ -950,7 +936,7 @@ begin
   CheckerImage.Bitmap := CheckerBitmap;
   CheckerImage.WrapMode := TImageWrapMode.Fit;
 
-  if IsShiftKeyPressed then
+  if Picker.IsShiftKeyPressed then
     AdaptFormSize;
 end;
 
@@ -1039,6 +1025,7 @@ var
   Value: TValue;
   Bitmap: TBitmap;
 begin
+  // Delphi example: Multi-Device Samples\User Interface\CopyPaste
   if TPlatformServices.Current.SupportsPlatformService(IFMXClipboardService, Svc) then
   begin
     Value := Svc.GetClipboard;
@@ -1090,7 +1077,6 @@ var
   fn: string;
 begin
   tt := GetCurrentTextControl;
-//  fn := tt.TextSettings.Font.Family;
   fn := tt.Font.Family;
   fn := Picker.SelectFontFamilyName(fn);
   tt.Font.Family := fn;
@@ -1121,59 +1107,6 @@ begin
   AdaptFormSize;
 end;
 
-{$ifdef MSWINDOWS}
-function EnumFontsProc(var LogFont: TLogFont; var TextMetric: TTextMetric;
-  FontType: Integer; Data: Pointer): Integer; stdcall;
-var
-  S: TStrings;
-  Temp: string;
-begin
-  S := TStrings(Data);
-  Temp := LogFont.lfFaceName;
-  if (S.Count = 0) or (AnsiCompareText(S[S.Count-1], Temp) <> 0) then
-    S.Add(Temp);
-  Result := 1;
-end;
-{$endif}
-
-procedure TFormMeme.CollectFonts(FontList: TStringList);
-var
-{$ifdef MACOS}
-  fManager: NsFontManager;
-  list:NSArray;
-  lItem:NSString;
-  i: Integer;
-{$endif}
-{$ifdef MSWINDOWS}
-  DC: HDC;
-  LFont: TLogFont;
-{$endif}
-begin
-// stackoverflow: how-to-get-the-list-of-fonts-available-delphi-xe3-firemonkey-2
-
-{ not yet tested on MACOS at all }
-
-{$ifdef MACOS}
-  fManager := TNsFontManager.Wrap(TNsFontManager.OCClass.sharedFontManager);
-  list := fManager.availableFontFamilies;
-  if (List <> nil) and (List.count > 0) then
-  begin
-    for i := 0 to List.Count-1 do
-    begin
-      lItem := TNSString.Wrap(List.objectAtIndex(i));
-      FontList.Add(String(lItem.UTF8String))
-    end;
-  end;
-{$endif}
-{$ifdef MSWINDOWS}
-  DC := GetDC(0);
-  FillChar(LFont, sizeof(LFont), 0);
-  LFont.lfCharset := DEFAULT_CHARSET;
-  EnumFontFamiliesEx(DC, LFont, @EnumFontsProc, Winapi.Windows.LPARAM(FontList), 0);
-  ReleaseDC(0, DC);
-{$endif}
-end;
-
 procedure TFormMeme.InitFontList;
 var
   f: string;
@@ -1184,7 +1117,7 @@ begin
 
   SL := TStringList.Create;
   try
-    CollectFonts(SL);
+    Picker.CollectFontFamilyNames(SL);
 
     for f in FontFamilyList do
     begin
@@ -1203,16 +1136,6 @@ begin
 
   if not UseOfficeFonts then
     InitNormalFonts;
-end;
-
-function TFormMeme.IsShiftKeyPressed: Boolean;
-begin
-// stackoverflow: getkeystate-in-firemonkey
-{$IFDEF MSWINDOWS}
-  Result := GetKeyState(VK_SHIFT) < 0;
-{$ELSE}
-  Result := NSShiftKeyMask and TNSEvent.OCClass.modifierFlags = NSShiftKeyMask;
-{$ENDIF}
 end;
 
 procedure TFormMeme.AdaptFormSize;
