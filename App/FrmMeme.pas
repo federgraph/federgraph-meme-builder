@@ -66,7 +66,7 @@ type
     procedure BottomEditKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char;
       Shift: TShiftState);
   private
-    fa: Integer;
+    FParam: TMemeParam;
     fo: Integer;
     DropTarget: TDropTarget;
     CheckerBitmap: TBitmap;
@@ -105,7 +105,7 @@ type
     procedure CycleFont(Value: Integer);
     procedure UpdateFormat(w, h: Integer);
     procedure Reset;
-    procedure UpdateParam(afa: Integer);
+    procedure UpdateParam(fp: TMemeParam);
     procedure SetBitmap(value: TBitmap);
     function GetParamText: string;
     procedure InitOfficeFonts;
@@ -133,11 +133,17 @@ type
     procedure PickColor;
     procedure CycleColorDark(delta: Integer = 1);
     procedure CycleColorLight(delta: Integer = 1);
+    procedure ApplicationEventsException(Sender: TObject; E: Exception);
+    function GetActionFromKey(Key: Word): Integer;
+    function GetActionFromKeyChar(KeyChar: char): Integer;
+    procedure ToggleEdits;
+    procedure HA(fa: Integer);
     property DropTargetVisible: Boolean read FDropTargetVisible write SetDropTargetVisible;
     property UseOfficeFonts: Boolean read FUseOfficeFonts write SetUseOfficeFonts;
   protected
     function FindTarget(P: TPointF; const Data: TDragObject): IControl; override;
   public
+    procedure HandleAction(fa: Integer);
     property Background: TBitmap read CheckerBitmap write SetBitmap;
   end;
 
@@ -155,18 +161,15 @@ uses
   RiggVar.MB.SampleText02;
 
 const
-  faTopMargin = 1;
-  faBottomMargin = 2;
-  faTopSize = 3;
-  faBottomSize = 4;
-  faTopGlow = 5;
-  faBottomGlow = 6;
-
   MaxEdgeDistance = 200;
   BoolStr: array[Boolean] of string = ('False', 'True');
 
   HelpCaptionText = 'press h for help';
   ApplicationTitleText = 'FC96';
+
+procedure TFormMeme.ApplicationEventsException(Sender: TObject; E: Exception);
+begin
+end;
 
 procedure TFormMeme.FormCreate(Sender: TObject);
 begin
@@ -175,6 +178,8 @@ begin
 {$endif}
   FormatSettings.DecimalSeparator := '.';
   FScale := Handle.Scale;
+
+  Application.OnException := ApplicationEventsException;
 
   FontFamilyList := TStringList.Create;
 
@@ -235,216 +240,35 @@ end;
 
 procedure TFormMeme.FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char;
   Shift: TShiftState);
+var
+  fa: Integer;
+  fk: Integer;
+  fc: Integer;
 begin
   if Key = vkEscape then
-  begin
-    HelpText.Visible := False;
-    ReportText.Visible := False;
-    DropTargetVisible := False;
-    TopEdit.Visible := not TopEdit.Visible;
-    BottomEdit.Visible := TopEdit.Visible;
-    Flash(DefaultCaption);
-  end;
+    Ha(faMemeToggleEdits);
 
   if TopEdit.Visible then
   begin
-    { do nothing when editing, exit here }
+    Exit;
   end
-
-  else if Key = vkF12 then
-    SaveBitmap
-
-  else if Key = vkC then
-    CopyBitmap
-
-  else if Key = vkV then
-    PasteBitmapFromClipboard
-
-  else if KeyChar = '=' then
+  else
   begin
-    SampleManager := SampleManager00;
-    Flash('using SampleManager00');
+    fa := faMemeNoop;
+    fk := GetActionFromKey(Key);
+    fc := GetActionFromKeyChar(KeyChar);
+
+    if fk <> faMemeNoop then
+      fa := fk
+    else if fc <> faMemeNoop then
+      fa := fc;
+
+    if fa <> faMemeNoop then
+      Ha(fa);
+
+    if ReportText.Visible then
+      UpdateReport;
   end
-
-  else if KeyChar = '?' then
-  begin
-    SampleManager := SampleManager01;
-    Flash('using SampleManager01');
-  end
-
-  else if KeyChar = '!' then
-  begin
-    SampleManager := SampleManager02;
-    Flash('using SampleManager02');
-   end
-
-  else if KeyChar = 'b' then
-  begin
-    SelectedText := TSelectedText.stBottom;
-    Flash('Bottom Text');
-  end
-
-  else if KeyChar = 'a' then
-    AdaptFormSize
-
-  else if KeyChar = 'c' then
-    ClearImage
-  else if KeyChar = 'C' then
-    InitChecker(True)
-
-  else if KeyChar = 'd' then
-  begin
-    DropTargetVisible := not DropTargetVisible;
-    ReportText.Visible := false;
-  end
-
-  else if KeyChar = 'f' then
-    CycleFontP
-
-  else if KeyChar = 'F' then
-    CycleFontM
-
-  else if KeyChar = 'g' then
-    UpdateParam(faTopGlow)
-
-  else if KeyChar = 'G' then
-    UpdateParam(faBottomGlow)
-
-  else if KeyChar = 'h' then
-  begin
-    DropTargetVisible := False;
-    HelpText.Visible := not HelpText.Visible;
-    ReportText.Visible := False;
-  end
-
-  else if KeyChar = 'l' then
-    GotoLandscape
-
-  else if KeyChar = 'm' then
-    UpdateParam(faTopMargin)
-
-  else if KeyChar = 'M' then
-    UpdateParam(faBottomMargin)
-
-  else if KeyChar = 'o' then
-  begin
-    if HasOfficeFonts then
-    begin
-      if UseOfficeFonts then
-        InitNormalFonts
-      else
-        InitOfficeFonts;
-    end;
-    Reset;
-    if UseOfficeFonts then
-      Flash('Office Fonts')
-    else
-      Flash('Normal Fonts');
-  end
-
-  else if KeyChar = 'O' then
-  begin
-    InitNormalFonts;
-    Reset;
-  end
-
-  else if KeyChar = 'ö' then
-    CycleColorDark(1)
-  else if KeyChar = 'Ö' then
-    CycleColorDark(-1)
-
-  else if KeyChar = 'ü' then
-    CycleColorLight(1)
-  else if KeyChar = 'Ü' then
-    CycleColorLight(-1)
-
-  else if KeyChar = 'ä' then
-    PickFont
-  else if KeyChar = 'Ä' then
-    PickColor
-
-  else if KeyChar = 'p' then
-    GotoPortrait
-
-  else if KeyChar = 'q' then
-    GotoSquare
-
-  else if KeyChar = 'r' then
-  begin
-    Flash(HelpCaptionText);
-    DropTargetVisible := False;
-    HelpText.Visible := False;
-    ReportText.Visible := not ReportText.Visible;
-  end
-
-  else if KeyChar = 'R' then
-    Reset
-
-  else if KeyChar = 's' then
-    UpdateParam(faTopSize)
-
-  else if KeyChar = 'S' then
-    UpdateParam(faBottomSize)
-
-  else if KeyChar = 't' then
-  begin
-    SelectedText := TSelectedText.stTop;
-    Flash('Top Text');
-  end
-  else if KeyChar = 'u' then
-    ToggleTiling
-  else if KeyChar = 'v' then
-    ToggleFontColor
-  else if KeyChar = 'V' then
-    ToggleTextColor
-
-  else if KeyChar = 'x' then
-  begin
-    SampleManager.Toggle;
-    Reset;
-  end
-
-  else if KeyChar = 'y' then
-  begin
-    SampleManager.Next;
-    Reset;
-  end
-
-  else if KeyChar = 'Y' then
-  begin
-    SampleManager.Previous;
-    Reset;
-  end
-
-  else if KeyChar = 'Z' then
-    SwapText
-
-  else if KeyChar = '1' then
-    UpdateFormat(1000, 750)
-  else if KeyChar = '2' then
-    UpdateFormat(800, 600)
-  else if KeyChar = '3' then
-    UpdateFormat(640, 480)
-  else if KeyChar = '4' then
-    UpdateFormat(480, 480)
-  else if KeyChar = '5' then
-    UpdateFormat(512, 512)
-  else if KeyChar = '6' then
-    UpdateFormat(600, 600)
-  else if KeyChar = '7' then
-    UpdateFormat(700, 700)
-  else if KeyChar = '8' then
-    UpdateFormat(800, 800)
-  else if KeyChar = '9' then
-    UpdateFormat(900, 900)
-  else if KeyChar = '0' then
-  begin
-    Top := 0;
-    UpdateFormat(750, 1000)
-  end;
-
-  if ReportText.Visible then
-    UpdateReport;
 end;
 
 procedure TFormMeme.InitHelpText;
@@ -506,6 +330,16 @@ begin
   ReportText.Visible := True;
 end;
 
+procedure TFormMeme.ToggleEdits;
+begin
+  HelpText.Visible := False;
+  ReportText.Visible := False;
+  DropTargetVisible := False;
+  TopEdit.Visible := not TopEdit.Visible;
+  BottomEdit.Visible := TopEdit.Visible;
+  Flash(DefaultCaption);
+end;
+
 procedure TFormMeme.UpdateFormat(w, h: Integer);
 begin
   ClientWidth := w;
@@ -543,13 +377,13 @@ end;
 
 function TFormMeme.GetParamText: string;
 begin
-  case fa of
-    faTopMargin: result := 'Margin Top';
-    faBottomMargin: result := 'Margin Bottom';
-    faTopSize: result := 'Font Size Top';
-    faBottomSize: result := 'Font Size Bottom';
-    faTopGlow: result := 'Glow Softness Top';
-    faBottomGlow: result := 'Glow Softness Botton';
+  case FParam of
+    fpTopMargin: result := 'Margin Top';
+    fpBottomMargin: result := 'Margin Bottom';
+    fpTopSize: result := 'Font Size Top';
+    fpBottomSize: result := 'Font Size Bottom';
+    fpTopGlow: result := 'Glow Softness Top';
+    fpBottomGlow: result := 'Glow Softness Botton';
     else
       result := 'None';
   end;
@@ -559,8 +393,8 @@ procedure TFormMeme.HandleWheel(Delta: Integer);
 var
   f: single;
 begin
-  case fa of
-    faTopSize:
+  case FParam of
+    fpTopSize:
     begin
       f := TopText.Font.Size;
       f := f + Delta;
@@ -569,7 +403,7 @@ begin
       Flash(Format('TopText.Font.Size = %d', [Round(f)]));
     end;
 
-    faBottomSize:
+    fpBottomSize:
     begin
       f := BottomText.Font.Size;
       f := f + Delta;
@@ -578,7 +412,7 @@ begin
       Flash(Format('BottomText.Font.Size = %d', [Round(f)]));
     end;
 
-    faTopMargin:
+    fpTopMargin:
     begin
       f := TopText.Margins.Top;
       f := f + 4 * Delta;
@@ -587,7 +421,7 @@ begin
       Flash(Format('TopText.Margins.Top = %d', [Round(f)]));
     end;
 
-    faBottomMargin:
+    fpBottomMargin:
     begin
       f := BottomText.Margins.Bottom;
       f := f + 4 * Delta;
@@ -596,7 +430,7 @@ begin
       Flash(Format('BottomText.Margins.Bottom = %d', [Round(f)]));
     end;
 
-    faTopGlow:
+    fpTopGlow:
     begin
       f := TopGlow.Softness;
       f := f + 0.05 * Delta;
@@ -608,7 +442,7 @@ begin
       Flash(Format('TopGlow.Softness = %.1g', [f]));
     end;
 
-    faBottomGlow:
+    fpBottomGlow:
     begin
       f := BottomGlow.Softness;
       f := f + 0.05 * Delta;
@@ -994,14 +828,14 @@ begin
   Flash(DefaultCaption);
 end;
 
-procedure TFormMeme.UpdateParam(afa: Integer);
+procedure TFormMeme.UpdateParam(fp: TMemeParam);
 begin
-  fa := afa;
+  FParam := fp;
 
-  case fa of
-    faTopMargin,
-    faTopSize,
-    faTopGlow: SelectedText := TSelectedText.stTop;
+  case FParam of
+    fpTopMargin,
+    fpTopSize,
+    fpTopGlow: SelectedText := TSelectedText.stTop;
     else
       SelectedText := stBottom;
   end;
@@ -1343,6 +1177,265 @@ begin
   end;
   cla := LightColors[ColorIndexLight];
   GetCurrentTextControl.TextSettings.FontColor := cla;
+end;
+
+procedure TFormMeme.HandleAction(fa: Integer);
+begin
+  HA(fa);
+end;
+
+procedure TFormMeme.HA(fa: Integer);
+begin
+  case fa of
+    faMemeToggleEdits: ToggleEdits;
+    faMemeSaveBitmap: SaveBitmap;
+    faMemeCopyBitmap: CopyBitmap;
+    faMemePasteBitmap: PasteBitmapFromClipboard;
+
+    faMemeSample00:
+    begin
+      SampleManager := SampleManager00;
+      Flash('using SampleManager00');
+    end;
+
+    faMemeSample01:
+    begin
+      SampleManager := SampleManager01;
+      Flash('using SampleManager01');
+    end;
+
+    faMemeSample02:
+    begin
+      SampleManager := SampleManager02;
+      Flash('using SampleManager02');
+    end;
+
+    faMemeSelectBottom:
+    begin
+      SelectedText := TSelectedText.stBottom;
+      Flash('Bottom Text');
+    end;
+
+    faMemeAdaptFormSize: AdaptFormSize;
+
+    faMemeClearImage: ClearImage;
+    faMemeInitChecker: InitChecker(True);
+
+    faMemeToggleDropTarget:
+    begin
+      DropTargetVisible := not DropTargetVisible;
+      ReportText.Visible := false;
+    end;
+
+    faMemeCycleFontP: CycleFontP;
+    faMemeCycleFontM: CycleFontM;
+
+    faMemeParamTopGlow: UpdateParam(fpTopGlow);
+    faMemeParamBottomGlow: UpdateParam(fpBottomGlow);
+
+    faMemeToggleHelp:
+    begin
+      DropTargetVisible := False;
+      HelpText.Visible := not HelpText.Visible;
+      ReportText.Visible := False;
+    end;
+
+    faMemeParamTopMargin: UpdateParam(fpTopMargin);
+    faMemeParamBottomMargin: UpdateParam(fpBottomMargin);
+
+    faMemeFontOffice:
+    begin
+      if HasOfficeFonts then
+      begin
+        if UseOfficeFonts then
+          InitNormalFonts
+        else
+          InitOfficeFonts;
+      end;
+      Reset;
+      if UseOfficeFonts then
+        Flash('Office Fonts')
+      else
+        Flash('Normal Fonts');
+    end;
+
+    faMemeFontNormal:
+    begin
+      InitNormalFonts;
+      Reset;
+    end;
+
+    faMemeCycleDarkColorP: CycleColorDark(1);
+    faMemeCycleDarkColorM: CycleColorDark(-1);
+
+    faMemeCycleLightColorP: CycleColorLight(1);
+    faMemeCycleLightColorM: CycleColorLight(-1);
+
+    faMemePickFont: PickFont;
+    faMemePickColor: PickColor;
+
+    faMemeGotoLandscape: GotoLandscape;
+    faMemeGotoPortrait: GotoPortrait;
+    faMemeGotoSquare: GotoSquare;
+
+    faMemeToggleReport:
+    begin
+      Flash(HelpCaptionText);
+      DropTargetVisible := False;
+      HelpText.Visible := False;
+      ReportText.Visible := not ReportText.Visible;
+    end;
+
+    faMemeReset: Reset;
+
+    faMemeParamTopSize: UpdateParam(fpTopSize);
+    faMemeParamBottomSize: UpdateParam(fpBottomSize);
+
+    faMemeSelectTop:
+    begin
+      SelectedText := TSelectedText.stTop;
+      Flash('Top Text');
+    end;
+
+    faMemeToggleTiling: ToggleTiling;
+    faMemeToggleFontColor: ToggleFontColor;
+    faMemeToggleTextColor: ToggleTextColor;
+
+    faMemeSampleToggle:
+    begin
+      SampleManager.Toggle;
+      Reset;
+    end;
+
+    faMemeSampleNext:
+    begin
+      SampleManager.Next;
+      Reset;
+    end;
+
+    faMemeSamplePrevious:
+    begin
+      SampleManager.Previous;
+      Reset;
+    end;
+
+    faMemeSwapText: SwapText;
+
+    faMemeFormat1: UpdateFormat(1000, 750);
+    faMemeFormat2: UpdateFormat(800, 600);
+    faMemeFormat3: UpdateFormat(640, 480);
+    faMemeFormat4: UpdateFormat(480, 480);
+    faMemeFormat5: UpdateFormat(512, 512);
+    faMemeFormat6: UpdateFormat(600, 600);
+    faMemeFormat7: UpdateFormat(700, 700);
+    faMemeFormat8: UpdateFormat(800, 800);
+    faMemeFormat9: UpdateFormat(900, 900);
+    faMemeFormat0:
+    begin
+      Top := 0;
+      UpdateFormat(750, 1000)
+    end;
+
+    else
+    begin
+      { do nothing }
+    end;
+
+  end;
+end;
+
+function TFormMeme.GetActionFromKey(Key: Word): Integer;
+begin
+  result := faMemeNoop;
+  case Key of
+    vkEscape: result := faMemeToggleEdits;
+    vkF12: result := faMemeSaveBitmap;
+    vkC: result := faMemeCopyBitmap;
+    vkV: result := faMemePasteBitmap;
+  end
+end;
+
+function TFormMeme.GetActionFromKeyChar(KeyChar: char): Integer;
+var
+  fa: Integer;
+begin
+  case KeyChar of
+    '=': fa := faMemeSample00;
+    '?': fa := faMemeSample01;
+    '!': fa := faMemeSample02;
+
+    'a': fa := faMemeAdaptFormSize;
+    'b': fa := faMemeSelectBottom;
+
+    'c': fa := faMemeClearImage;
+    'C': fa := faMemeInitChecker;
+
+    'd': fa := faMemeToggleDropTarget;
+
+    'f': fa := faMemeCycleFontP;
+    'F': fa := faMemeCycleFontM;
+
+    'g': fa := faMemeParamTopGlow;
+    'G': fa := faMemeParamBottomGlow;
+
+    'h': fa := faMemeToggleHelp;
+
+    'l': fa := faMemeGotoLandscape;
+
+    'm': fa := faMemeParamTopMargin;
+    'M': fa := faMemeParamBottomMargin;
+
+    'o': fa := faMemeFontOffice;
+    'O': fa := faMemeFontNormal;
+
+    'p': fa := faMemeGotoPortrait;
+
+    'q': fa := faMemeGotoSquare;
+
+    'r': fa := faMemeToggleReport;
+    'R': fa := faMemeReset;
+
+    's': fa := faMemeParamTopSize;
+    'S': fa := faMemeParamBottomSize;
+
+    't': fa := faMemeSelectTop;
+
+    'u': fa := faMemeToggleTiling;
+
+    'v': fa := faMemeToggleFontColor;
+    'V': fa := faMemeToggleTextColor;
+
+    'x': fa := faMemeSampleToggle;
+
+    'y': fa := faMemeSampleNext;
+    'Y': fa := faMemeSamplePrevious;
+
+    'Z': fa := faMemeSwapText;
+
+    '0': fa := faMemeFormat0;
+    '1': fa := faMemeFormat1;
+    '2': fa := faMemeFormat2;
+    '3': fa := faMemeFormat3;
+    '4': fa := faMemeFormat4;
+    '5': fa := faMemeFormat5;
+    '6': fa := faMemeFormat6;
+    '7': fa := faMemeFormat7;
+    '8': fa := faMemeFormat8;
+    '9': fa := faMemeFormat9;
+
+    'ä': fa := faMemePickFont;
+    'Ä': fa := faMemePickColor;
+
+    'ö': fa := faMemeCycleDarkColorP;
+    'Ö': fa := faMemeCycleDarkColorM;
+
+    'ü': fa := faMemeCycleLightColorP;
+    'Ü': fa := faMemeCycleLightColorM;
+
+    else fa := faMemeNoop;
+
+  end;
+  result := fa;
 end;
 
 end.
