@@ -90,6 +90,7 @@ type
     ColorIndexLight: Integer;
     Picker: IPicker;
     DefaultMargin: single;
+    Raster: Integer;
     procedure CopyBitmapToClipboard(ABitmap: TBitmap);
     procedure CopyBitmap;
     procedure CreateCheckerBitmap;
@@ -202,7 +203,16 @@ begin
 
   InitChecker(True);
 
-  DefaultMargin := { MainVar.Raster + } 10;
+  { Raster := 70 if Form has Button-Frame }
+  Raster := 0;
+  DefaultMargin := Raster + 10;
+
+  ReportText.Position.X := DefaultMargin;
+  HelpText.Position.X := ReportText.Position.X;
+
+  ReportText.Position.Y := 2 * Raster + 10;
+  HelpText.Position.Y := ReportText.Position.Y;
+
   TopText.Margins.Top := DefaultMargin;
   TopText.Margins.Left := DefaultMargin;
   TopText.Margins.Right := DefaultMargin;
