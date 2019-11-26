@@ -67,13 +67,14 @@ type
       Shift: TShiftState);
   private
     FParam: TMemeParam;
+    FSelectedText: TSelectedText;
+    FActiveSampleManagerID: Integer;
     fo: Integer;
     DropTarget: TDropTarget;
     CheckerBitmap: TBitmap;
     CheckerImage: TImage;
     FDropTargetVisible: Boolean;
     DefaultCaption: string;
-    SelectedText: TSelectedText;
     FontFamilyList: TStringList;
     HasOfficeFonts: Boolean;
     WantOfficeFonts: Boolean;
@@ -140,6 +141,7 @@ type
     function GetActionFromKeyChar(KeyChar: char): Integer;
     procedure ToggleEdits;
     procedure HA(fa: Integer);
+    function GetSampleIndex: Integer;
     property DropTargetVisible: Boolean read FDropTargetVisible write SetDropTargetVisible;
     property UseOfficeFonts: Boolean read FUseOfficeFonts write SetUseOfficeFonts;
   protected
@@ -147,6 +149,11 @@ type
   public
     procedure HandleAction(fa: Integer);
     property Background: TBitmap read CheckerBitmap write SetBitmap;
+    property Param: TMemeParam read FParam;
+    property SelectedText: TSelectedText read FSelectedText;
+    property ActiveSampleManagerID: Integer read FActiveSampleManagerID;
+    property SampleIndex: Integer read GetSampleIndex;
+    property IsDropTargetVisible: Boolean read FDropTargetVisible;
   end;
 
 var
@@ -210,7 +217,7 @@ begin
   ReportText.Position.X := DefaultMargin;
   HelpText.Position.X := ReportText.Position.X;
 
-  ReportText.Position.Y := 2 * Raster + 10;
+  ReportText.Position.Y := Raster + 70 + 10;
   HelpText.Position.Y := ReportText.Position.Y;
 
   TopText.Margins.Top := DefaultMargin;
@@ -247,7 +254,6 @@ end;
 
 procedure TFormMeme.FormDestroy(Sender: TObject);
 begin
-  { SampleManagers are ref-counted interfaces }
   CheckerBitmap.Free;
   FontFamilyList.Free;
   SL.Free;
@@ -530,6 +536,13 @@ end;
 procedure TFormMeme.ClearImage;
 begin
   CheckerImage.Bitmap.Clear(claPurple);
+end;
+
+function TFormMeme.GetSampleIndex: Integer;
+begin
+  result := 0;
+  if SampleManager <> nil then
+    result := SampleManager.GetCurrentIndex;
 end;
 
 function TFormMeme.GetScreenshot: TBitmap;
@@ -840,9 +853,9 @@ begin
   case FParam of
     fpTopMargin,
     fpTopSize,
-    fpTopGlow: SelectedText := TSelectedText.stTop;
+    fpTopGlow: FSelectedText := TSelectedText.stTop;
     else
-      SelectedText := stBottom;
+      FSelectedText := stBottom;
   end;
 
   Flash(GetParamText);
@@ -1200,6 +1213,7 @@ begin
     faMemeSample00:
     begin
       SampleManager := SampleManager00;
+      FActiveSampleManagerID := 0;
       Reset;
       Flash('using SampleManager00');
     end;
@@ -1207,6 +1221,7 @@ begin
     faMemeSample01:
     begin
       SampleManager := SampleManager01;
+      FActiveSampleManagerID := 1;
       Reset;
       Flash('using SampleManager01');
     end;
@@ -1214,13 +1229,14 @@ begin
     faMemeSample02:
     begin
       SampleManager := SampleManager02;
+      FActiveSampleManagerID := 2;
       Reset;
       Flash('using SampleManager02');
     end;
 
     faMemeSelectBottom:
     begin
-      SelectedText := TSelectedText.stBottom;
+      FSelectedText := TSelectedText.stBottom;
       Flash('Bottom Text');
     end;
 
@@ -1292,6 +1308,8 @@ begin
       DropTargetVisible := False;
       HelpText.Visible := False;
       ReportText.Visible := not ReportText.Visible;
+      if ReportText.Visible then
+        UpdateReport;
     end;
 
     faMemeReset: Reset;
@@ -1301,7 +1319,7 @@ begin
 
     faMemeSelectTop:
     begin
-      SelectedText := TSelectedText.stTop;
+      FSelectedText := TSelectedText.stTop;
       Flash('Top Text');
     end;
 
