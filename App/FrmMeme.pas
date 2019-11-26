@@ -89,6 +89,7 @@ type
     ColorIndexDark: Integer;
     ColorIndexLight: Integer;
     Picker: IPicker;
+    DefaultMargin: single;
     procedure CopyBitmapToClipboard(ABitmap: TBitmap);
     procedure CopyBitmap;
     procedure CreateCheckerBitmap;
@@ -181,6 +182,7 @@ begin
 
   Application.OnException := ApplicationEventsException;
 
+  Self.Position := TFormPosition.ScreenCenter;
   FontFamilyList := TStringList.Create;
 
   ScreenshotSaver := TScreenshotSaver.Create;
@@ -200,11 +202,14 @@ begin
 
   InitChecker(True);
 
-  TopText.Margins.Left := 10;
-  TopText.Margins.Right := 10;
+  DefaultMargin := { MainVar.Raster + } 10;
+  TopText.Margins.Top := DefaultMargin;
+  TopText.Margins.Left := DefaultMargin;
+  TopText.Margins.Right := DefaultMargin;
 
-  BottomText.Margins.Left := 10;
-  BottomText.Margins.Right := 10;
+  BottomText.Margins.Bottom := DefaultMargin;
+  BottomText.Margins.Left := DefaultMargin;
+  BottomText.Margins.Right := DefaultMargin;
 
   TopText.BringToFront;
   BottomText.BringToFront;
@@ -242,29 +247,19 @@ procedure TFormMeme.FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char;
   Shift: TShiftState);
 var
   fa: Integer;
-  fk: Integer;
-  fc: Integer;
 begin
   if Key = vkEscape then
-    Ha(faMemeToggleEdits);
-
-  if TopEdit.Visible then
-  begin
-    Exit;
-  end
+    HA(faMemeToggleEdits)
+  else if TopEdit.Visible then
+    Exit
   else
   begin
-    fa := faMemeNoop;
-    fk := GetActionFromKey(Key);
-    fc := GetActionFromKeyChar(KeyChar);
-
-    if fk <> faMemeNoop then
-      fa := fk
-    else if fc <> faMemeNoop then
-      fa := fc;
+    fa := GetActionFromKey(Key);
+    if fa = faMemeNoop then
+      fa := GetActionFromKeyChar(KeyChar);
 
     if fa <> faMemeNoop then
-      Ha(fa);
+      HA(fa);
 
     if ReportText.Visible then
       UpdateReport;
@@ -597,7 +592,7 @@ begin
   begin
     DropTarget.Width := 180;
     DropTarget.Height := 120;
-    DropTarget.Position.X := 10;
+    DropTarget.Position.X := DefaultMargin;
     DropTarget.Position.Y := 200;
     DropTarget.Filter := '*.jpeg;*.jpg;*.png';
     DropTarget.Text := 'drop jpg or png';
@@ -817,8 +812,8 @@ begin
   TopEdit.Text := i.Top.Text;
   BottomEdit.Text := i.Bottom.Text;
 
-  TopText.Margins.Top := 10;
-  BottomText.Margins.Bottom := 10;
+  TopText.Margins.Top := DefaultMargin;
+  BottomText.Margins.Bottom := DefaultMargin;
 
   TopGlow.Softness := 0.4;
   BottomGlow.Softness := 0.4;
@@ -1108,8 +1103,8 @@ end;
 
 procedure TFormMeme.InitMemo(Memo: TMemo);
 begin
-  Memo.Position.X := 10;
-  Memo.Width := ClientWidth - 2 * 10;
+  Memo.Position.X := DefaultMargin;
+  Memo.Width := ClientWidth - 2 * DefaultMargin;
 
   Memo.ControlType := TControlType.Styled;
   Memo.StyledSettings := [];
@@ -1141,7 +1136,7 @@ var
   cla: TColor;
   l: Integer;
 begin
-  l := Length(LightColors);
+  l := Length(DarkColors);
   if delta > 0 then
   begin
     Inc(ColorIndexDark);
@@ -1195,18 +1190,21 @@ begin
     faMemeSample00:
     begin
       SampleManager := SampleManager00;
+      Reset;
       Flash('using SampleManager00');
     end;
 
     faMemeSample01:
     begin
       SampleManager := SampleManager01;
+      Reset;
       Flash('using SampleManager01');
     end;
 
     faMemeSample02:
     begin
       SampleManager := SampleManager02;
+      Reset;
       Flash('using SampleManager02');
     end;
 
@@ -1301,19 +1299,19 @@ begin
     faMemeToggleFontColor: ToggleFontColor;
     faMemeToggleTextColor: ToggleTextColor;
 
-    faMemeSampleToggle:
+    faMemeSampleT:
     begin
       SampleManager.Toggle;
       Reset;
     end;
 
-    faMemeSampleNext:
+    faMemeSampleP:
     begin
       SampleManager.Next;
       Reset;
     end;
 
-    faMemeSamplePrevious:
+    faMemeSampleM:
     begin
       SampleManager.Previous;
       Reset;
@@ -1405,10 +1403,10 @@ begin
     'v': fa := faMemeToggleFontColor;
     'V': fa := faMemeToggleTextColor;
 
-    'x': fa := faMemeSampleToggle;
+    'x': fa := faMemeSampleT;
 
-    'y': fa := faMemeSampleNext;
-    'Y': fa := faMemeSamplePrevious;
+    'y': fa := faMemeSampleP;
+    'Y': fa := faMemeSampleM;
 
     'Z': fa := faMemeSwapText;
 

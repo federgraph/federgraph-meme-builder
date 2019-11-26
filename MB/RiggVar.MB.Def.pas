@@ -91,7 +91,7 @@ const
 
   { Actions }
 
-  faMemeNoop = 0;
+  faMemeNoop = 1999;
 
   faMemeToggleEdits = 2000;
   faMemeReset = 2001;
@@ -146,9 +146,9 @@ const
   faMemeFormat8 = 2039;
   faMemeFormat9 = 2040;
 
-  faMemeSampleToggle = 2041;
-  faMemeSampleNext = 2042;
-  faMemeSamplePrevious = 2043;
+  faMemeSampleT = 2041;
+  faMemeSampleP = 2042;
+  faMemeSampleM = 2043;
 
   faMemeSample00 = 2044;
   faMemeSample01 = 2045;
