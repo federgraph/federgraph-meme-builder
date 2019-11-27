@@ -18,7 +18,7 @@
 
 interface
 
-{.$define WantBtnFrame}
+{$define WantBtnFrame}
 
 uses
   System.SysUtils,
@@ -155,7 +155,7 @@ type
   protected
     function FindTarget(P: TPointF; const Data: TDragObject): IControl; override;
   public
-    Layout: TLayout; // Parent for Button-Frame, if any
+    Layout: TLayout;
     procedure HandleWheel(Delta: Integer);
     procedure HandleAction(fa: Integer);
     procedure UpdateBackgroundColor(AColor: TAlphaColor);
@@ -210,7 +210,6 @@ begin
   FormMeme := self;
   Self.Position := TFormPosition.ScreenCenter;
 
-  Raster := 0;
 {$ifdef WantBtnFrame}
   InitMain;
   Raster := MainVar.Raster;
@@ -268,11 +267,9 @@ begin
   begin
     DropTargetVisible := true;
   end;
-
 {$ifdef WantBtnFrame}
   UpdateBackgroundColor(MainVar.ColorScheme.claBackground);
 {$endif}
-
   InitHelpText;
   SL := TStringList.Create;
 
@@ -281,7 +278,6 @@ begin
 {$ifdef WantBtnFrame}
     Main.FederText.CheckState;
 {$endif}
-
 end;
 
 procedure TFormMeme.FormDestroy(Sender: TObject);
@@ -347,7 +343,7 @@ begin
   ML.Add('  u    - toggle image tile mode (tiled or fit)');
   ML.Add('  v, V - toggle color, help text and meme text');
   ML.Add('  a    - adapt form size');
-  ML.Add('  c, C   - clear image command');
+  ML.Add('  c, C - clear image command');
   ML.Add('  ^c   - copy image to clipboard command');
   ML.Add('  1..9, 0 - Format selection');
   ML.Add('  1, p, q - Landscape, Portrait, Square');

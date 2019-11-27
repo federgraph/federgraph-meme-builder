@@ -2,8 +2,8 @@ object FormMeme: TFormMeme
   Left = 0
   Top = 0
   Caption = 'FC Meme Builder'
-  ClientHeight = 600
-  ClientWidth = 800
+  ClientHeight = 750
+  ClientWidth = 1000
   Fill.Color = claSlateblue
   Fill.Kind = Solid
   FormFactor.Width = 320
@@ -21,7 +21,7 @@ object FormMeme: TFormMeme
     HitTest = False
     Margins.Top = 10.000000000000000000
     Position.Y = 10.000000000000000000
-    Size.Width = 800.000000000000000000
+    Size.Width = 1000.000000000000000000
     Size.Height = 51.987304687500000000
     Size.PlatformDefault = False
     Text = 'Look'
@@ -39,8 +39,8 @@ object FormMeme: TFormMeme
     AutoSize = True
     HitTest = False
     Margins.Bottom = 10.000000000000000000
-    Position.Y = 512.437500000000000000
-    Size.Width = 800.000000000000000000
+    Position.Y = 662.437500000000000000
+    Size.Width = 1000.000000000000000000
     Size.Height = 77.562500000000000000
     Size.PlatformDefault = False
     Text = 'This App is so cool !'

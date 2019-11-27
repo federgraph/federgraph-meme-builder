@@ -120,6 +120,14 @@
         <DCCReference Include="FB\RiggVar.FB.ActionShort.pas"/>
         <DCCReference Include="FB\RiggVar.FB.Scheme.pas"/>
         <DCCReference Include="FB\RiggVar.FB.TextBase.pas"/>
+        <DCCReference Include="Model\RiggVar.FederModel.Action.pas"/>
+        <DCCReference Include="Model\RiggVar.FederModel.ActionMapPhone.pas"/>
+        <DCCReference Include="Model\RiggVar.FederModel.ActionMapTablet.pas"/>
+        <DCCReference Include="Model\RiggVar.FederModel.Touch.pas"/>
+        <DCCReference Include="Model\RiggVar.FederModel.TouchBase.pas"/>
+        <DCCReference Include="Model\RiggVar.FederModel.TouchPhone.pas"/>
+        <DCCReference Include="App\RiggVar.App.Main.pas"/>
+        <DCCReference Include="App\RiggVar.App.Main0.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
