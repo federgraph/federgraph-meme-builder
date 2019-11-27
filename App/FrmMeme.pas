@@ -104,7 +104,6 @@ type
     procedure ClearImage;
     procedure CycleFontP;
     procedure CycleFontM;
-    procedure HandleWheel(Delta: Integer);
     procedure CycleFont(Value: Integer);
     procedure UpdateFormat(w, h: Integer);
     procedure Reset;
@@ -144,10 +143,13 @@ type
     function GetSampleIndex: Integer;
     property DropTargetVisible: Boolean read FDropTargetVisible write SetDropTargetVisible;
     property UseOfficeFonts: Boolean read FUseOfficeFonts write SetUseOfficeFonts;
+    procedure InitPicker;
   protected
     function FindTarget(P: TPointF; const Data: TDragObject): IControl; override;
   public
+    procedure HandleWheel(Delta: Integer);
     procedure HandleAction(fa: Integer);
+    procedure UpdateBackgroundColor(AColor: TAlphaColor);
     property Background: TBitmap read CheckerBitmap write SetBitmap;
     property Param: TMemeParam read FParam;
     property SelectedText: TSelectedText read FSelectedText;
@@ -165,9 +167,12 @@ implementation
 
 uses
   RiggVar.MB.Picker,
+  RiggVar.MB.Picker.Win,
+  RiggVar.MB.Picker.Mac,
   RiggVar.MB.SampleText00,
   RiggVar.MB.SampleText01,
-  RiggVar.MB.SampleText02;
+  RiggVar.MB.SampleText02,
+  RiggVar.FB.ActionConst;
 
 const
   MaxEdgeDistance = 200;
@@ -190,6 +195,7 @@ begin
 
   Application.OnException := ApplicationEventsException;
 
+  FormMeme := self;
   Self.Position := TFormPosition.ScreenCenter;
   FontFamilyList := TStringList.Create;
 
@@ -201,7 +207,7 @@ begin
 
   SampleManager := SampleManager00;
 
-  Picker := TPicker.Create;
+  InitPicker;
 
   WantOfficeFonts := True;
   InitFontList;
@@ -244,6 +250,10 @@ begin
   if Application.Title = 'FC96' then
   begin
     DropTargetVisible := true;
+  end
+  else
+  begin
+    UpdateBackgroundColor(claSlateblue);
   end;
 
   InitHelpText;
@@ -299,11 +309,11 @@ begin
   ML.Add('  s, S - param Font Size for top or bottom text');
   ML.Add('  m, M - param Margin for top or bottom text');
   ML.Add('  g, G - param Glow Softness for top or bottom text');
-  ML.Add('  x    - toggle between Text0 and Text1');
+  ML.Add('  x    - toggle between Sample Items, 0 or 1');
   ML.Add('  y, Y - cycle through Text templates');
   ML.Add('  r    - toggle Report');
   ML.Add('  R    - Reset');
-  ML.Add('  u    - toggle tile/fit');
+  ML.Add('  u    - toggle image tile mode (tiled or fit)');
   ML.Add('  v, V - toggle color, help text and meme text');
   ML.Add('  a    - adapt form size');
   ML.Add('  c, C   - clear image command');
@@ -536,6 +546,13 @@ end;
 procedure TFormMeme.ClearImage;
 begin
   CheckerImage.Bitmap.Clear(claPurple);
+end;
+
+procedure TFormMeme.UpdateBackgroundColor(AColor: TAlphaColor);
+begin
+  if CheckerImage <> nil then
+    if CheckerImage.Bitmap <> nil then
+      CheckerImage.Bitmap.Clear(AColor);
 end;
 
 function TFormMeme.GetSampleIndex: Integer;
@@ -1462,6 +1479,22 @@ begin
 
   end;
   result := fa;
+end;
+
+procedure TFormMeme.InitPicker;
+begin
+{$ifdef MSWINDOWS}
+  Picker := TPickerWin.Create;
+{$endif}
+
+{$ifdef MACOS}
+  Picker := TPickerMac.Create;
+{$endif}
+
+{ else use Dummy }
+
+  if Picker = nil then
+    Picker := TPicker.Create;
 end;
 
 end.
