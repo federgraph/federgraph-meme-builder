@@ -18,6 +18,8 @@
 
 interface
 
+{.$define WantBtnFrame}
+
 uses
   System.SysUtils,
   System.Classes,
@@ -36,6 +38,7 @@ uses
   FMX.Objects,
   FMX.ExtCtrls,
   FMX.Edit,
+  FMX.Layouts,
   FMX.Surfaces,
   FMX.Controls.Presentation,
   RiggVar.MB.Def,
@@ -144,9 +147,15 @@ type
     property DropTargetVisible: Boolean read FDropTargetVisible write SetDropTargetVisible;
     property UseOfficeFonts: Boolean read FUseOfficeFonts write SetUseOfficeFonts;
     procedure InitPicker;
+{$ifdef WantBtnFrame}
+    procedure InitMain;
+    procedure InitLayout;
+    procedure UpdateLayout;
+{$endif}
   protected
     function FindTarget(P: TPointF; const Data: TDragObject): IControl; override;
   public
+    Layout: TLayout; // Parent for Button-Frame, if any
     procedure HandleWheel(Delta: Integer);
     procedure HandleAction(fa: Integer);
     procedure UpdateBackgroundColor(AColor: TAlphaColor);
@@ -166,6 +175,9 @@ implementation
 {$R *.fmx}
 
 uses
+{$ifdef WantBtnFrame}
+  RiggVar.App.Main,
+{$endif}
   RiggVar.MB.Picker,
   RiggVar.MB.Picker.Win,
   RiggVar.MB.Picker.Mac,
@@ -197,6 +209,13 @@ begin
 
   FormMeme := self;
   Self.Position := TFormPosition.ScreenCenter;
+
+  Raster := 0;
+{$ifdef WantBtnFrame}
+  InitMain;
+  Raster := MainVar.Raster;
+{$endif}
+
   FontFamilyList := TStringList.Create;
 
   ScreenshotSaver := TScreenshotSaver.Create;
@@ -216,8 +235,6 @@ begin
 
   InitChecker(True);
 
-  { Raster := 70 if Form has Button-Frame }
-  Raster := 0;
   DefaultMargin := Raster + 10;
 
   ReportText.Position.X := DefaultMargin;
@@ -250,20 +267,30 @@ begin
   if Application.Title = 'FC96' then
   begin
     DropTargetVisible := true;
-  end
-  else
-  begin
-    UpdateBackgroundColor(claSlateblue);
   end;
+
+{$ifdef WantBtnFrame}
+  UpdateBackgroundColor(MainVar.ColorScheme.claBackground);
+{$endif}
 
   InitHelpText;
   SL := TStringList.Create;
 
   Caption := HelpCaptionText;
+
+{$ifdef WantBtnFrame}
+    Main.FederText.CheckState;
+{$endif}
+
 end;
 
 procedure TFormMeme.FormDestroy(Sender: TObject);
 begin
+{$ifdef WantBtnFrame}
+  Main.Free;
+  Main := nil;
+{$endif}
+
   CheckerBitmap.Free;
   FontFamilyList.Free;
   SL.Free;
@@ -289,6 +316,10 @@ begin
 
     if ReportText.Visible then
       UpdateReport;
+
+{$ifdef WantBtnFrame}
+    Main.FederText.CheckState;
+{$endif}
   end
 end;
 
@@ -386,6 +417,15 @@ begin
   TopText.AutoSize := True;
 
   UpdateChecker;
+
+{$ifdef WantBtnFrame}
+  if (Main <> nil) and Main.IsUp then
+  begin
+    UpdateLayout;
+    Main.UpdateTouch;
+    Main.UpdateText;
+  end;
+{$endif}
 end;
 
 function TFormMeme.GetSelectedText: string;
@@ -1379,6 +1419,13 @@ begin
       UpdateFormat(750, 1000)
     end;
 
+{$ifdef WantBtnFrame}
+    faActionPageP: Main.ActionHandler.Execute(faActionPageP);
+    faActionPageM: Main.ActionHandler.Execute(faActionPageM);
+    faCycleColorSchemeP: Main.ActionHandler.Execute(faCycleColorSchemeP);
+    faCycleColorSchemeM: Main.ActionHandler.Execute(faCycleColorSchemeM);
+{$endif}
+
     else
     begin
       { do nothing }
@@ -1475,6 +1522,16 @@ begin
     'ü': fa := faMemeCycleLightColorP;
     'Ü': fa := faMemeCycleLightColorM;
 
+{$ifdef WantBtnFrame}
+    'ß': fa := faCycleColorSchemeP;
+
+    '+': fa := faActionPageP;
+    '*': fa := faActionPageM;
+
+    'i': fa := faCycleColorSchemeP;
+    'I': fa := faCycleColorSchemeM;
+{$endif}
+
     else fa := faMemeNoop;
 
   end;
@@ -1496,5 +1553,32 @@ begin
   if Picker = nil then
     Picker := TPicker.Create;
 end;
+
+{$ifdef WantBtnFrame}
+procedure TFormMeme.InitMain;
+begin
+  InitLayout;
+  Main := TMain.Create;
+  UpdateLayout;
+  if Handle.Scale > 1 then
+    Main.IsRetina := True;
+  Main.Init;
+  Main.IsUp := True;
+end;
+
+procedure TFormMeme.InitLayout;
+begin
+  Layout := TLayout.Create(self);
+  self.AddObject(Layout);
+end;
+
+procedure TFormMeme.UpdateLayout;
+begin
+  Layout.Position.X := 0;
+  Layout.Position.Y := 0;
+  Layout.Width := ClientWidth;
+  Layout.Height := ClientHeight;
+end;
+{$endif}
 
 end.
