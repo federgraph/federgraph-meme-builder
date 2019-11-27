@@ -114,6 +114,12 @@
         <DCCReference Include="FB\RiggVar.FB.ActionConst.pas"/>
         <DCCReference Include="MB\RiggVar.MB.Picker.Mac.pas"/>
         <DCCReference Include="MB\RiggVar.MB.Picker.Win.pas"/>
+        <DCCReference Include="FB\RiggVar.FB.Action.pas"/>
+        <DCCReference Include="FB\RiggVar.FB.ActionLong.pas"/>
+        <DCCReference Include="FB\RiggVar.FB.ActionMap.pas"/>
+        <DCCReference Include="FB\RiggVar.FB.ActionShort.pas"/>
+        <DCCReference Include="FB\RiggVar.FB.Scheme.pas"/>
+        <DCCReference Include="FB\RiggVar.FB.TextBase.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

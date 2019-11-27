@@ -18,7 +18,33 @@
 
 interface
 
+type
+  TFederAction = Integer;
+
 const
+
+  //Pages
+  faActionPageM = 103;
+  faActionPageP = 104;
+
+  //ViewFlags
+  faToggleAllText = 323;
+  faToggleTouchFrame = 324;
+
+  //ColorScheme
+  faCycleColorSchemeM = 653;
+  faCycleColorSchemeP = 654;
+
+  //TouchLayout
+  faTouchTablet = 662;
+  faTouchPhone = 663;
+  faTouchDesk = 664;
+
+  //EmptyAction
+  faNoop = 871;
+
+  // --- Meme ---
+
   faMemeNoop = 2000;
 
   faMemeToggleEdits = 2001;
