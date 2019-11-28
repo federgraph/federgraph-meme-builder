@@ -27,7 +27,6 @@ uses
 type
   TActionMapTablet = class(TActionMap)
   private
-    ForceActionPageMP: Boolean;
     procedure InitDefault;
     procedure InitAC(cl: TCornerLocation; bi, fa: Integer; cla: TAlphaColor);
   protected
@@ -76,7 +75,6 @@ begin
   inherited;
   FPageCount := 3;
   FEscapeIndex := 4;
-  ForceActionPageMP := True;
   TestName := 'Tablet Page';
 end;
 
@@ -168,7 +166,7 @@ begin
       InitAC(cl, 3, faCycleColorSchemeM, cla);
       InitAC(cl, 4, faCycleColorSchemeP, cla);
       InitAC(cl, 5, faNoop, cla);
-      InitAC(cl, 6, faNoop, cla); //faPaletteOn
+      InitAC(cl, 6, faNoop, cla);
     end;
 
     3:
@@ -222,8 +220,9 @@ end;
 procedure TActionMapTablet.InitAC(cl: TCornerLocation; bi,
   fa: Integer; cla: TAlphaColor);
 var
-  j: Integer;
+  j: Integer; // FrameLocation
 begin
+  { First, translate from CornerLocation to FrameLocation }
   j := 0;
   case cl of
     TopLeft:
@@ -278,6 +277,7 @@ begin
       end;
     end;
   end;
+  { Init button with Action and Color }
   IAC(j, fa, cla);
 end;
 

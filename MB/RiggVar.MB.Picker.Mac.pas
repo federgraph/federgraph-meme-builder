@@ -1,4 +1,4 @@
-unit RiggVar.MB.Picker.Mac;
+﻿unit RiggVar.MB.Picker.Mac;
 
 interface
 

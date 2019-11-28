@@ -53,10 +53,7 @@ type
     ActionMap2: TActionMap;
     ActionHandler: IFederActionHandler;
 
-    InitDataOK: Boolean;
     IsUp: Boolean;
-    IsRetina: Boolean;
-    IsDesktop: Boolean;
 
     Layout: TLayout;
 
@@ -121,7 +118,6 @@ constructor TMain0.Create;
 begin
   Main := self;
 
-  IsDesktop := True;
   FL := TStringList.Create;
 
   ActionMap1 := TActionMapTablet.Create;

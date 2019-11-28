@@ -59,7 +59,6 @@ type
     function GetBottomLayoutBelowTouchMenu: Boolean;
   protected
     procedure InitShapes;
-    procedure InitText;
 
     procedure SetActionMap(const Value: Integer); override;
   public
@@ -116,7 +115,6 @@ begin
   if not InitOK then
   begin
     InitShapes;
-    InitText;
     UpdateColorScheme;
     InitOK := True;
     UpdateShape;
@@ -282,20 +280,6 @@ begin
   ResetCornerMenu;
 end;
 
-procedure TFederTouch.InitText;
-begin
-  if not InitOK then
-  begin
-    LAT := TText.Create(OwnerComponent);
-    LAT.Font.Size := 16;
-    LHT := LineHeight(LAT);
-    LAT.Free;
-    LAT := nil;
-
-    UpdateText;
-  end;
-end;
-
 procedure TFederTouch.UpdateText;
 begin
   if InitOK then
@@ -328,6 +312,7 @@ end;
 
 procedure TFederTouch.InitBList;
 begin
+  { Landscape }
   BListL.Clear;
   { 1} AddBL(1);
   { 2} AddBL(3);
@@ -358,6 +343,7 @@ begin
   {27} AddBL(21);
   {28} AddBL(2);
 
+  { Portrait }
   BListP.Clear;
   { 1} AddBP(1);
   { 2} AddBP(2);

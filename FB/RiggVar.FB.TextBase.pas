@@ -1,4 +1,4 @@
-unit RiggVar.FB.TextBase;
+﻿unit RiggVar.FB.TextBase;
 
 (*
 -

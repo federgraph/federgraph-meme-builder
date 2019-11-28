@@ -149,9 +149,9 @@ type
     procedure InitPicker;
 {$ifdef WantBtnFrame}
     procedure InitMain;
+{$endif}
     procedure InitLayout;
     procedure UpdateLayout;
-{$endif}
   protected
     function FindTarget(P: TPointF; const Data: TDragObject): IControl; override;
   public
@@ -1556,11 +1556,10 @@ begin
   InitLayout;
   Main := TMain.Create;
   UpdateLayout;
-  if Handle.Scale > 1 then
-    Main.IsRetina := True;
   Main.Init;
   Main.IsUp := True;
 end;
+{$endif}
 
 procedure TFormMeme.InitLayout;
 begin
@@ -1575,6 +1574,5 @@ begin
   Layout.Width := ClientWidth;
   Layout.Height := ClientHeight;
 end;
-{$endif}
 
 end.

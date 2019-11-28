@@ -1,4 +1,4 @@
-unit RiggVar.FederModel.TouchBase;
+﻿unit RiggVar.FederModel.TouchBase;
 
 (*
 -
@@ -142,9 +142,6 @@ type
     FOwnsMouse: Boolean;
 
     ToolBtn: TCircle;
-    ConnLED: TCircle;
-    LAT: TText;
-    LHT: single;
 
     function FindMissBtn(id: Integer): TCornerBtn;
     function FindMissBtnB(id: Integer): TCornerBtn;
@@ -154,8 +151,6 @@ type
     procedure RemoveMissingB;
     procedure RemoveMissingS;
     procedure InitAllBtnList;
-
-    function LineHeight(t: TText): single;
 
     procedure OnMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
     procedure OnMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Single);
@@ -258,7 +253,7 @@ begin
     else
       r.Corners := [
         TCorner.TopLeft,
-  //      TCorner.TopRight,
+  //      TCorner.TopRight, // not a round corner to indicate true state
         TCorner.BottomLeft,
         TCorner.BottomRight
         ];
@@ -759,11 +754,6 @@ begin
     ToolBtn.Position.X := MainVar.Raster;
     ToolBtn.Position.Y := MainVar.Raster;
     ToolBtn.Width := MainVar.Raster;
-    if Assigned(ConnLED) then
-    begin
-      ConnLED.Position.X := ToolBtn.Position.X + 0.5 * MainVar.Raster - 7;
-      ConnLED.Position.Y := ToolBtn.Position.Y + 0.5 * MainVar.Raster - 7;
-    end;
 
     MoveText;
     CheckBtnOrder;
@@ -822,11 +812,6 @@ end;
 procedure TFederTouchBase.InitActions(Layout: Integer);
 begin
 
-end;
-
-function TFederTouchBase.LineHeight(t: TText): single;
-begin
-  result := t.Font.Size + Round(t.Font.Size / 4);
 end;
 
 function TFederTouchBase.FindCornerBtn(id: Integer): TCornerBtn;
