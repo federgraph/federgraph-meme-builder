@@ -38,7 +38,6 @@ uses
   FMX.Objects,
   FMX.ExtCtrls,
   FMX.Edit,
-  FMX.Layouts,
   FMX.Surfaces,
   FMX.Controls.Presentation,
   RiggVar.MB.Def,
@@ -150,12 +149,9 @@ type
 {$ifdef WantBtnFrame}
     procedure InitMain;
 {$endif}
-    procedure InitLayout;
-    procedure UpdateLayout;
   protected
     function FindTarget(P: TPointF; const Data: TDragObject): IControl; override;
   public
-    Layout: TLayout;
     procedure HandleWheel(Delta: Integer);
     procedure HandleAction(fa: Integer);
     procedure UpdateBackgroundColor(AColor: TAlphaColor);
@@ -417,7 +413,6 @@ begin
 {$ifdef WantBtnFrame}
   if (Main <> nil) and Main.IsUp then
   begin
-    UpdateLayout;
     Main.UpdateTouch;
     Main.UpdateText;
   end;
@@ -1553,26 +1548,10 @@ end;
 {$ifdef WantBtnFrame}
 procedure TFormMeme.InitMain;
 begin
-  InitLayout;
   Main := TMain.Create;
-  UpdateLayout;
   Main.Init;
   Main.IsUp := True;
 end;
 {$endif}
-
-procedure TFormMeme.InitLayout;
-begin
-  Layout := TLayout.Create(self);
-  self.AddObject(Layout);
-end;
-
-procedure TFormMeme.UpdateLayout;
-begin
-  Layout.Position.X := 0;
-  Layout.Position.Y := 0;
-  Layout.Width := ClientWidth;
-  Layout.Height := ClientHeight;
-end;
 
 end.

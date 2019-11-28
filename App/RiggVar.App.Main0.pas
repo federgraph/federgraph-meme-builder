@@ -164,12 +164,7 @@ end;
 
 procedure TMain0.Init;
 begin
-  Layout := FormMeme.Layout;
-  if Layout <> nil then
-  begin
-    InitRaster;
-    InitText;
-  end;
+  InitText;
 end;
 
 procedure TMain0.InitFederText(ft: TFederTouch0);
