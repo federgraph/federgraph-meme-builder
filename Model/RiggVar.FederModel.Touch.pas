@@ -41,14 +41,11 @@ type
     BListL: TList<Integer>;
     BListP: TList<Integer>;
 
-    procedure ResetCornerMenu0;
-    procedure ResetCornerMenu2;
-    procedure ResetCornerMenu;
-
     procedure ToolBtnClick(Sender: TObject);
 
     procedure InitBList;
     procedure InitCornerMenu;
+    procedure ResetCornerMenu;
 
     function GetAllBtnID(AIndex: Integer): Integer;
     function GetBtnID(AIndex: Integer): Integer;
@@ -65,9 +62,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
-    function FindAllBtn(id: Integer): TCornerBtn;
-
-    procedure Reset;
+    function FindBtn(id: Integer): TCornerBtn;
 
     procedure Init; override;
     procedure InitActions(Layout: Integer); override;
@@ -282,6 +277,9 @@ end;
 
 procedure TFederTouch.UpdateText;
 begin
+  { Text has been removed,
+    there used to be Text inside here as well, which needed an update.
+  }
   if InitOK then
   begin
     UpdatePageBtnText;
@@ -387,7 +385,7 @@ begin
   result := 0;
   if AIndex > -1 then
   begin
-    cb := FindAllBtn(AIndex+1);
+    cb := FindBtn(AIndex+1);
     if cb <> nil then
       result := cb.ID;
   end;
@@ -416,81 +414,15 @@ begin
 end;
 
 procedure TFederTouch.ResetCornerMenu;
-begin
-  case ActionMap of
-    1, 2: ResetCornerMenu2;
-    else
-      ResetCornerMenu0;
-  end;
-end;
-
-procedure TFederTouch.ResetCornerMenu2;
 var
   cb: TCornerBtn;
 begin
-  ActionPage := ActionPage;
+  { Assign actions to buttons, and Color, Caption, Opacity ... }
+
+  ActionPage := ActionPage; // call virtual setter --> InitActions
 
   for cb in CornerBtnList do
     cb.Opacity := FCornerBtnOpacity;
-end;
-
-procedure TFederTouch.ResetCornerMenu0;
-var
-  cb: TCornerBtn;
-begin
-  for cb in CornerBtnList do
-  begin
-    case cb.ID of
-      1: cb.Action := faActionPageM;
-      2..6: cb.Action := faNoop;
-      7: cb.Action := faActionPageP;
-      8..12: cb.Action := faNoop;
-      13: cb.Action := faMemeSelectTop;
-      14: cb.Action := faMemeSelectBottom;
-      15: cb.Action := faMemeToggleDropTarget;
-      16: cb.Action := faNoop;
-      17: cb.Action := faNoop;
-      18: cb.Action := faNoop;
-      19: cb.Action := faNoop;
-      20: cb.Action := faNoop;
-      21: cb.Action := faNoop;
-      22: cb.Action := faNoop;
-      23: cb.Action := faNoop;
-      24: cb.Action := faNoop;
-      25: cb.Action := faNoop;
-      26: cb.Action := faNoop;
-      27: cb.Action := faMemeSampleP;
-      28: cb.Action := faMemeSampleM;
-    end;
-  end;
-
-  for cb in CornerBtnList do
-  begin
-    case cb.ID of
-      1: cb.Shape.Fill.Color := claGreen;
-      2..6: cb.Shape.Fill.Color := claLightGray;
-      7: cb.Shape.Fill.Color := claOrange;
-      8..14: cb.Shape.Fill.Color := claLightGray;
-      15: cb.Shape.Fill.Color := claOrange;
-      16..21: cb.Shape.Fill.Color := claBeige;
-      22: cb.Shape.Fill.Color := claGray;
-      23, 24: cb.Shape.Fill.Color := claCrimson;
-      25, 26: cb.Shape.Fill.Color := claCornflowerBlue;
-      27, 28: cb.Shape.Fill.Color := claGray;
-    end;
-  end;
-
-  for cb in CornerBtnList do
-  begin
-    cb.Caption := Main.ActionHandler.GetShortCaption(cb.Action);
-    cb.Opacity := FCornerBtnOpacity;
-  end;
-end;
-
-procedure TFederTouch.Reset;
-begin
-  ResetCornerMenu;
-  ActionPage := ActionPage; //--> InitActions
 end;
 
 procedure TFederTouch.SetActionMap(const Value: Integer);
@@ -501,10 +433,10 @@ begin
   EscapePageIndex := Main.ActionMapTablet.EscapeIndex;
 
   if InitOK then
-    Reset;
+    ResetCornerMenu;
 end;
 
-function TFederTouch.FindAllBtn(id: Integer): TCornerBtn;
+function TFederTouch.FindBtn(id: Integer): TCornerBtn;
 var
   cb: TCornerBtn;
 begin

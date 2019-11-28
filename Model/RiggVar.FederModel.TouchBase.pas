@@ -192,7 +192,6 @@ type
     procedure CheckBtnOrder; virtual;
 
     function FindCornerBtn(id: Integer): TCornerBtn;
-    function FindAllBtn(id: Integer): TCornerBtn;
 
     procedure InitActions(Layout: Integer); virtual;
     procedure UpdateMissing; virtual;
@@ -510,6 +509,10 @@ procedure TFederTouchBase.MoveText;
 begin
   Width := MainVar.ClientWidth;
   Height := MainVar.ClientHeight;
+
+  { As I have said already, there used to be some text as well,
+    not only buttons. This version is a light version.
+    Has been part of a bigger application. }
 end;
 
 procedure TFederTouchBase.CheckState;
@@ -763,21 +766,6 @@ end;
 procedure TFederTouchBase.UpdateToolSet(Delta: Integer);
 begin
   ActionPage := FActionPage + Delta;
-end;
-
-function TFederTouchBase.FindAllBtn(id: Integer): TCornerBtn;
-var
-  tb: TCornerBtn;
-begin
-  result := nil;
-  for tb in AllBtnList do
-  begin
-    if tb.ID = id then
-    begin
-      result := tb;
-      break;
-    end;
-  end;
 end;
 
 procedure TFederTouchBase.InitAction(BtnID: Integer; fa: TFederAction);
