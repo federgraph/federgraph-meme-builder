@@ -18,6 +18,8 @@
 
 interface
 
+{ To undefine WantBtnFrame, place a dot before $ }
+
 {$define WantBtnFrame}
 
 uses
@@ -71,6 +73,7 @@ type
     FParam: TMemeParam;
     FSelectedText: TSelectedText;
     FActiveSampleManagerID: Integer;
+    WantButtonFrameReport: Boolean;
     fo: Integer;
     DropTarget: TDropTarget;
     CheckerBitmap: TBitmap;
@@ -116,7 +119,6 @@ type
     procedure InitNormalFonts;
     procedure InitFontList;
     function GetSelectedText: string;
-    procedure UpdateReport;
     procedure AdaptFormSize;
     procedure PasteBitmapFromClipboard;
     procedure ToggleTiling;
@@ -154,6 +156,7 @@ type
   public
     procedure HandleWheel(Delta: Integer);
     procedure HandleAction(fa: Integer);
+    procedure UpdateReport;
     procedure UpdateBackgroundColor(AColor: TAlphaColor);
     property Background: TBitmap read CheckerBitmap write SetBitmap;
     property Param: TMemeParam read FParam;
@@ -306,8 +309,7 @@ begin
     if fa <> faMemeNoop then
       HA(fa);
 
-    if ReportText.Visible then
-      UpdateReport;
+    UpdateReport;
 
 {$ifdef WantBtnFrame}
     Main.FederText.CheckState;
@@ -354,21 +356,36 @@ end;
 
 procedure TFormMeme.UpdateReport;
 begin
+  if not ReportText.Visible then
+    Exit;
+
   SL.Clear;
-  SL.Add(Application.Title + ', see Federgraph.de');
-  Sl.Add('');
-  SL.Add('TopText.Font.Family = ' + TopText.Font.Family);
-  SL.Add('BottomText.Font.Family = ' + BottomText.Font.Family);
-  SL.Add(Format('TopText.Font.Family = %.g', [TopText.Font.Size]));
-  SL.Add(Format('BottomText.Font.Family = %.g', [BottomText.Font.Size]));
-  SL.Add('');
-  SL.Add('UseOfficeFonts = ' + BoolStr[UseOfficeFonts]);
-  SL.Add('TextID = ' + IntToStr(SampleManager.GetCurrentIndex));
-  SL.Add('Current Text = ' + GetSelectedText);
-  SL.Add('Current Param = ' + GetParamText);
-  SL.Add(Format('Client-W-H = (%d, %d)', [ClientWidth, ClientHeight]));
-  SL.Add(Format('Bitmap-W-H = (%d, %d)', [CheckerBitmap.Width, CheckerBitmap.Height]));
-  SL.Add(Format('Handle.Scale = %.1f', [Handle.Scale]));
+
+  if WantButtonFrameReport then
+  begin
+{$ifdef WantBtnFrame}
+    Main.FederText.Report(SL);
+{$else}
+    SL.Add('WantBtnFrame not defined.')
+{$endif}
+  end
+  else
+  begin
+    SL.Add(Application.Title + ', see Federgraph.de');
+    Sl.Add('');
+    SL.Add('TopText.Font.Family = ' + TopText.Font.Family);
+    SL.Add('BottomText.Font.Family = ' + BottomText.Font.Family);
+    SL.Add(Format('TopText.Font.Family = %.g', [TopText.Font.Size]));
+    SL.Add(Format('BottomText.Font.Family = %.g', [BottomText.Font.Size]));
+    SL.Add('');
+    SL.Add('UseOfficeFonts = ' + BoolStr[UseOfficeFonts]);
+    SL.Add('TextID = ' + IntToStr(SampleManager.GetCurrentIndex));
+    SL.Add('Current Text = ' + GetSelectedText);
+    SL.Add('Current Param = ' + GetParamText);
+    SL.Add(Format('Client-W-H = (%d, %d)', [ClientWidth, ClientHeight]));
+    SL.Add(Format('Bitmap-W-H = (%d, %d)', [CheckerBitmap.Width, CheckerBitmap.Height]));
+    SL.Add(Format('Handle.Scale = %.1f', [Handle.Scale]));
+  end;
 
   ReportText.Text := SL.Text;
   ReportText.Visible := True;
@@ -417,6 +434,7 @@ begin
     Main.UpdateText;
   end;
 {$endif}
+  UpdateReport;
 end;
 
 function TFormMeme.GetSelectedText: string;
@@ -1356,8 +1374,7 @@ begin
       DropTargetVisible := False;
       HelpText.Visible := False;
       ReportText.Visible := not ReportText.Visible;
-      if ReportText.Visible then
-        UpdateReport;
+      UpdateReport;
     end;
 
     faMemeReset: Reset;
@@ -1415,6 +1432,11 @@ begin
     faActionPageM: Main.ActionHandler.Execute(faActionPageM);
     faCycleColorSchemeP: Main.ActionHandler.Execute(faCycleColorSchemeP);
     faCycleColorSchemeM: Main.ActionHandler.Execute(faCycleColorSchemeM);
+    faButtonFrameReport:
+    begin
+      WantButtonFrameReport := not WantButtonFrameReport;
+      UpdateReport;
+    end;
 {$endif}
 
     else
@@ -1446,7 +1468,9 @@ begin
     '!': fa := faMemeSample02;
 
     'a': fa := faMemeAdaptFormSize;
+
     'b': fa := faMemeSelectBottom;
+    'B': fa := faButtonFrameReport;
 
     'c': fa := faMemeClearImage;
     'C': fa := faMemeInitChecker;

@@ -43,6 +43,10 @@ const
   //EmptyAction
   faNoop = 871;
 
+  // ---
+
+  faButtonFrameReport = 1990;
+
   // --- Meme ---
 
   faMemeNoop = 2000;

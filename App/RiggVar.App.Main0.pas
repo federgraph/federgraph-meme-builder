@@ -222,7 +222,6 @@ begin
     MainVar.ClientWidth := FormMeme.ClientWidth;
     MainVar.ClientHeight := FormMeme.ClientHeight;
     InitTouch;
-    FederText.UpdateMissing;
     FederText.UpdateShape;
   end;
 end;
@@ -324,6 +323,7 @@ end;
 procedure TMain0.CycleToolSet(i: Integer);
 begin
   FederText.UpdateToolSet(i);
+  FormMeme.UpdateReport;
 end;
 
 function TMain0.GetColorScheme: Integer;

@@ -45,7 +45,6 @@ type
     procedure InitActions(Layout: Integer); override;
     procedure UpdateColorScheme; override;
     procedure UpdateText; override;
-    procedure UpdateMissing; override;
     procedure ToggleTouchFrame; override;
   end;
 
@@ -160,8 +159,6 @@ var
   cp: TCornerPos;
   cl: TAlphaColor;
 begin
-  MissID.Clear;
-
   TCornerBtn.OffsetX := 0;
   TCornerBtn.OffsetY := 0;
   TCornerBtn.BtnWidth := MainVar.Raster;
@@ -181,15 +178,13 @@ begin
   cl := claWhite;
   CornerBtnList.Add(CornerMenu.NewBtn(cp, 1, 0, cl, faNoop, 1));
   CornerBtnList.Add(CornerMenu.NewBtn(cp, 2, 0, cl, faNoop, 2));
-  MissBtnListB.Add(CornerMenu.NewBtn(cp, 3, 0, cl, faNoop, 3));
-  MissID.Add(3);
+  CornerBtnList.Add(CornerMenu.NewBtn(cp, 3, 0, cl, faNoop, 3));
 
   cp := cpBR;
   cl := claWhite;
   CornerBtnList.Add(CornerMenu.NewBtn(cp, 1, 0, cl, faNoop, 6));
   CornerBtnList.Add(CornerMenu.NewBtn(cp, 2, 0, cl, faNoop, 5));
-  MissBtnListB.Add(CornerMenu.NewBtn(cp, 3, 0, cl, faNoop, 4));
-  MissID.Add(4);
+  CornerBtnList.Add(CornerMenu.NewBtn(cp, 3, 0, cl, faNoop, 4));
 
   cl := MainVar.ColorScheme.claCornerScrollbar;
   ST00 := CornerMenu.NewBtn(cpT, 0, 0, cl, faNoop);
@@ -214,8 +209,6 @@ begin
   SR00.Text.Font.Size := MainConst.DefaultBtnFontSize;
 
   InitActions(1);
-
-  UpdateMissing;
 end;
 
 procedure TFederTouchPhone.UpdateText;
@@ -230,19 +223,6 @@ end;
 procedure TFederTouchPhone.ToggleTouchFrame;
 begin
   FrameVisible := not FrameVisible;
-end;
-
-procedure TFederTouchPhone.UpdateMissing;
-begin
-  if MaxCount > FMaxBtnPhone then
-    AddMissingB
-  else
-    RemoveMissingB;
-
-  if MinCount > FMinBtnPhone then
-    AddMissingS
-  else
-    RemoveMissingS;
 end;
 
 procedure TFederTouchPhone.InitActions(Layout: Integer);

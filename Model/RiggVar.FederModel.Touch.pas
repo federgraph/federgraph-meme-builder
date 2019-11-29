@@ -19,18 +19,12 @@
 interface
 
 uses
-  System.Math,
-  System.SysUtils,
   System.Classes,
-  System.Types,
   System.UITypes,
   System.UIConsts,
-  System.Generics.Collections,
   FMX.Types,
   FMX.Objects,
-  FMX.Layouts,
   RiggVar.FB.ActionConst,
-  RiggVar.FB.Action,
   RiggVar.FederModel.TouchBase;
 
 type
@@ -38,31 +32,16 @@ type
   private
     FCornerBtnOpacity: single;
 
-    BListL: TList<Integer>;
-    BListP: TList<Integer>;
-
     procedure ToolBtnClick(Sender: TObject);
 
-    procedure InitBList;
     procedure InitCornerMenu;
     procedure ResetCornerMenu;
-
-    function GetAllBtnID(AIndex: Integer): Integer;
-    function GetBtnID(AIndex: Integer): Integer;
-    function GetCornerBtnCount: Integer;
-    function GetActionText(AIndex: Integer): string;
-    procedure AddBL(Value: Integer);
-    procedure AddBP(Value: Integer);
-    function GetBottomLayoutBelowTouchMenu: Boolean;
   protected
     procedure InitShapes;
 
     procedure SetActionMap(const Value: Integer); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
-
-    function FindBtn(id: Integer): TCornerBtn;
 
     procedure Init; override;
     procedure InitActions(Layout: Integer); override;
@@ -70,12 +49,6 @@ type
     procedure UpdateText; override;
 
     procedure ToggleTouchFrame; override;
-
-    property BtnID[AIndex: Integer]: Integer read GetBtnID;
-    property AllBtnID[AIndex: Integer]: Integer read GetAllBtnID;
-    property ActionText[AIndex: Integer]: string read GetActionText;
-    property CornerBtnCount: Integer read GetCornerBtnCount;
-    property WantBottomLayoutBelowTouchMenu: Boolean read GetBottomLayoutBelowTouchMenu;
   end;
 
 implementation
@@ -93,16 +66,6 @@ begin
 
   Main.ActionMapTablet.ActionProc := InitAction;
   Main.ActionMapTablet.ActionColorProc := InitActionWithColor;
-
-  BListL := TList<Integer>.Create;
-  BListP := TList<Integer>.Create;
-end;
-
-destructor TFederTouch.Destroy;
-begin
-  BListL.Free;
-  BListP.Free;
-  inherited;
 end;
 
 procedure TFederTouch.Init;
@@ -185,8 +148,6 @@ var
   cl: TAlphaColor;
   fa: Integer;
 begin
-  MissID.Clear;
-
   TCornerBtn.OffsetX := 0;
   TCornerBtn.OffsetY := 0;
   TCornerBtn.BtnWidth := MainVar.Raster;
@@ -210,30 +171,23 @@ begin
   CornerBtnList.Add(PageBtnP);
   CornerBtnList.Add(CornerMenu.NewBtn(cp, 0, 1, cl, fa, 8));
   CornerBtnList.Add(CornerMenu.NewBtn(cp, 0, 2, cl, fa, 9));
-  MissBtnListS.Add(CornerMenu.NewBtn(cp, 0, 3, cl, fa, 10));
-  MissID.Add(10);
+  CornerBtnList.Add(CornerMenu.NewBtn(cp, 0, 3, cl, fa, 10));
 
   CornerBtnList.Add(CornerMenu.NewBtn(cp, 1, 0, cl, fa, 11));
   CornerBtnList.Add(CornerMenu.NewBtn(cp, 2, 0, cl, fa, 12));
-  MissBtnListB.Add(CornerMenu.NewBtn(cp, 3, 0, cl, fa, 13));
-  MissBtnListB.Add(CornerMenu.NewBtn(cp, 4, 0, cl, fa, 14));
-  MissID.Add(13);
-  MissID.Add(14);
+  CornerBtnList.Add(CornerMenu.NewBtn(cp, 3, 0, cl, fa, 13));
+  CornerBtnList.Add(CornerMenu.NewBtn(cp, 4, 0, cl, fa, 14));
 
   cp := cpBL;
-  HomeBtn := CornerMenu.NewBtn(cp, 0, 0, cl, fa, 15);
-  CornerBtnList.Add(HomeBtn);
+  CornerBtnList.Add(CornerMenu.NewBtn(cp, 0, 0, cl, fa, 15));
   CornerBtnList.Add(CornerMenu.NewBtn(cp, 1, 0, cl, fa, 16));
   CornerBtnList.Add(CornerMenu.NewBtn(cp, 2, 0, cl, fa, 17));
-  MissBtnListB.Add(CornerMenu.NewBtn(cp, 3, 0, cl, fa, 18));
-  MissBtnListB.Add(CornerMenu.NewBtn(cp, 4, 0, cl, fa, 19));
-  MissID.Add(18);
-  MissID.Add(19);
+  CornerBtnList.Add(CornerMenu.NewBtn(cp, 3, 0, cl, fa, 18));
+  CornerBtnList.Add(CornerMenu.NewBtn(cp, 4, 0, cl, fa, 19));
 
   CornerBtnList.Add(CornerMenu.NewBtn(cp, 0, 1, cl, fa, 20));
   CornerBtnList.Add(CornerMenu.NewBtn(cp, 0, 2, cl, fa, 21));
-  MissBtnListS.Add(CornerMenu.NewBtn(cp, 0, 3, cl, fa, 22));
-  MissID.Add(22);
+  CornerBtnList.Add(CornerMenu.NewBtn(cp, 0, 3, cl, fa, 22));
 
   cp := cpBR;
   CornerBtnList.Add(CornerMenu.NewBtn(cp, 0, 0, cl, fa, 23));
@@ -243,9 +197,6 @@ begin
   CornerBtnList.Add(CornerMenu.NewBtn(cp, 2, 0, cl, fa, 26));
   CornerBtnList.Add(CornerMenu.NewBtn(cp, 3, 0, cl, fa, 27));
   CornerBtnList.Add(CornerMenu.NewBtn(cp, 4, 0, cl, fa, 28));
-
-  InitBList;
-  InitAllBtnList;
 
   cl := MainVar.ColorScheme.claCornerScrollbar;
   ST00 := CornerMenu.NewBtn(cpT, 0, 0, cl, faNoop);
@@ -269,9 +220,8 @@ begin
   SR00.Text.HitTest := False;
   SR00.Text.Font.Size := MainConst.DefaultBtnFontSize;
 
-  FCornerBtnOpacity := HomeBtn.Opacity;
+  FCornerBtnOpacity := PageBtnM.Opacity;
 
-  UpdateMissing;
   ResetCornerMenu;
 end;
 
@@ -296,123 +246,6 @@ begin
   Main.ActionMapTablet.InitActions(Layout);
 end;
 
-procedure TFederTouch.AddBL(Value: Integer);
-begin
-  if not MissID.Contains(Value) then
-    BListL.Add(Value);
-end;
-
-procedure TFederTouch.AddBP(Value: Integer);
-begin
-  if not MissID.Contains(Value) then
-    BListP.Add(Value);
-end;
-
-procedure TFederTouch.InitBList;
-begin
-  { Landscape }
-  BListL.Clear;
-  { 1} AddBL(1);
-  { 2} AddBL(3);
-  { 3} AddBL(4);
-  { 4} AddBL(5);
-  { 5} AddBL(6);
-  { 6} AddBL(14);
-  { 7} AddBL(13);
-  { 8} AddBL(12);
-  { 9} AddBL(11);
-  {10} AddBL(7);
-  {11} AddBL(8);
-  {12} AddBL(9);
-  {13} AddBL(10);
-  {14} AddBL(24);
-  {15} AddBL(23);
-  {16} AddBL(22);
-  {17} AddBL(25);
-  {18} AddBL(26);
-  {19} AddBL(27);
-  {20} AddBL(28);
-  {21} AddBL(19);
-  {22} AddBL(18);
-  {23} AddBL(17);
-  {24} AddBL(16);
-  {25} AddBL(15);
-  {26} AddBL(20);
-  {27} AddBL(21);
-  {28} AddBL(2);
-
-  { Portrait }
-  BListP.Clear;
-  { 1} AddBP(1);
-  { 2} AddBP(2);
-  { 3} AddBP(10);
-  { 4} AddBP(9);
-  { 5} AddBP(8);
-  { 6} AddBP(7);
-  { 7} AddBP(11);
-  { 8} AddBP(12);
-  { 9} AddBP(13);
-  {10} AddBP(14);
-  {11} AddBP(28);
-  {12} AddBP(27);
-  {13} AddBP(26);
-  {14} AddBP(25);
-  {15} AddBP(23);
-  {16} AddBP(24);
-  {17} AddBP(22);
-  {18} AddBP(21);
-  {19} AddBP(20);
-  {20} AddBP(15);
-  {21} AddBP(16);
-  {22} AddBP(17);
-  {23} AddBP(18);
-  {24} AddBP(19);
-  {25} AddBP(6);
-  {26} AddBP(5);
-  {27} AddBP(4);
-  {28} AddBP(3);
-end;
-
-function TFederTouch.GetActionText(AIndex: Integer): string;
-begin
-  result := Main.ActionHandler.GetShortCaption(AIndex);
-end;
-
-function TFederTouch.GetAllBtnID(AIndex: Integer): Integer;
-var
-  cb: TCornerBtn;
-begin
-  result := 0;
-  if AIndex > -1 then
-  begin
-    cb := FindBtn(AIndex+1);
-    if cb <> nil then
-      result := cb.ID;
-  end;
-end;
-
-function TFederTouch.GetBottomLayoutBelowTouchMenu: Boolean;
-begin
-  result := Main.IsPortrait;
-end;
-
-function TFederTouch.GetBtnID(AIndex: Integer): Integer;
-begin
-  result := 0;
-  if AIndex > -1 then
-  begin
-    if Main.IsLandscape and (AIndex < BListL.Count) then
-      result := BListL[AIndex]
-    else if Main.IsPortrait and (AIndex < BListP.Count) then
-      result := BListP[AIndex];
-  end;
-end;
-
-function TFederTouch.GetCornerBtnCount: Integer;
-begin
-  result := CornerBtnList.Count;
-end;
-
 procedure TFederTouch.ResetCornerMenu;
 var
   cb: TCornerBtn;
@@ -434,34 +267,6 @@ begin
 
   if InitOK then
     ResetCornerMenu;
-end;
-
-function TFederTouch.FindBtn(id: Integer): TCornerBtn;
-var
-  cb: TCornerBtn;
-begin
-  result := nil;
-  for cb in CornerBtnList do
-    if cb.ID = id then
-    begin
-      result := cb;
-      Exit;
-    end;
-
-  for cb in MissBtnListB do
-    if cb.ID = id then
-    begin
-      result := cb;
-      Exit;
-    end;
-
-  for cb in MissBtnListS do
-    if cb.ID = id then
-    begin
-      result := cb;
-      Exit;
-    end;
-
 end;
 
 end.

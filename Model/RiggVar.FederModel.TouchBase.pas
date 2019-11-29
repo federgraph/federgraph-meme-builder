@@ -129,10 +129,6 @@ type
     FMaxBtnPhone: Integer;
     FMinBtnPhone: Integer;
 
-    MissID: TList<Integer>;
-    MissBtnListB: TObjectList<TCornerBtn>;
-    MissBtnListS: TObjectList<TCornerBtn>;
-
     MaxPageIndex: Integer;
     EscapePageIndex: Integer;
 
@@ -142,15 +138,6 @@ type
     FOwnsMouse: Boolean;
 
     ToolBtn: TCircle;
-
-    function FindMissBtn(id: Integer): TCornerBtn;
-    function FindMissBtnB(id: Integer): TCornerBtn;
-    function FindMissBtnS(id: Integer): TCornerBtn;
-    procedure AddMissingB;
-    procedure AddMissingS;
-    procedure RemoveMissingB;
-    procedure RemoveMissingS;
-    procedure InitAllBtnList;
 
     procedure OnMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
     procedure OnMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Single);
@@ -164,11 +151,9 @@ type
     procedure InitAction(BtnID: Integer; fa: TFederAction);
     procedure InitActionWithColor(BtnID: Integer; fa: TFederAction; ac: TAlphaColor);
   public
-    AllBtnList: TObjectList<TCornerBtn>;
     CornerBtnList: TObjectList<TCornerBtn>;
     CornerMenu: TCornerMenu;
 
-    HomeBtn: TCornerBtn;
     PageBtnP: TCornerBtn;
     PageBtnM: TCornerBtn;
 
@@ -191,10 +176,10 @@ type
     procedure MoveText; virtual;
     procedure CheckBtnOrder; virtual;
 
+    procedure Report(ML: TStrings);
     function FindCornerBtn(id: Integer): TCornerBtn;
 
     procedure InitActions(Layout: Integer); virtual;
-    procedure UpdateMissing; virtual;
     procedure UpdateToolSet(Delta: Integer);
     procedure UpdateShape;
     procedure UpdateColorScheme; virtual;
@@ -510,8 +495,10 @@ begin
   Width := MainVar.ClientWidth;
   Height := MainVar.ClientHeight;
 
-  { As I have said already, there used to be some text as well,
-    not only buttons. This version is a light version.
+  // ...
+
+  { There used to be some text as well, not only buttons.
+    This version is a light version.
     Has been part of a bigger application. }
 end;
 
@@ -545,11 +532,6 @@ begin
 
   FActionPage := 1;
   EscapePageIndex := 1;
-  MissID := TList<Integer>.Create;
-  MissBtnListB := TObjectList<TCornerBtn>.Create;
-  MissBtnListS := TObjectList<TCornerBtn>.Create;
-  AllBtnList := TObjectList<TCornerBtn>.Create;
-  AllBtnList.OwnsObjects := False;
   CornerBtnList := TObjectList<TCornerBtn>.Create;
   CornerBtnList.OwnsObjects := False;
   CornerMenu := TCornerMenu.Create;
@@ -557,12 +539,8 @@ end;
 
 destructor TFederTouchBase.Destroy;
 begin
-  MissID.Free;
   CornerMenu.Free;
-  AllBtnList.Free;
   CornerBtnList.Free;
-  MissBtnListB.Free;
-  MissBtnListS.Free;
   inherited;
 end;
 
@@ -773,8 +751,6 @@ var
   tb: TCornerBtn;
 begin
   tb := FindCornerBtn(BtnID);
-  if not Assigned(tb) then
-    tb := FindMissBtn(BtnID);
   if Assigned(tb) then
   begin
     tb.Action := fa;
@@ -787,8 +763,6 @@ var
   tb: TCornerBtn;
 begin
   tb := FindCornerBtn(BtnID);
-  if not Assigned(tb) then
-    tb := FindMissBtn(BtnID);
   if Assigned(tb) then
   begin
     tb.Action := fa;
@@ -815,140 +789,6 @@ begin
     end;
 end;
 
-function TFederTouchBase.FindMissBtn(id: Integer): TCornerBtn;
-var
-  cb: TCornerBtn;
-begin
-  result := nil;
-  for cb in MissBtnListB do
-    if cb.ID = id then
-    begin
-      result := cb;
-      break;
-    end;
-  for cb in MissBtnListS do
-    if cb.ID = id then
-    begin
-      result := cb;
-      break;
-    end;
-end;
-
-function TFederTouchBase.FindMissBtnB(id: Integer): TCornerBtn;
-var
-  cb: TCornerBtn;
-begin
-  result := nil;
-  for cb in MissBtnListB do
-    if cb.ID = id then
-    begin
-      result := cb;
-      break;
-    end;
-end;
-
-function TFederTouchBase.FindMissBtnS(id: Integer): TCornerBtn;
-var
-  cb: TCornerBtn;
-begin
-  result := nil;
-  for cb in MissBtnListS do
-    if cb.ID = id then
-    begin
-      result := cb;
-      break;
-    end;
-end;
-
-procedure TFederTouchBase.AddMissingB;
-var
-  i: Integer;
-  bid: Integer;
-  cb: TCornerBtn;
-  mb: TCornerBtn;
-begin
-  for i := 0 to MissID.Count-1 do
-  begin
-    bid := MissID[i];
-    cb := FindCornerBtn(bid);
-    mb := FindMissBtnB(bid);
-    if Assigned(mb) then
-      mb.Visible := FFrameVisible;
-    if (cb = nil) and (mb <> nil) then
-      CornerBtnList.Add(mb);
-  end;
-end;
-
-procedure TFederTouchBase.AddMissingS;
-var
-  i: Integer;
-  bid: Integer;
-  cb: TCornerBtn;
-  mb: TCornerBtn;
-begin
-  for i := 0 to MissID.Count-1 do
-  begin
-    bid := MissID[i];
-    cb := FindCornerBtn(bid);
-    mb := FindMissBtnS(bid);
-    if Assigned(mb) then
-      mb.Visible := FFrameVisible;
-    if (cb = nil) and (mb <> nil) then
-      CornerBtnList.Add(mb);
-  end;
-end;
-
-procedure TFederTouchBase.RemoveMissingB;
-var
-  i: Integer;
-  bid: Integer;
-  cb: TCornerBtn;
-  mb: TCornerBtn;
-begin
-  for i := 0 to MissID.Count-1 do
-  begin
-    bid := MissID[i];
-    cb := FindCornerBtn(bid);
-    mb := FindMissBtnB(bid);
-    if Assigned(mb) then
-      mb.Visible := False;
-    if (cb <> nil) and (mb <> nil) then
-      CornerBtnList.Remove(mb);
-  end;
-end;
-
-procedure TFederTouchBase.RemoveMissingS;
-var
-  i: Integer;
-  bid: Integer;
-  cb: TCornerBtn;
-  mb: TCornerBtn;
-begin
-  for i := 0 to MissID.Count-1 do
-  begin
-    bid := MissID[i];
-    cb := FindCornerBtn(bid);
-    mb := FindMissBtnS(bid);
-    if Assigned(mb) then
-      mb.Visible := False;
-    if (cb <> nil) and (mb <> nil) then
-      CornerBtnList.Remove(mb);
-  end;
-end;
-
-procedure TFederTouchBase.UpdateMissing;
-begin
-  if MaxCount > FMaxBtnCount then
-    AddMissingB
-  else
-    RemoveMissingB;
-
-  if MinCount > FMinBtnCount then
-    AddMissingS
-  else
-    RemoveMissingS;
-end;
-
 procedure TFederTouchBase.UpdatePageBtnText;
 begin
   PageBtnP.Text.Text := IntToStr(ActionPage);
@@ -956,17 +796,39 @@ begin
   ST00.Text.Text := TActionMap.CurrentPageCaption;
 end;
 
-procedure TFederTouchBase.InitAllBtnList;
+procedure TFederTouchBase.Report(ML: TStrings);
 var
   cb: TCornerBtn;
+  s: string;
+
+  function GetLocationString(cp: TCornerPos): string;
+  begin
+    case cp of
+      cpTL: result := 'TL';
+      cpTR: result := 'TR';
+      cpBL: result := 'BL';
+      cpBR: result := 'BR';
+      cpT: result := 'T';
+      cpR: result := 'R';
+      cpB: result := 'B';
+      cpL: result := 'L';
+    end;
+  end;
+
+  procedure AddLine(cb: TCornerBtn);
+  begin
+    s := Format('%.2d: %s, %s = %s', [
+      cb.ID,
+      GetLocationString(cb.CornerPos),
+      Main.ActionHandler.GetCaption(cb.Action),
+      cb.Caption
+      ]);
+    ML.Add(s);
+  end;
+
 begin
-  AllBtnList.Clear;
   for cb in CornerBtnList do
-    AllBtnList.Add(cb);
-  for cb in MissBtnListB do
-    AllBtnList.Add(cb);
-  for cb in MissBtnListS do
-    AllBtnList.Add(cb);
+    AddLine(cb);
 end;
 
 end.

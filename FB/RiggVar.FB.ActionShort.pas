@@ -45,6 +45,8 @@ begin
     faTouchPhone: result := 'pho';
     faTouchDesk: result := 'dsk';
 
+    faButtonFrameReport: result := 'bfr';
+
     // --- Meme ---
 
     faMemeNoop: result := '';
