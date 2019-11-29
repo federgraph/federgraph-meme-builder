@@ -202,7 +202,15 @@ begin
   ReportMemoryLeaksOnShutdown := True;
 {$endif}
   FormatSettings.DecimalSeparator := '.';
+
+  FScale := 1.0;
+{$ifdef MSWINDOWS}
+  { On MACOS Screen.WorkAreaHeight is not scaled,
+    so it would be wrong to div by scale.
+
+    On Windows Screen.WorkAreaHeight is scaled and should be divved. }
   FScale := Handle.Scale;
+{$endif}
 
   Application.OnException := ApplicationEventsException;
 
@@ -1073,8 +1081,9 @@ begin
 
   dw := Width - ClientWidth;
   dh := Height - ClientHeight;
-  wmax := Round(Screen.WorkAreaWidth / Handle.Scale) - dw;
-  hmax := Round(Screen.WorkAreaHeight / Handle.Scale) - dh;
+
+  wmax := Round(Screen.WorkAreaWidth / FScale) - dw;
+  hmax := Round(Screen.WorkAreaHeight / FScale) - dh;
 
   w := CheckerImage.Bitmap.Width;
   h := CheckerImage.Bitmap.Height;
@@ -1105,10 +1114,10 @@ begin
   if h <> ClientHeight then
     ClientHeight := h;
 
-  if Top + Height >= Round(Screen.WorkAreaHeight / Handle.Scale) then
+  if Top + Height >= Round(Screen.WorkAreaHeight / FScale) then
     Top := 0;
 
-  if Left + Width >= Round(Screen.WorkAreaWidth / Handle.Scale) then
+  if Left + Width >= Round(Screen.WorkAreaWidth / FScale) then
     Left := 0;
 
   Flash('AdpatFormSize');
@@ -1538,13 +1547,11 @@ begin
     'Ü': fa := faMemeCycleLightColorM;
 
 {$ifdef WantBtnFrame}
-    'ß': fa := faCycleColorSchemeP;
-
     '+': fa := faActionPageP;
     '*': fa := faActionPageM;
 
     'i': fa := faCycleColorSchemeP;
-    'I': fa := faCycleColorSchemeM;
+    'j': fa := faCycleColorSchemeM;
 {$endif}
 
     else fa := faMemeNoop;

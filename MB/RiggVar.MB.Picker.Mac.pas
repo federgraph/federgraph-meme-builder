@@ -27,6 +27,11 @@ implementation
 
 {$ifdef MACOS}
 
+uses
+  MacApi.Appkit,
+  Macapi.CoreFoundation,
+  Macapi.Foundation;
+
 { TPickerMac }
 
 function TPickerMac.SelectAlphaColor(AColor: TAlphaColor): TAlphaColor;
@@ -50,8 +55,6 @@ var
 begin
 // stackoverflow: how-to-get-the-list-of-fonts-available-delphi-xe3-firemonkey-2
 
-{ not yet tested on MACOS at all }
-
   fManager := TNsFontManager.Wrap(TNsFontManager.OCClass.sharedFontManager);
   list := fManager.availableFontFamilies;
   if (List <> nil) and (List.count > 0) then
@@ -59,7 +62,7 @@ begin
     for i := 0 to List.Count-1 do
     begin
       lItem := TNSString.Wrap(List.objectAtIndex(i));
-      FontList.Add(String(lItem.UTF8String))
+      ML.Add(String(lItem.UTF8String))
     end;
   end;
 end;
