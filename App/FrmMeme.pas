@@ -285,6 +285,13 @@ begin
 {$ifdef WantBtnFrame}
     Main.FederText.CheckState;
 {$endif}
+
+{$ifdef MACOS}
+  { OnKeyUp does not work well on Mac }
+  OnKeyUp := nil;
+  { we will use OnKeyDown instead }
+  OnKeyDown := FormKeyUp;
+{$endif}
 end;
 
 procedure TFormMeme.FormDestroy(Sender: TObject);
