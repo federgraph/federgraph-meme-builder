@@ -27,6 +27,9 @@ implementation
 
 {$ifdef MACOS}
 
+{ RSP-16220 code navigation is blocked inside MACOS blocks.
+  improvement in 10.3.3 - now sometimes it works and sometimes not. }
+
 uses
   MacApi.Appkit,
   Macapi.CoreFoundation,

@@ -287,7 +287,7 @@ begin
 {$endif}
 
 {$ifdef MACOS}
-  { OnKeyUp does not work well on Mac }
+  { OnKeyUp does not work well on Mac, RSP-2766 }
   OnKeyUp := nil;
   { we will use OnKeyDown instead }
   OnKeyDown := FormKeyUp;
@@ -414,6 +414,12 @@ begin
   TopEdit.Visible := not TopEdit.Visible;
   BottomEdit.Visible := TopEdit.Visible;
   Flash(DefaultCaption);
+
+  { When you have copied an image (TBitmap) to the clipboard,
+    and you make the Memos visible,
+    and the paste into them with ^v or via context menu,
+    then there is a bug, reported as RSP-26546.
+    You can use this application as a test case. }
 end;
 
 procedure TFormMeme.UpdateFormat(w, h: Integer);
@@ -896,7 +902,7 @@ begin
   i := SampleManager.GetSampleItem;
 
   if i.Top.Text = '' then
-    i.Top.Text := ' ';
+    i.Top.Text := ' '; // workaround, see RSP-26648
   if i.Bottom.Text = '' then
     i.Bottom.Text := ' ';
   if i.Top.FontSize < 12 then
@@ -1137,6 +1143,7 @@ begin
 
   Screen.UpdateDisplayInformation;
 
+  { workaround, because of RSP-26601 }
   if WantNormal then
   begin
     Top := 100;
@@ -1558,7 +1565,7 @@ begin
     '*': fa := faActionPageM;
 
     'i': fa := faCycleColorSchemeP;
-    'j': fa := faCycleColorSchemeM;
+    'I': fa := faCycleColorSchemeM;
 {$endif}
 
     else fa := faMemeNoop;
