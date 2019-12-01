@@ -130,7 +130,6 @@ type
     FMinBtnPhone: Integer;
 
     MaxPageIndex: Integer;
-    EscapePageIndex: Integer;
 
     OldX: single;
     OldY: single;
@@ -531,7 +530,6 @@ begin
   FMinBtnPhone := 4;
 
   FActionPage := 1;
-  EscapePageIndex := 1;
   CornerBtnList := TObjectList<TCornerBtn>.Create;
   CornerBtnList.OwnsObjects := False;
   CornerMenu := TCornerMenu.Create;
@@ -561,28 +559,12 @@ end;
 
 procedure TFederTouchBase.SetActionPage(const Value: Integer);
 begin
-  if Value = -3 then
-  begin
-    if FActionPage = 1 then
-      FActionPage := EscapePageIndex
-    else
-      FActionPage := 1;
-  end
-  else if Value = -2 then
-    FActionPage := MaxPageIndex
-  else if Value = -1 then
-    FActionPage := EscapePageIndex
-  else if (Value = EscapePageIndex) and (FActionPage = EscapePageIndex + 1) then
-    FActionPage := EscapePageIndex
-  else if (Value = EscapePageIndex) and (FActionPage = EscapePageIndex - 1) then
-    FActionPage := 1
-  else
     FActionPage := Value;
 
   if FActionPage > MaxPageIndex then
     FActionPage := 1;
   if FActionPage < 1 then
-      FActionPage := EscapePageIndex-1;
+      FActionPage := MaxPageIndex;
 
   InitActions(FActionPage);
 

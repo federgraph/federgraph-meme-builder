@@ -416,7 +416,6 @@
         <DCCReference Include="MB\RiggVar.MB.SampleText00.pas"/>
         <DCCReference Include="MB\RiggVar.MB.SampleText01.pas"/>
         <DCCReference Include="MB\RiggVar.MB.SampleText02.pas"/>
-        <DCCReference Include="MB\RiggVar.MB.SampleText03.pas"/>
         <DCCReference Include="Model\RiggVar.FederModel.Action.pas"/>
         <DCCReference Include="Model\RiggVar.FederModel.ActionMapPhone.pas"/>
         <DCCReference Include="Model\RiggVar.FederModel.ActionMapTablet.pas"/>
@@ -478,12 +477,6 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="Win32\Debug\FC96.exe" Configuration="Debug" Class="ProjectOutput">
-                    <Platform Name="Win32">
-                        <RemoteName>FC96.exe</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
                 <DeployFile LocalName="OSX32\Debug\FC96.info.plist" Configuration="Debug" Class="ProjectOSXInfoPList">
                     <Platform Name="OSX32">
                         <RemoteName>Info.plist</RemoteName>
@@ -515,6 +508,12 @@
                 <DeployFile LocalName="OSX64\Debug\FC96.dSYM" Configuration="Debug" Class="ProjectOSXDebug">
                     <Platform Name="OSX64">
                         <RemoteName>FC96</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Win32\Debug\FC96.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>FC96.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

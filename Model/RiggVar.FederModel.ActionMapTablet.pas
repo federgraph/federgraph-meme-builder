@@ -54,7 +54,6 @@ constructor TActionMapTablet.Create;
 begin
   inherited;
   FPageCount := 3;
-  FEscapeIndex := 4;
   TestName := 'Tablet Page';
 end;
 

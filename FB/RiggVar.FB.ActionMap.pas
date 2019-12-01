@@ -36,8 +36,6 @@ type
     procedure SetActionColorProc(const Value: TInitActionColorProc);
     procedure SetActionProc(const Value: TInitActionProc);
     procedure SetPageCount(const Value: Integer);
-    function GetEscapeIndex: Integer;
-    procedure SetEscapeIndex(const Value: Integer);
     procedure SetMaxIndex(const Value: Integer);
     function GetMaxIndex: Integer;
     procedure TestProcAll(BtnID, Action: Integer);
@@ -47,7 +45,6 @@ type
     procedure TestProcAllIAC(BtnID, Action: Integer; cla: TAlphaColor);
   protected
     FPageCount: Integer;
-    FEscapeIndex: Integer;
     TestAction: Integer;
     TestPage: Integer;
     TestList: TStrings;
@@ -68,7 +65,6 @@ type
     property ActionColorProc: TInitActionColorProc read FActionColorProc write SetActionColorProc;
     property PageCount: Integer read FPageCount write SetPageCount;
     property MaxIndex: Integer read GetMaxIndex write SetMaxIndex;
-    property EscapeIndex: Integer read GetEscapeIndex write SetEscapeIndex;
   end;
 
 implementation
@@ -87,7 +83,6 @@ end;
 constructor TActionMap.Create;
 begin
   FPageCount := 1;
-  FEscapeIndex := 2;
 end;
 
 procedure TActionMap.InitAction(BtnID, Action: Integer);
@@ -112,27 +107,12 @@ begin
   FActionProc := Value;
 end;
 
-function TActionMap.GetEscapeIndex: Integer;
-begin
-  if FEscapeIndex <= 0 then
-    result := FPageCount + 1
-  else if FEscapeIndex > FPageCount + 1 then
-    result := FPageCount + 1
-  else
-    result := FEscapeIndex;
-end;
-
 function TActionMap.GetMaxIndex: Integer;
 begin
   if (FMaxIndex > 0) and (FMaxIndex <= PageCount) then
     result := FMaxIndex
   else
     result := FPageCount;
-end;
-
-procedure TActionMap.SetEscapeIndex(const Value: Integer);
-begin
-  FEscapeIndex := Value;
 end;
 
 procedure TActionMap.SetMaxIndex(const Value: Integer);

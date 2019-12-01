@@ -263,7 +263,6 @@ begin
   inherited;
 
   MaxPageIndex := Main.ActionMapTablet.PageCount;
-  EscapePageIndex := Main.ActionMapTablet.EscapeIndex;
 
   if InitOK then
     ResetCornerMenu;

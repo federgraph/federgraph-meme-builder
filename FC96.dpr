@@ -20,7 +20,6 @@ uses
   RiggVar.MB.SampleText00 in 'MB\RiggVar.MB.SampleText00.pas',
   RiggVar.MB.SampleText01 in 'MB\RiggVar.MB.SampleText01.pas',
   RiggVar.MB.SampleText02 in 'MB\RiggVar.MB.SampleText02.pas',
-  RiggVar.MB.SampleText03 in 'MB\RiggVar.MB.SampleText03.pas',
   RiggVar.FederModel.Action in 'Model\RiggVar.FederModel.Action.pas',
   RiggVar.FederModel.ActionMapPhone in 'Model\RiggVar.FederModel.ActionMapPhone.pas',
   RiggVar.FederModel.ActionMapTablet in 'Model\RiggVar.FederModel.ActionMapTablet.pas',

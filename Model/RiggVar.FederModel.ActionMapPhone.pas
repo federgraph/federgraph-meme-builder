@@ -44,7 +44,6 @@ constructor TActionMapPhone.Create;
 begin
   inherited;
   FPageCount := 2;
-  FEscapeIndex := FPageCount + 1;
   TestName := 'Phone Page';
 end;
 
