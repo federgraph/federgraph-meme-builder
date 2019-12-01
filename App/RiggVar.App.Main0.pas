@@ -296,7 +296,7 @@ begin
   if i > ColorSchemeCount then
     i := 1;
 
-  MainVar.ColorScheme.Default := i;
+  MainVar.ColorScheme.SchemeDefault := i;
   ColorScheme := i;
   BackgroundLock := l;
 end;
@@ -315,7 +315,7 @@ begin
   if i > ColorSchemeCount then
     i := 1;
 
-  MainVar.ColorScheme.Default := i;
+  MainVar.ColorScheme.SchemeDefault := i;
   ColorScheme := i;
   BackgroundLock := l;
 end;

@@ -43,81 +43,62 @@ const
   //EmptyAction
   faNoop = 871;
 
-  // ---
+  faButtonFrameReport = 1070;
 
-  faButtonFrameReport = 1990;
-
-  // --- Meme ---
-
-  faMemeNoop = 2000;
-
-  faMemeToggleEdits = 2001;
-  faMemeReset = 2002;
-  faMemeSwapText = 2003;
-
-  faMemeClearImage = 2004;
-  faMemeInitChecker = 2005;
-
-  faMemeSelectTop = 2006;
-  faMemeSelectBottom = 2007;
-
-  faMemeParamTopGlow = 2008;
-  faMemeParamBottomGlow = 2009;
-  faMemeParamTopMargin = 2010;
-  faMemeParamBottomMargin = 2011;
-  faMemeParamTopSize = 2012;
-  faMemeParamBottomSize = 2013;
-
-  faMemeToggleDropTarget = 2014;
-  faMemeToggleHelp = 2015;
-  faMemeToggleReport = 2016;
-  faMemeToggleTiling = 2017;
-  faMemeToggleFontColor = 2018;
-  faMemeToggleTextColor = 2019;
-
-  faMemeFontOffice = 2020;
-  faMemeFontNormal = 2021;
-
-  faMemeCycleFontP = 2022;
-  faMemeCycleFontM = 2023;
-
-  faMemeCycleDarkColorP = 2024;
-  faMemeCycleDarkColorM = 2025;
-
-  faMemeCycleLightColorP = 2026;
-  faMemeCycleLightColorM = 2027;
-
-  faMemeAdaptFormSize = 2028;
-
-  faMemeGotoLandscape = 2029;
-  faMemeGotoSquare = 2030;
-  faMemeGotoPortrait = 2031;
-
-  faMemeFormat0 = 2032;
-  faMemeFormat1 = 2033;
-  faMemeFormat2 = 2034;
-  faMemeFormat3 = 2035;
-  faMemeFormat4 = 2036;
-  faMemeFormat5 = 2037;
-  faMemeFormat6 = 2038;
-  faMemeFormat7 = 2039;
-  faMemeFormat8 = 2040;
-  faMemeFormat9 = 2041;
-
-  faMemeSampleT = 2042;
-  faMemeSampleP = 2043;
-  faMemeSampleM = 2044;
-
-  faMemeSample00 = 2045;
-  faMemeSample01 = 2046;
-  faMemeSample02 = 2047;
-
-  faMemePickFont = 2048;
-  faMemePickColor = 2049;
-
-  faMemeSaveBitmap = 2050;
-  faMemeCopyBitmap = 2051;
-  faMemePasteBitmap = 2052;
+  //MemeBuilder
+  faMemeNoop = 1071;
+  faMemeToggleEdits = 1072;
+  faMemeReset = 1073;
+  faMemeSwapText = 1074;
+  faMemeClearImage = 1075;
+  faMemeInitChecker = 1076;
+  faMemeSelectTop = 1077;
+  faMemeSelectBottom = 1078;
+  faMemeParamTopGlow = 1079;
+  faMemeParamBottomGlow = 1080;
+  faMemeParamTopMargin = 1081;
+  faMemeParamBottomMargin = 1082;
+  faMemeParamTopSize = 1083;
+  faMemeParamBottomSize = 1084;
+  faMemeToggleDropTarget = 1085;
+  faMemeToggleHelp = 1086;
+  faMemeToggleReport = 1087;
+  faMemeToggleTiling = 1088;
+  faMemeToggleFontColor = 1089;
+  faMemeToggleTextColor = 1090;
+  faMemeFontOffice = 1091;
+  faMemeFontNormal = 1092;
+  faMemeCycleFontP = 1093;
+  faMemeCycleFontM = 1094;
+  faMemeCycleDarkColorP = 1095;
+  faMemeCycleDarkColorM = 1096;
+  faMemeCycleLightColorP = 1097;
+  faMemeCycleLightColorM = 1098;
+  faMemeAdaptFormSize = 1099;
+  faMemeGotoLandscape = 1100;
+  faMemeGotoSquare = 1101;
+  faMemeGotoPortrait = 1102;
+  faMemeFormat0 = 1103;
+  faMemeFormat1 = 1104;
+  faMemeFormat2 = 1105;
+  faMemeFormat3 = 1106;
+  faMemeFormat4 = 1107;
+  faMemeFormat5 = 1108;
+  faMemeFormat6 = 1109;
+  faMemeFormat7 = 1110;
+  faMemeFormat8 = 1111;
+  faMemeFormat9 = 1112;
+  faMemeSampleT = 1113;
+  faMemeSampleP = 1114;
+  faMemeSampleM = 1115;
+  faMemeSample00 = 1116;
+  faMemeSample01 = 1117;
+  faMemeSample02 = 1118;
+  faMemePickFont = 1119;
+  faMemePickColor = 1120;
+  faMemeSaveBitmap = 1121;
+  faMemeCopyBitmap = 1122;
+  faMemePasteBitmap = 1123;
 
 implementation
 

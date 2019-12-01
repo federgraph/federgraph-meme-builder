@@ -171,6 +171,7 @@ type
 
     procedure Init; override;
     procedure CheckState;
+    procedure UpdateWH;
     procedure CheckCircleState; virtual;
     procedure MoveText; virtual;
     procedure CheckBtnOrder; virtual;
@@ -489,12 +490,15 @@ end;
 
 { TFederTouchBase }
 
-procedure TFederTouchBase.MoveText;
+procedure TFederTouchBase.UpdateWH;
 begin
   Width := MainVar.ClientWidth;
   Height := MainVar.ClientHeight;
+end;
 
-  // ...
+procedure TFederTouchBase.MoveText;
+begin
+  UpdateWH;
 
   { There used to be some text as well, not only buttons.
     This version is a light version.

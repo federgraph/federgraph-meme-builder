@@ -28,7 +28,7 @@ type
     WantBlackText: Boolean;
 
     Scheme: Integer;
-    Default: Integer;
+    SchemeDefault: Integer;
     claBackground: TAlphaColor;
 
     claLabelText: TAlphaColor;
@@ -101,8 +101,8 @@ constructor TColorScheme.Create(cs: Integer);
 begin
   WantBlackText := True;
   claTouchbarText := claBlack;
-  Default := cs;
-  Scheme := Default;
+  SchemeDefault := cs;
+  Scheme := SchemeDefault;
   Init(Scheme);
 end;
 
