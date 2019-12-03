@@ -215,6 +215,8 @@ begin
   Application.OnException := ApplicationEventsException;
 
   FormMeme := self;
+
+  { RSP-20787 }
   Self.Position := TFormPosition.ScreenCenter;
 
 {$ifdef WantBtnFrame}

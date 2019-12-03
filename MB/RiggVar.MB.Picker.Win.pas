@@ -49,7 +49,7 @@ begin
   cc.lStructSize := SizeOf(cc);
   cc.hwndOwner := FmxHandleToHWND(Application.MainForm.Handle);
   cc.lpCustColors := @cla;
-  cc.rgbResult := RGBtoBGR(claWhite);
+  cc.rgbResult := RGBtoBGR(AColor);
   cc.Flags := CC_FULLOPEN or CC_RGBINIT;
   if (ChooseColor(cc)) then
     result := MakeColor(
@@ -62,13 +62,32 @@ function TPickerWin.SelectFontFamilyName(AFontName: string): string;
 var
  cc : TChooseFont;
  lf: LogFont;
+ lp: Integer; // log pixels
+ fh: HWND; // form handle
 begin
   result := AFontName;
   FillChar(cc, SizeOf(cc), 0);
   FillChar(lf, SizeOf(LogFont), 0);
+
+//  lf.lfFaceName := 'Arial';
+  StrLCopy(lf.lfFaceName, PChar(AFontName), 29);
+
+  { init font size to hardcoded value of 12 point }
+  lp := Round(Application.MainForm.Handle.Scale * 96);
+  lf.lfHeight := Muldiv(12, lp, 72);
+
   cc.lStructSize := SizeOf(cc);
   cc.lpLogFont := @lf;
   cc.hwndOwner := FmxHandleToHWND(Application.MainForm.Handle);
+
+  fh := FmxHandleToHWND(Application.MainForm.Handle);
+  cc.hwndOwner := fh;
+
+  cc.Flags := CF_SCREENFONTS or
+              CF_INITTOLOGFONTSTRUCT or
+              CF_EFFECTS or
+              CF_SCALABLEONLY ;
+
   if ChooseFont(cc) then
     result := string(cc.lpLogFont.lfFaceName);
 end;
