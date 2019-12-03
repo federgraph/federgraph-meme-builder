@@ -216,8 +216,8 @@ begin
 
   FormMeme := self;
 
-  { RSP-20787 }
-  Self.Position := TFormPosition.ScreenCenter;
+  { RSP-20787 when TFormPosition.ScreenCenter}
+//  Self.Position := TFormPosition.ScreenCenter;
 
 {$ifdef WantBtnFrame}
   InitMain;

@@ -78,7 +78,6 @@ begin
 
   cc.lStructSize := SizeOf(cc);
   cc.lpLogFont := @lf;
-  cc.hwndOwner := FmxHandleToHWND(Application.MainForm.Handle);
 
   fh := FmxHandleToHWND(Application.MainForm.Handle);
   cc.hwndOwner := fh;
