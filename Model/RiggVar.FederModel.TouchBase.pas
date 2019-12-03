@@ -39,8 +39,6 @@ type
   TTouchBtn = class(TControl)
   private
     FID: Integer;
-    FMenuBtn: Boolean;
-    FOptiBtn: Boolean;
     FCaption: string;
     FText: TText;
     FShape: TShape;
@@ -73,8 +71,6 @@ type
     property Shape: TShape read FShape;
     property Text: TText read FText;
     property Color: TAlphaColor write SetColor;
-    property MenuBtn: Boolean read FMenuBtn;
-    property OptiBtn: Boolean read FOptiBtn;
   end;
 
   TCornerPos = (
@@ -124,11 +120,6 @@ type
     function GetMaxCount: Integer;
     function GetMinCount: Integer;
   protected
-    FMinBtnCount: Integer;
-    FMaxBtnCount: Integer;
-    FMaxBtnPhone: Integer;
-    FMinBtnPhone: Integer;
-
     MaxPageIndex: Integer;
 
     OldX: single;
@@ -528,10 +519,6 @@ constructor TFederTouchBase.Create(AOwner: TComponent);
 begin
   inherited;
   FFrameVisible := True;
-  FMaxBtnCount := 12;
-  FMinBtnCount := 8;
-  FMaxBtnPhone := 6;
-  FMinBtnPhone := 4;
 
   FActionPage := 1;
   CornerBtnList := TObjectList<TCornerBtn>.Create;
@@ -563,7 +550,7 @@ end;
 
 procedure TFederTouchBase.SetActionPage(const Value: Integer);
 begin
-    FActionPage := Value;
+  FActionPage := Value;
 
   if FActionPage > MaxPageIndex then
     FActionPage := 1;
