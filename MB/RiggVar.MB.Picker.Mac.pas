@@ -31,6 +31,7 @@ implementation
   improvement in 10.3.3 - now sometimes it works and sometimes not. }
 
 uses
+  FMX.Graphics,
   MacApi.Appkit,
   Macapi.CoreFoundation,
   Macapi.Foundation;
@@ -38,34 +39,69 @@ uses
 { TPickerMac }
 
 function TPickerMac.SelectAlphaColor(AColor: TAlphaColor): TAlphaColor;
+var
+  cp: NSColorPanel;
+//  nsc: NSColor;
+//  acf: TAlphaColorF;
 begin
-  { not implemented }
   result := AColor;
+  try
+    cp := TNsColorPanel.Wrap(TNsColorPanel.OCClass.sharedColorPanel);
+    cp.orderFront(nil);
+
+//    nsc := cp.color;
+//    acf.R := nsc.redComponent;
+//    acf.G := nsc.greenComponent;
+//    acf.B := nsc.blueComponent;
+//    acf.A := nsc.alphaComponent;
+//    result := acf.ToAlphaColor;
+  except
+  end;
 end;
 
 function TPickerMac.SelectFontFamilyName(AFontName: string): string;
+var
+  fm: NsFontManager;
+  fp: NSFontPanel;
+//  fn: NSString;
 begin
-  { not implemented }
   result := AFontName;
+  try
+    fm := TNsFontManager.Wrap(TNsFontManager.OCClass.sharedFontManager);
+//    fm.setDelegate(PickerDelegate);
+
+    { How do I set a delegate with the changeFont method that works ? }
+
+    fp := TNsFontPanel.Wrap(TNsFontPanel.OCClass.sharedFontPanel);
+    fp.orderFront(nil);
+
+    { This should be in the delegate method ? }
+//    fn:= fm.selectedFont.familyName;
+//    result := string(fn.UTF8String);
+
+//    fm.setDelegate(nil);
+  except
+    result := AFontName;
+  end;
 end;
 
 procedure TPickerMac.CollectFontFamilyNames(ML: TStrings);
 var
-  fManager: NsFontManager;
+  fm: NsFontManager;
   list:NSArray;
   lItem:NSString;
   i: Integer;
 begin
 // stackoverflow: how-to-get-the-list-of-fonts-available-delphi-xe3-firemonkey-2
 
-  fManager := TNsFontManager.Wrap(TNsFontManager.OCClass.sharedFontManager);
-  list := fManager.availableFontFamilies;
+  fm := TNsFontManager.Wrap(TNsFontManager.OCClass.sharedFontManager);
+  list := fm.availableFontFamilies;
   if (List <> nil) and (List.count > 0) then
   begin
     for i := 0 to List.Count-1 do
     begin
       lItem := TNSString.Wrap(List.objectAtIndex(i));
-      ML.Add(String(lItem.UTF8String))
+      ML.Add(string(lItem.UTF8String))
     end;
   end;
 end;

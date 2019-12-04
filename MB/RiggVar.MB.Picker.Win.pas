@@ -60,35 +60,41 @@ end;
 
 function TPickerWin.SelectFontFamilyName(AFontName: string): string;
 var
- cc : TChooseFont;
+ cf : TChooseFont;
  lf: LogFont;
  lp: Integer; // log pixels
  fh: HWND; // form handle
+ ml: Cardinal; // MaxLen param
 begin
   result := AFontName;
-  FillChar(cc, SizeOf(cc), 0);
+  FillChar(cf, SizeOf(cf), 0);
   FillChar(lf, SizeOf(LogFont), 0);
 
-//  lf.lfFaceName := 'Arial';
-  StrLCopy(lf.lfFaceName, PChar(AFontName), 29);
+//  lf.lfFaceName := 'Arial'; //this seems to work
+
+  { but we want to use the AFontName param }
+  ml := Length(lf.lfFaceName); // 32
+  ml := ml - 2; // leave two #0 at end of array ?
+  StrLCopy(lf.lfFaceName, PChar(AFontName), ml);
 
   { init font size to hardcoded value of 12 point }
   lp := Round(Application.MainForm.Handle.Scale * 96);
   lf.lfHeight := Muldiv(12, lp, 72);
 
-  cc.lStructSize := SizeOf(cc);
-  cc.lpLogFont := @lf;
+  cf.lStructSize := SizeOf(cf);
+  cf.lpLogFont := @lf;
+  cf.hwndOwner := FmxHandleToHWND(Application.MainForm.Handle);
 
   fh := FmxHandleToHWND(Application.MainForm.Handle);
-  cc.hwndOwner := fh;
+  cf.hwndOwner := fh;
 
-  cc.Flags := CF_SCREENFONTS or
+  cf.Flags := CF_SCREENFONTS or
               CF_INITTOLOGFONTSTRUCT or
               CF_EFFECTS or
               CF_SCALABLEONLY ;
 
-  if ChooseFont(cc) then
-    result := string(cc.lpLogFont.lfFaceName);
+  if ChooseFont(cf) then
+    result := string(cf.lpLogFont.lfFaceName);
 end;
 
 function EnumFontsProc(var LogFont: TLogFont; var TextMetric: TTextMetric;
