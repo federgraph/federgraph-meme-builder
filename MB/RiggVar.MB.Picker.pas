@@ -11,6 +11,8 @@ uses
 type
   TPicker = class(TInterfacedObject, IPicker)
   public
+    procedure ShowColorPicker;
+    procedure ShowFontPicker;
     function SelectAlphaColor(AColor: TAlphaColor): TAlphaColor;
     function SelectFontFamilyName(AFontName: string): string;
     procedure CollectFontFamilyNames(ML: TStrings);
@@ -29,6 +31,16 @@ end;
 function TPicker.SelectFontFamilyName(AFontName: string): string;
 begin
   result := AFontName;
+end;
+
+procedure TPicker.ShowColorPicker;
+begin
+
+end;
+
+procedure TPicker.ShowFontPicker;
+begin
+
 end;
 
 procedure TPicker.CollectFontFamilyNames(ML: TStrings);

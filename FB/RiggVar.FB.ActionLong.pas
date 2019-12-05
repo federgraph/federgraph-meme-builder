@@ -112,6 +112,9 @@ begin
     faMemeSample01: result := 'Select Sample Bundle 01';
     faMemeSample02: result := 'Select Sample Bundle 02';
 
+    faMemeShowFontPicker: result := 'Show Font Picker on Mac';
+    faMemeShowColorPicker: result := 'Show Color Picker on Mac';
+
     faMemePickFont: result := 'Pick Font via Dialog';
     faMemePickColor: result := 'Pick Font Color via Dialog';
 

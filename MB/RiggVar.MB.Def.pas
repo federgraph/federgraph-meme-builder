@@ -50,6 +50,8 @@ type
 
   IPicker = interface
 ['{736BA227-0249-475F-AE02-AB9F3C5EB3FB}']
+    procedure ShowColorPicker;
+    procedure ShowFontPicker;
     function SelectAlphaColor(AColor: TAlphaColor): TAlphaColor;
     function SelectFontFamilyName(AFontName: string): string;
     procedure CollectFontFamilyNames(ML: TStrings);

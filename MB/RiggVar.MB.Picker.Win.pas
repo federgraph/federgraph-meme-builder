@@ -14,6 +14,8 @@ uses
 type
   TPickerWin = class(TInterfacedObject, IPicker)
   public
+    procedure ShowColorPicker;
+    procedure ShowFontPicker;
     function SelectAlphaColor(AColor: TAlphaColor): TAlphaColor;
     function SelectFontFamilyName(AFontName: string): string;
     procedure CollectFontFamilyNames(ML: TStrings);
@@ -95,6 +97,16 @@ begin
 
   if ChooseFont(cf) then
     result := string(cf.lpLogFont.lfFaceName);
+end;
+
+procedure TPickerWin.ShowColorPicker;
+begin
+  // only implemented on Mac
+end;
+
+procedure TPickerWin.ShowFontPicker;
+begin
+  // only implemented on Mac
 end;
 
 function EnumFontsProc(var LogFont: TLogFont; var TextMetric: TTextMetric;

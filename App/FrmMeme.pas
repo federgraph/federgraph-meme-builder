@@ -135,6 +135,8 @@ type
     function GetCurrentTextControl: TText;
     function GetScreenshot: TBitmap;
     procedure SaveBitmap;
+    procedure ShowColorPicker;
+    procedure ShowFontPicker;
     procedure PickFont;
     procedure PickColor;
     procedure CycleColorDark(delta: Integer = 1);
@@ -763,6 +765,16 @@ begin
   SampleManager02.SetUseOfficeFonts(Value);
 end;
 
+procedure TFormMeme.ShowColorPicker;
+begin
+  Picker.ShowColorPicker;
+end;
+
+procedure TFormMeme.ShowFontPicker;
+begin
+  Picker.ShowFontPicker;
+end;
+
 procedure TFormMeme.CreateCheckerBitmap;
 var
   cb: TBitmap;
@@ -1386,6 +1398,9 @@ begin
     faMemeCycleLightColorP: CycleColorLight(1);
     faMemeCycleLightColorM: CycleColorLight(-1);
 
+    faMemeShowFontPicker: ShowFontPicker;
+    faMemeShowColorPicker: ShowColorPicker;
+
     faMemePickFont: PickFont;
     faMemePickColor: PickColor;
 
@@ -1510,6 +1525,12 @@ begin
 
     'h': fa := faMemeToggleHelp;
 
+    'i': fa := faMemeCycleLightColorP;
+    'I': fa := faMemeCycleLightColorM;
+
+    'j': fa := faMemeCycleDarkColorP;
+    'J': fa := faMemeCycleDarkColorM;
+
     'l': fa := faMemeGotoLandscape;
 
     'm': fa := faMemeParamTopMargin;
@@ -1556,18 +1577,15 @@ begin
     'ä': fa := faMemePickFont;
     'Ä': fa := faMemePickColor;
 
-    'ö': fa := faMemeCycleDarkColorP;
-    'Ö': fa := faMemeCycleDarkColorM;
-
-    'ü': fa := faMemeCycleLightColorP;
-    'Ü': fa := faMemeCycleLightColorM;
+    'ö': fa := faMemeShowColorPicker;
+    'Ö': fa := faMemeShowFontPicker;
 
 {$ifdef WantBtnFrame}
     '+': fa := faActionPageP;
     '*': fa := faActionPageM;
 
-    'i': fa := faCycleColorSchemeP;
-    'I': fa := faCycleColorSchemeM;
+    'k': fa := faCycleColorSchemeP;
+    'K': fa := faCycleColorSchemeM;
 {$endif}
 
     else fa := faMemeNoop;

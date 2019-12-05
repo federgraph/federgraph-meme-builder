@@ -83,6 +83,10 @@ begin
       cl := TopRight;
       InitAC(cl, 1, faNoop, cla);
       InitAC(cl, 2, faNoop, cla);
+{$ifdef MACOS}
+      InitAC(cl, 1, faMemeShowColorPicker, cla);
+      InitAC(cl, 2, faMemeShowFontPicker, cla);
+{$endif}
       InitAC(cl, 3, faMemeSelectTop, cla);
       InitAC(cl, 4, faMemeSelectBottom, cla);
       //InitAC(cl, 5, faActionPageP, claYellow);

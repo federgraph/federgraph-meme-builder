@@ -113,6 +113,9 @@ begin
     faMemeSample01: result := '01';
     faMemeSample02: result := '02';
 
+    faMemeShowFontPicker: result := 'sF';
+    faMemeShowColorPicker: result := 'sC';
+
     faMemePickFont: result := 'pF';
     faMemePickColor: result := 'pC';
 

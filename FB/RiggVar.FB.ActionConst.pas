@@ -99,6 +99,8 @@ const
   faMemeSaveBitmap = 1121;
   faMemeCopyBitmap = 1122;
   faMemePasteBitmap = 1123;
+  faMemeShowColorPicker = 1124;
+  faMemeShowFontPicker = 1125;
 
 implementation
 
