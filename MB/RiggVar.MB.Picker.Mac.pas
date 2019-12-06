@@ -22,14 +22,10 @@ uses
 
 type
   TNSFontPickerEventHandler = class(TOCLocal)
-  private
-    fm: NSFontManager;
-    FFontFamilyName: string;
   protected
     function GetObjectiveCClass: PTypeInfo; override;
   public
     procedure fontChanged(Sender: Pointer); cdecl;
-    property Name: string read FFontFamilyName;
   end;
 
   INSFontPickerEventHandler = interface(NSObject)
@@ -59,11 +55,14 @@ type
     FontPickerShown: Boolean;
     TestCounter: Integer;
 
+    FFontManager: NSFontManager;
     FFontPanel: NSFontPanel;
     FFontEvent: TNSFontPickerEventHandler;
+
     FColorPanel: NSColorPanel;
     FColorEvent: TNSColorPickerEventHandler;
   public
+    destructor Destroy; override;
     procedure ShowColorPicker;
     procedure ShowFontPicker;
     function SelectAlphaColor(AColor: TAlphaColor): TAlphaColor;
@@ -77,6 +76,24 @@ type
 implementation
 
 {$ifdef MACOS}
+
+function NSColorToAlphaColor(nsc: NSColor): TAlphaColor;
+var
+  acf: TAlphaColorF;
+begin
+  acf.R := nsc.redComponent;
+  acf.G := nsc.greenComponent;
+  acf.B := nsc.blueComponent;
+  acf.A := nsc.alphaComponent;
+  result := acf.ToAlphaColor;
+end;
+
+destructor TPickerMac.Destroy;
+begin
+  FColorEvent.Free;
+  FFontEvent.Free;
+  inherited;
+end;
 
 { TPickerMac }
 
@@ -96,23 +113,10 @@ begin
 end;
 
 function TPickerMac.SelectAlphaColor(AColor: TAlphaColor): TAlphaColor;
-var
-  nsc: NSColor;
-  acf: TAlphaColorF;
 begin
   result := AColor;
-
-  if not ColorPickerShown then
-    Exit;
-
-  nsc := FColorPanel.color;
-
-  acf.R := nsc.redComponent;
-  acf.G := nsc.greenComponent;
-  acf.B := nsc.blueComponent;
-  acf.A := nsc.alphaComponent;
-
-  result := acf.ToAlphaColor;
+  if ColorPickerShown then
+    result := NSColorToAlphaColor(FColorPanel.color);
 end;
 
 procedure TPickerMac.ShowFontPicker;
@@ -123,25 +127,25 @@ begin
   if not FontPickerShown then
   begin
     fm := TNsFontManager.Wrap(TNsFontManager.OCClass.sharedFontManager);
+    FFontManager := fm;
 
     FFontEvent := TNSFontPickerEventHandler.Create;
-    FFontEvent.fm := fm;
 
     ff := TNSFont.Wrap(TNSFont.OCClass.systemFontOfSize(13));
     fm.setSelectedFont(ff, false);
     fm.setTarget(FFontEvent.GetObjectID);
     fm.setAction(sel_getUid('fontChanged:'));
 
+    FFontPanel := TNsFontPanel.Wrap(TNsFontPanel.OCClass.sharedFontPanel);
+
     FontPickerShown := True;
   end;
 
-  FFontPanel := TNsFontPanel.Wrap(TNsFontPanel.OCClass.sharedFontPanel);
   FFontPanel.makeKeyAndOrderFront(nil);
 end;
 
 function TPickerMac.SelectFontFamilyName(AFontName: string): string;
 var
-  fm: NsFontManager;
   fn: NSString;
 begin
   result := AFontName;
@@ -149,14 +153,12 @@ begin
   if not FontPickerShown then
     Exit;
 
-  fm := FFontEvent.fm;
-
   { https://developer.apple.com/documentation/appkit/nsfontmanager }
-  if fm.sendAction then
+  if FFontManager.sendAction then
   begin
-    if fm.selectedFont <> nil then
+    if FFontManager.selectedFont <> nil then
     begin
-      fn:= fm.selectedFont.familyName;
+      fn:= FFontManager.selectedFont.familyName;
       result := NSStrToStr(fn);
     end;
   end
@@ -193,18 +195,8 @@ end;
 { TNSColorPickerEventHandler }
 
 procedure TNSColorPickerEventHandler.colorChanged(Sender: Pointer);
-var
-  nsc: NSColor;
-  acf: TAlphaColorF;
 begin
-  nsc := cp.color;
-
-  acf.R := nsc.redComponent;
-  acf.G := nsc.greenComponent;
-  acf.B := nsc.blueComponent;
-  acf.A := nsc.alphaComponent;
-
-  FColor := acf.ToAlphaColor;
+  FColor := NSColorToAlphaColor(cp.color);
 end;
 
 function TNSColorPickerEventHandler.GetObjectiveCClass: PTypeInfo;
@@ -215,16 +207,7 @@ end;
 { TNSFontPickerEventHandler }
 
 procedure TNSFontPickerEventHandler.fontChanged(Sender: Pointer);
-var
-  nss: NSSTring;
-  fn: string;
 begin
-  if fm.selectedFont <> nil then
-  begin
-    nss := fm.selectedFont.familyName;
-    fn := NSStrToStr(nss);
-    FFontFamilyName := fn;
-  end;
 end;
 
 function TNSFontPickerEventHandler.GetObjectiveCClass: PTypeInfo;

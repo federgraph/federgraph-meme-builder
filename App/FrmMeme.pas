@@ -833,6 +833,7 @@ begin
   UseOfficeFonts := True;
   ML := FontFamilyList;
   ML.Clear;
+{$ifdef MSWINDOWS}
   { I thought these fonts would be useful }
   ML.Add('Stencil');
   ML.Add('Showcard Gothic');
@@ -843,27 +844,54 @@ begin
   ML.Add('Vivaldi'); // Office Font
   ML.Add('Vladimir Script'); // Office Font
   ML.Add('Comic Sans MS'); // 95
+{$endif}
+
+{$ifdef MACOS}
+  ML.Add('Herculanum');
+  ML.Add('Kokonor');
+  ML.Add('Luminari');
+  ML.Add('Noteworthy');
+  ML.Add('Optima');
+  ML.Add('Snell Roundhand');
+  ML.Add('SignPainter');
+  ML.Add('Trattatello');
+  ML.Add('Zapfino');
+{$endif}
 end;
 
 procedure TFormMeme.InitNormalFonts;
 var
   ML: TStrings;
 begin
-// wikipedia: List_of_typefaces_included_with_Microsoft_Windows
+  { What fonts should I use when Office Fonts are not available? }
+  { wikipedia: List_of_typefaces_included_with_Microsoft_Windows }
 
   UseOfficeFonts := False;
   ML := FontFamilyList;
   ML.Clear;
-  { What fonts should I use when Office Fonts are not available ? }
-  ML.Add('Arial'); // 3.1
-  ML.Add('Courier New'); // 3.1
-  ML.Add('Times New Roman'); // 3.1
-  ML.Add('Consolas'); // Vista
-  ML.Add('Verdana'); // 95
-  ML.Add('Calibri'); // Vista
-  ML.Add('Lucida Handwriting'); // 98
-  ML.Add('Impact'); // 98
-  ML.Add('Comic Sans MS'); // 95
+
+  ML.Add('Arial');
+  ML.Add('Comic Sans MS');
+  ML.Add('Courier New');
+  ML.Add('Impact');
+  ML.Add('Times New Roman');
+
+{$ifdef MSWINDOWS}
+  ML.Add('Consolas');
+  ML.Add('Calibri');
+  ML.Add('Lucida Handwriting');
+  ML.Add('Verdana');
+{$endif}
+
+{$ifdef MACOS}
+  ML.Add('Avenir');
+  ML.Add('American Typewriter');
+  ML.Add('Arial Black');
+  ML.Add('Baskerville');
+  ML.Add('Bradley Hand');
+  ML.Add('Brush Script MT');
+  ML.Add('Copperplate');
+{$endif}
 end;
 
 procedure TFormMeme.CycleFont(Value: Integer);
@@ -1077,6 +1105,7 @@ begin
       if SL.IndexOf(f) = -1 then
       begin
         HasOfficeFonts := False;
+        log.d('missing font: ' + f);
         break;
       end;
     end;
