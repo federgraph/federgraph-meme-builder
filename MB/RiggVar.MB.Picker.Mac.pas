@@ -56,7 +56,10 @@ type
 
     FontEventHandler: TNSFontPickerEventHandler;
     ColorEventHandler: TNSColorPickerEventHandler;
+
+    WantColorPickerEvent: Boolean;
   public
+    constructor Create;
     destructor Destroy; override;
     procedure ShowColorPicker;
     procedure ShowFontPicker;
@@ -77,7 +80,7 @@ implementation
 
   For example, when the user changes the panel tab in the dialog,
     which is perfectly ok,
-      the FontPanel seems to be recreated ... ?
+      the ColorPanel (and FontPanel ? ) seems to be recreated ... ?
         this is just a conspiracy theory,
           but I got exceptions, including a stacktrace, go figure ...
             and it makes me believe that I should try not to cache the ref.
@@ -122,6 +125,11 @@ end;
 
 { TPickerMac }
 
+constructor TPickerMac.Create;
+begin
+  WantColorPickerEvent := True;
+end;
+
 destructor TPickerMac.Destroy;
 begin
   ColorEventHandler.Free;
@@ -134,8 +142,11 @@ var
   cp: NSColorPanel;
 begin
   cp := GetNSColorPanel;
-  if not ColorPickerShown then
+
+  if WantColorPickerEvent and not ColorPickerShown then
   begin
+    { No EventHandler needed for SelectAlphaColor to work here.
+      Could be removed, but it works... }
     ColorEventHandler := TNSColorPickerEventHandler.Create;
     ColorEventHandler.FColor := claWhite;
 
@@ -143,6 +154,8 @@ begin
     cp.setAction(sel_getUid('colorChanged:'));
     ColorPickerShown := True;
   end;
+
+//  cp.makeKeyAndOrderFront(nil); // to have keyboard support in color list ?
   cp.orderFront(nil);
 end;
 
@@ -202,8 +215,8 @@ end;
 procedure TPickerMac.CollectFontFamilyNames(ML: TStrings);
 var
   fm: NsFontManager;
-  cl:NSArray;
-  li:NSString;
+  cl: NSArray;
+  li: NSString;
   c: LongWord; //NSUInteger
   i: Integer;
 begin
@@ -214,7 +227,7 @@ begin
     c := cl.count;
     if c > 0 then
     begin
-      for i := 0 to cl.count-1 do
+      for i := 0 to c-1 do
       begin
         li := TNSString.Wrap(cl.objectAtIndex(i));
         ML.Add(NSStrToStr(li));
