@@ -133,9 +133,9 @@ procedure TPickerMac.ShowColorPicker;
 var
   cp: NSColorPanel;
 begin
+  cp := GetNSColorPanel;
   if not ColorPickerShown then
   begin
-    cp := GetNSColorPanel;
     ColorEventHandler := TNSColorPickerEventHandler.Create;
     ColorEventHandler.FColor := claWhite;
 

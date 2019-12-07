@@ -444,6 +444,8 @@ end;
 
 procedure TFormMeme.FormResize(Sender: TObject);
 begin
+  { if I do not force AutoSize off/on
+      then the text does not center in the middle after resizing ? }
   BottomText.AutoSize := False;
   BottomText.AutoSize := True;
 
