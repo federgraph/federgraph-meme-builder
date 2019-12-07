@@ -35,13 +35,12 @@ type
 
   TNSColorPickerEventHandler = class(TOCLocal)
   private
-    cp: NSColorPanel;
     FColor: TAlphaColor;
   protected
     function GetObjectiveCClass: PTypeInfo; override;
   public
     procedure colorChanged(Sender: Pointer); cdecl;
-    property Color: TAlphaColor read FColor;
+    property Color: TAlphaColor read FColor write FColor;
   end;
 
   INSColorPickerEventHandler = interface(NSObject)
@@ -55,12 +54,8 @@ type
     FontPickerShown: Boolean;
     TestCounter: Integer;
 
-    FFontManager: NSFontManager;
-    FFontPanel: NSFontPanel;
-    FFontEvent: TNSFontPickerEventHandler;
-
-    FColorPanel: NSColorPanel;
-    FColorEvent: TNSColorPickerEventHandler;
+    FontEventHandler: TNSFontPickerEventHandler;
+    ColorEventHandler: TNSColorPickerEventHandler;
   public
     destructor Destroy; override;
     procedure ShowColorPicker;
@@ -77,6 +72,43 @@ implementation
 
 {$ifdef MACOS}
 
+{ I believe that you should never store a retrieved interface reference
+  to the shared objects, because it can change, and then there may be problems.
+
+  For example, when the user changes the panel tab in the dialog,
+    which is perfectly ok,
+      the FontPanel seems to be recreated ... ?
+        this is just a conspiracy theory,
+          but I got exceptions, including a stacktrace, go figure ...
+            and it makes me believe that I should try not to cache the ref.
+
+  Maybe, when the panel type changes, the system will send other messages,
+    which I do not implement, and it crashes because of that ?
+
+  Needs testing, I have tested the NORMAL case, and it works.
+  ( Using latest Software versions only, 07.12.2019. )
+}
+
+function GetNSColorPanel: NSColorPanel;
+begin
+  result := TNSColorPanel.Wrap(TNSColorPanel.OCClass.sharedColorPanel);
+end;
+
+function GetNSFontManager: NSFontManager;
+begin
+  result := TNSFontManager.Wrap(TNSFontManager.OCClass.sharedFontManager);
+end;
+
+function GetNSFontPanel: NSFontPanel;
+begin
+  result := TNSFontPanel.Wrap(TNSFontPanel.OCClass.sharedFontPanel);
+end;
+
+function GetNSFontDefault: NSFont;
+begin
+  result := TNSFont.Wrap(TNSFont.OCClass.systemFontOfSize(13));
+end;
+
 function NSColorToAlphaColor(nsc: NSColor): TAlphaColor;
 var
   acf: TAlphaColorF;
@@ -88,65 +120,63 @@ begin
   result := acf.ToAlphaColor;
 end;
 
+{ TPickerMac }
+
 destructor TPickerMac.Destroy;
 begin
-  FColorEvent.Free;
-  FFontEvent.Free;
+  ColorEventHandler.Free;
+  FontEventHandler.Free;
   inherited;
 end;
 
-{ TPickerMac }
-
 procedure TPickerMac.ShowColorPicker;
+var
+  cp: NSColorPanel;
 begin
   if not ColorPickerShown then
   begin
-    FColorPanel := TNSColorPanel.Wrap(TNSColorPanel.OCClass.sharedColorPanel);
-    FColorEvent := TNSColorPickerEventHandler.Create;
-    FColorEvent.cp := FColorPanel;
+    cp := GetNSColorPanel;
+    ColorEventHandler := TNSColorPickerEventHandler.Create;
+    ColorEventHandler.FColor := claWhite;
 
-    FColorPanel.setTarget(FColorEvent.GetObjectID);
-    FColorPanel.setAction(sel_getUid('colorChanged:'));
+    cp.setTarget(ColorEventHandler.GetObjectID);
+    cp.setAction(sel_getUid('colorChanged:'));
     ColorPickerShown := True;
   end;
-  FColorPanel.orderFront(nil);
+  cp.orderFront(nil);
 end;
 
 function TPickerMac.SelectAlphaColor(AColor: TAlphaColor): TAlphaColor;
 begin
   result := AColor;
   if ColorPickerShown then
-    result := NSColorToAlphaColor(FColorPanel.color);
+    result := NSColorToAlphaColor(GetNSColorPanel.color);
 end;
 
 procedure TPickerMac.ShowFontPicker;
 var
-  fm: NsFontManager;
   ff: NSFont;
+  fm: NsFontManager;
+  fp: NSFontPanel;
 begin
   if not FontPickerShown then
   begin
-    fm := TNsFontManager.Wrap(TNsFontManager.OCClass.sharedFontManager);
-    FFontManager := fm;
-
-    FFontEvent := TNSFontPickerEventHandler.Create;
-
-    ff := TNSFont.Wrap(TNSFont.OCClass.systemFontOfSize(13));
+    FontEventHandler := TNSFontPickerEventHandler.Create;
+    ff := GetNSFontDefault;
+    fm := GetNsFontManager;
     fm.setSelectedFont(ff, false);
-    fm.setTarget(FFontEvent.GetObjectID);
+    fm.setTarget(FontEventHandler.GetObjectID);
     fm.setAction(sel_getUid('fontChanged:'));
-
-    FFontPanel := TNsFontPanel.Wrap(TNsFontPanel.OCClass.sharedFontPanel);
-
     FontPickerShown := True;
   end;
-
-  FFontPanel.makeKeyAndOrderFront(nil);
+  fp := GetNSFontPanel;
+  fp.makeKeyAndOrderFront(nil);
 end;
 
 function TPickerMac.SelectFontFamilyName(AFontName: string): string;
 var
   fn: NSString;
+  fm: NSFontManager;
 begin
   result := AFontName;
 
@@ -154,11 +184,12 @@ begin
     Exit;
 
   { https://developer.apple.com/documentation/appkit/nsfontmanager }
-  if FFontManager.sendAction then
+  fm := GetNSFontManager;
+  if fm.sendAction then
   begin
-    if FFontManager.selectedFont <> nil then
+    if fm.selectedFont <> nil then
     begin
-      fn:= FFontManager.selectedFont.familyName;
+      fn:= fm.selectedFont.familyName;
       result := NSStrToStr(fn);
     end;
   end
@@ -171,18 +202,23 @@ end;
 procedure TPickerMac.CollectFontFamilyNames(ML: TStrings);
 var
   fm: NsFontManager;
-  list:NSArray;
-  lItem:NSString;
+  cl:NSArray;
+  li:NSString;
+  c: LongWord; //NSUInteger
   i: Integer;
 begin
-  fm := TNsFontManager.Wrap(TNsFontManager.OCClass.sharedFontManager);
-  list := fm.availableFontFamilies;
-  if (List <> nil) and (List.count > 0) then
+  fm := GetNsFontManager;
+  cl := fm.availableFontFamilies;
+  if cl <> nil then
   begin
-    for i := 0 to List.Count-1 do
+    c := cl.count;
+    if c > 0 then
     begin
-      lItem := TNSString.Wrap(List.objectAtIndex(i));
-      ML.Add(NSStrToStr(lItem));
+      for i := 0 to cl.count-1 do
+      begin
+        li := TNSString.Wrap(cl.objectAtIndex(i));
+        ML.Add(NSStrToStr(li));
+      end;
     end;
   end;
 end;
@@ -195,7 +231,10 @@ end;
 { TNSColorPickerEventHandler }
 
 procedure TNSColorPickerEventHandler.colorChanged(Sender: Pointer);
+var
+  cp: NSColorPanel;
 begin
+  cp := GetNSColorPanel;
   FColor := NSColorToAlphaColor(cp.color);
 end;
 
@@ -208,6 +247,18 @@ end;
 
 procedure TNSFontPickerEventHandler.fontChanged(Sender: Pointer);
 begin
+  { intentionally left empty }
+
+  { believed to be necessary, empty one will do }
+
+  { there seems to be a problem here:
+      FontManger.selectedFont,
+        retrieved at this time,
+          will be the previously slected one // ?
+            according to my tests.
+  }
+
+  { Use SelectFontFamilyName() method to retrieve the selected font name. }
 end;
 
 function TNSFontPickerEventHandler.GetObjectiveCClass: PTypeInfo;
