@@ -3,7 +3,7 @@
 interface
 
 {$ifdef MACOS}
-
+{$ifndef IOS}
 uses
   System.SysUtils,
   System.Classes,
@@ -68,12 +68,13 @@ type
     procedure CollectFontFamilyNames(ML: TStrings);
     function IsShiftKeyPressed: Boolean;
  end;
-
+{$endif}
 {$endif}
 
 implementation
 
 {$ifdef MACOS}
+{$ifndef IOS}
 
 { I believe that you should never store a retrieved interface reference
   to the shared objects, because it can change, and then there may be problems.
@@ -279,6 +280,7 @@ begin
   result := TypeInfo(INSFontPickerEventHandler);
 end;
 
+{$endif}
 {$endif}
 
 end.

@@ -1029,7 +1029,9 @@ begin
           Bitmap.Free;
         end;
       finally
+{$Hints off}
         Value.AsType<TBitmapSurface>.Free;
+{$Hints on}
       end;
     end;
   end;
@@ -1632,7 +1634,9 @@ begin
 {$endif}
 
 {$ifdef MACOS}
+{$ifndef IOS}
   Picker := TPickerMac.Create;
+{$endif}
 {$endif}
 
 { else use Dummy }
