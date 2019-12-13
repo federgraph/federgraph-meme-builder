@@ -592,9 +592,9 @@ procedure TFederTouchBase.BorderTrack(Sender: TObject; X, Y: single);
 begin
   if Sender = SB00.Shape then
   begin
-    if (Round(Abs(X - OldX)) div 8) > 0 then
+    if Abs(X - OldX) > 0 then
     begin
-      Main.DoTouchbarBottom((OldX-X) / 20);
+      Main.DoTouchbarBottom(X - OldX);
       OldX := X;
       OldY := Y;
     end;
@@ -610,7 +610,7 @@ begin
   end
   else if Sender = SL00.Shape then
   begin
-    if (Round(Abs(Y - OldY)) div 8) > 0 then
+    if Abs(Y - OldY) > 0 then
     begin
       Main.DoTouchbarLeft(OldY - Y);
       OldX := X;
@@ -619,7 +619,7 @@ begin
   end
   else if Sender = SR00.Shape then
   begin
-    if (Round(Abs(Y - OldY)) div 8) > 0 then
+    if Abs(Y - OldY) > 0 then
     begin
       Main.DoTouchbarRight(OldY - Y);
       OldX := X;

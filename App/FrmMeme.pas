@@ -273,6 +273,10 @@ begin
   TopEdit.Visible := false;
   BottomEdit.Visible := false;
   ReportText.Visible := false;
+  HelpText.Visible := false;
+
+  HelpText.BringToFront;
+  ReportText.BringToFront;
 
   if Application.Title = 'FC96' then
   begin
@@ -358,7 +362,7 @@ begin
   ML.Add('  r    - toggle Report');
   ML.Add('  R    - Reset');
   ML.Add('  u    - toggle image tile mode (tiled or fit)');
-  ML.Add('  v, V - toggle color, help text and meme text');
+  ML.Add('  v, V - toggle color of help text and meme text');
   ML.Add('  a    - adapt form size');
   ML.Add('  c, C - clear image command');
   ML.Add('  ^c   - copy image to clipboard command');
