@@ -73,7 +73,7 @@ type
     FParam: TMemeParam;
     FSelectedText: TSelectedText;
     FActiveSampleManagerID: Integer;
-    WantButtonFrameReport: Boolean;
+    FWantButtonFrameReport: Boolean;
     fo: Integer;
     DropTarget: TDropTarget;
     CheckerBitmap: TBitmap;
@@ -166,6 +166,7 @@ type
     property ActiveSampleManagerID: Integer read FActiveSampleManagerID;
     property SampleIndex: Integer read GetSampleIndex;
     property IsDropTargetVisible: Boolean read FDropTargetVisible;
+    property WantButtonFrameReport: Boolean read FWantButtonFrameReport;
   end;
 
 var
@@ -1511,7 +1512,7 @@ begin
     faCycleColorSchemeM: Main.ActionHandler.Execute(faCycleColorSchemeM);
     faButtonFrameReport:
     begin
-      WantButtonFrameReport := not WantButtonFrameReport;
+      FWantButtonFrameReport := not WantButtonFrameReport;
       UpdateReport;
     end;
 {$endif}

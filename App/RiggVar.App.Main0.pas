@@ -397,6 +397,7 @@ begin
     faMemeToggleEdits: result := F.TopEdit.Visible;
     faMemeToggleHelp: result := F.HelpText.Visible;
     faMemeToggleReport: result := F.ReportText.Visible;
+    faButtonFrameReport: result := F.WantButtonFrameReport;
     faMemeToggleDropTarget: result := F.IsDropTargetVisible;
   end;
 
