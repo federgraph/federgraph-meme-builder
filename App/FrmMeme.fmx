@@ -53,35 +53,6 @@ object FormMeme: TFormMeme
       Opacity = 0.500000000000000000
     end
   end
-  object HelpText: TText
-    HitTest = False
-    Position.X = 16.000000000000000000
-    Position.Y = 99.000000000000000000
-    Size.Width = 92.000000000000000000
-    Size.Height = 18.000000000000000000
-    Size.PlatformDefault = False
-    Text = 'Help Text'
-    TextSettings.Font.Family = 'Courier New'
-    TextSettings.Font.Size = 16.000000000000000000
-    TextSettings.FontColor = claWhite
-    TextSettings.WordWrap = False
-    TextSettings.HorzAlign = Leading
-  end
-  object ReportText: TText
-    AutoSize = True
-    HitTest = False
-    Position.X = 16.000000000000000000
-    Position.Y = 128.000000000000000000
-    Size.Width = 110.950523376464800000
-    Size.Height = 18.125000000000000000
-    Size.PlatformDefault = False
-    Text = 'Report Text'
-    TextSettings.Font.Family = 'Courier New'
-    TextSettings.Font.Size = 16.000000000000000000
-    TextSettings.FontColor = claWhite
-    TextSettings.WordWrap = False
-    TextSettings.HorzAlign = Leading
-  end
   object TopEdit: TMemo
     Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
     DataDetectorTypes = []

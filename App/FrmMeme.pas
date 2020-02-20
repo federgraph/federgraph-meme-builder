@@ -54,11 +54,9 @@ type
     TopGlow: TGlowEffect;
     TopEdit: TMemo;
     BottomEdit: TMemo;
-    HelpText: TText;
-    ReportText: TText;
     procedure FormCreate(Sender: TObject);
-    procedure FormResize(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure FormResize(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
     procedure FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; var Handled: Boolean);
     procedure TopEditKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
@@ -162,6 +160,13 @@ type
     property SampleIndex: Integer read GetSampleIndex;
     property IsDropTargetVisible: Boolean read FDropTargetVisible;
     property WantButtonFrameReport: Boolean read FWantButtonFrameReport;
+  public
+    HintText: TText;
+    HelpText: TText;
+    ReportText: TText;
+    procedure CreateComponents;
+    procedure LayoutComponents;
+    procedure HandleShowHint(Sender: TObject);
   end;
 
 var
@@ -243,19 +248,8 @@ begin
 
   DefaultMargin := Raster + 10;
 
-  ReportText.Position.X := DefaultMargin;
-  HelpText.Position.X := ReportText.Position.X;
-
-  ReportText.Position.Y := Raster + 70 + 10;
-  HelpText.Position.Y := ReportText.Position.Y;
-
-  TopText.Margins.Top := DefaultMargin;
-  TopText.Margins.Left := DefaultMargin;
-  TopText.Margins.Right := DefaultMargin;
-
-  BottomText.Margins.Bottom := DefaultMargin;
-  BottomText.Margins.Left := DefaultMargin;
-  BottomText.Margins.Right := DefaultMargin;
+  CreateComponents;
+  LayoutComponents;
 
   TopText.BringToFront;
   BottomText.BringToFront;
@@ -271,17 +265,25 @@ begin
   ReportText.Visible := false;
   HelpText.Visible := false;
 
+  HintText.BringToFront;
   HelpText.BringToFront;
   ReportText.BringToFront;
+
+  HintText.TextSettings.FontColor := claYellow;
+  HelpText.TextSettings.FontColor := claWhite;
+  ReportText.TextSettings.FontColor := claWhite;
+
+  InitHelpText;
 
   if Application.Title = 'FC96' then
   begin
     DropTargetVisible := true;
   end;
+
 {$ifdef WantBtnFrame}
   UpdateBackgroundColor(MainVar.ColorScheme.claBackground);
 {$endif}
-  InitHelpText;
+
   SL := TStringList.Create;
 
   Caption := HelpCaptionText;
@@ -296,6 +298,8 @@ begin
   { we will use OnKeyDown instead }
   OnKeyDown := FormKeyUp;
 {$endif}
+
+  Application.OnHint := HandleShowHint;
 end;
 
 procedure TFormMeme.FormDestroy(Sender: TObject);
@@ -1338,6 +1342,11 @@ begin
   HA(fa);
 end;
 
+procedure TFormMeme.HandleShowHint(Sender: TObject);
+begin
+  HintText.Text := Application.Hint;
+end;
+
 procedure TFormMeme.HA(fa: Integer);
 begin
   case fa of
@@ -1653,5 +1662,52 @@ begin
   Main.IsUp := True;
 end;
 {$endif}
+
+procedure TFormMeme.CreateComponents;
+begin
+  HintText := TText.Create(Self);
+  HintText.Parent := Self;
+  HintText.WordWrap := False;
+  HintText.AutoSize := True;
+  HintText.HorzTextAlign := TTextAlign.Leading;
+  HintText.Font.Family := 'Consolas';
+  HintText.Font.Size := 18;
+
+  HelpText := TText.Create(Self);
+  HelpText.Parent := Self;
+  HelpText.WordWrap := False;
+  HelpText.HorzTextAlign := TTextAlign.Leading;
+  HelpText.Font.Family := 'Courier New';
+  HelpText.Font.Size := 16;
+  HelpText.AutoSize := True;
+
+  ReportText := TText.Create(Self);
+  ReportText.Parent := Self;
+  ReportText.WordWrap := False;
+  ReportText.HorzTextAlign := TTextAlign.Leading;
+  ReportText.Font.Family := 'Courier New';
+  ReportText.Font.Size := 16;
+  ReportText.AutoSize := True;
+end;
+
+procedure TFormMeme.LayoutComponents;
+begin
+  HintText.Position.X := 5 * Raster + 20;
+  HintText.Position.Y := 0 * Raster + 20;
+
+  ReportText.Position.X := DefaultMargin;
+  ReportText.Position.Y := 2 * Raster + 10;
+
+  HelpText.Position.X := DefaultMargin;
+  HelpText.Position.Y := ReportText.Position.Y;
+
+  TopText.Margins.Top := DefaultMargin;
+  TopText.Margins.Left := DefaultMargin;
+  TopText.Margins.Right := DefaultMargin;
+
+  BottomText.Margins.Bottom := DefaultMargin;
+  BottomText.Margins.Left := DefaultMargin;
+  BottomText.Margins.Right := DefaultMargin;
+end;
 
 end.

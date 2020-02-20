@@ -47,6 +47,8 @@ type
     procedure SetCaption(const Value: string);
     procedure SetAction(const Value: TFederAction);
   protected
+    procedure SetHint(const Value: string); override;
+  protected
     procedure HandleClick(Sender: TObject);
   public
     X0, Y0: Integer;
@@ -57,6 +59,7 @@ type
       BtnWidth: Integer;
       BtnHeight: Integer;
       Circle: Boolean;
+      WantHint: Boolean;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure InitPosition; virtual;
@@ -64,9 +67,11 @@ type
     procedure Init;
     procedure CheckState;
     procedure CheckCircleState;
+    procedure UpdateHint;
 
     property ID: Integer read FID write FID;
     property Caption: string read FCaption write SetCaption;
+    property Hint: string write SetHint;
     property Action: TFederAction read FAction write SetAction;
     property Shape: TShape read FShape;
     property Text: TText read FText;
@@ -271,6 +276,20 @@ begin
   end;
 end;
 
+procedure TTouchBtn.SetHint(const Value: string);
+begin
+  if Assigned(FText) then
+    FText.Hint := Value;
+end;
+
+procedure TTouchBtn.UpdateHint;
+begin
+  if WantHint then
+  begin
+  Hint := Main.ActionHandler.GetCaption(FAction);
+  end;
+end;
+
 procedure TTouchBtn.Init;
 var
   r: TRectangle;
@@ -306,6 +325,12 @@ begin
 
   FShape.AddObject(FText);
   Self.AddObject(FShape);
+
+  if WantHint then
+  begin
+    FText.ShowHint := True;
+    UpdateHint;
+  end;
 end;
 
 procedure TTouchBtn.InitPosition;
@@ -728,6 +753,7 @@ begin
   begin
     tb.Action := fa;
     tb.Caption := Main.ActionHandler.GetShortCaption(fa);
+    tb.UpdateHint;
   end;
 end;
 
@@ -740,6 +766,7 @@ begin
   begin
     tb.Action := fa;
     tb.Caption := Main.ActionHandler.GetShortCaption(fa);
+    tb.UpdateHint;
     tb.Color := ac;
   end;
 end;

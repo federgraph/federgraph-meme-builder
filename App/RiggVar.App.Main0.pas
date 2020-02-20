@@ -37,9 +37,7 @@ type
   TMain0 =  class
   private
     FTouch: Integer;
-    FL: TStringList;
     procedure InitRaster;
-    procedure InitText;
     function GetIsLandscape: Boolean;
     function GetIsPortrait: Boolean;
     function GetColorScheme: Integer;
@@ -48,6 +46,8 @@ type
     function GetIsPhone: Boolean;
     procedure SetTouch(const Value: Integer);
     function GetFederText: TFederTouchBase;
+  protected
+    FL: TStringList;
   public
     ActionMap1: TActionMap;
     ActionMap2: TActionMap;
@@ -69,6 +69,7 @@ type
     function GetChecked(fa: TFederAction): Boolean;
 
     procedure Init;
+    procedure InitText;
 
     procedure DoTouchbarLeft(Delta: single);
     procedure DoTouchbarRight(Delta: single);
@@ -125,6 +126,7 @@ begin
 
   InitRaster;
 
+  TTouchBtn.WantHint := True;
   FederText1 := TFederTouch.Create(nil);
   FederText2 := TFederTouchPhone.Create(nil);
 
@@ -144,6 +146,11 @@ begin
   inherited;
 end;
 
+procedure TMain0.Init;
+begin
+  InitText;
+end;
+
 procedure TMain0.BlackText;
 begin
   MainVar.ColorScheme.BlackText;
@@ -160,11 +167,6 @@ procedure TMain0.GrayText;
 begin
   MainVar.ColorScheme.GrayText;
   FederText.UpdateColorScheme;
-end;
-
-procedure TMain0.Init;
-begin
-  InitText;
 end;
 
 procedure TMain0.InitFederText(ft: TFederTouch0);
@@ -418,7 +420,6 @@ end;
 
 procedure TMain0.DoTouchbarBottom(Delta: single);
 begin
-
 end;
 
 end.
