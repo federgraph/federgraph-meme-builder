@@ -22,85 +22,112 @@ type
   TFederAction = Integer;
 
 const
+// --- generated code snippet ---
+// Note that some of the defined actions
+//   may not be implemented in this version of the app.
 
-  //Pages
-  faActionPageM = 103;
-  faActionPageP = 104;
+  { EmptyAction }
+  faNoop = 0;
 
-  //ViewFlags
-  faToggleAllText = 323;
-  faToggleTouchFrame = 324;
+  { Pages }
+  faActionPageM = 1;
+  faActionPageP = 2;
 
-  //ColorScheme
-  faCycleColorSchemeM = 653;
-  faCycleColorSchemeP = 654;
+  { Forms }
+  faShowActi = 3;
+  faShowMemo = 4;
 
-  //TouchLayout
-  faTouchTablet = 662;
-  faTouchPhone = 663;
-  faTouchDesk = 664;
+  { TouchLayout }
+  faTouchTablet = 5;
+  faTouchPhone = 6;
+  faTouchDesk = 7;
 
-  //EmptyAction
-  faNoop = 871;
+  { Format }
+  faMemeGotoLandscape = 8;
+  faMemeGotoSquare = 9;
+  faMemeGotoPortrait = 10;
+  faMemeFormat0 = 11;
+  faMemeFormat1 = 12;
+  faMemeFormat2 = 13;
+  faMemeFormat3 = 14;
+  faMemeFormat4 = 15;
+  faMemeFormat5 = 16;
+  faMemeFormat6 = 17;
+  faMemeFormat7 = 18;
+  faMemeFormat8 = 19;
+  faMemeFormat9 = 20;
 
-  faButtonFrameReport = 1070;
+  { ColorScheme }
+  faCycleColorSchemeM = 21;
+  faCycleColorSchemeP = 22;
 
-  //MemeBuilder
-  faMemeNoop = 1071;
-  faMemeToggleEdits = 1072;
-  faMemeReset = 1073;
-  faMemeSwapText = 1074;
-  faMemeClearImage = 1075;
-  faMemeInitChecker = 1076;
-  faMemeSelectTop = 1077;
-  faMemeSelectBottom = 1078;
-  faMemeParamTopGlow = 1079;
-  faMemeParamBottomGlow = 1080;
-  faMemeParamTopMargin = 1081;
-  faMemeParamBottomMargin = 1082;
-  faMemeParamTopSize = 1083;
-  faMemeParamBottomSize = 1084;
-  faMemeToggleDropTarget = 1085;
-  faMemeToggleHelp = 1086;
-  faMemeToggleReport = 1087;
-  faMemeToggleTiling = 1088;
-  faMemeToggleFontColor = 1089;
-  faMemeToggleTextColor = 1090;
-  faMemeFontOffice = 1091;
-  faMemeFontNormal = 1092;
-  faMemeCycleFontP = 1093;
-  faMemeCycleFontM = 1094;
-  faMemeCycleDarkColorP = 1095;
-  faMemeCycleDarkColorM = 1096;
-  faMemeCycleLightColorP = 1097;
-  faMemeCycleLightColorM = 1098;
-  faMemeAdaptFormSize = 1099;
-  faMemeGotoLandscape = 1100;
-  faMemeGotoSquare = 1101;
-  faMemeGotoPortrait = 1102;
-  faMemeFormat0 = 1103;
-  faMemeFormat1 = 1104;
-  faMemeFormat2 = 1105;
-  faMemeFormat3 = 1106;
-  faMemeFormat4 = 1107;
-  faMemeFormat5 = 1108;
-  faMemeFormat6 = 1109;
-  faMemeFormat7 = 1110;
-  faMemeFormat8 = 1111;
-  faMemeFormat9 = 1112;
-  faMemeSampleT = 1113;
-  faMemeSampleP = 1114;
-  faMemeSampleM = 1115;
-  faMemeSample00 = 1116;
-  faMemeSample01 = 1117;
-  faMemeSample02 = 1118;
-  faMemePickFont = 1119;
-  faMemePickColor = 1120;
-  faMemeSaveBitmap = 1121;
-  faMemeCopyBitmap = 1122;
-  faMemePasteBitmap = 1123;
-  faMemeShowColorPicker = 1124;
-  faMemeShowFontPicker = 1125;
+  { ViewFlags }
+  faToggleAllText = 23;
+  faToggleTouchFrame = 24;
+
+  { MemeParams }
+  faMemeParamTopGlow = 25;
+  faMemeParamBottomGlow = 26;
+  faMemeParamTopMargin = 27;
+  faMemeParamBottomMargin = 28;
+  faMemeParamTopSize = 29;
+  faMemeParamBottomSize = 30;
+
+  { MemeSelect }
+  faMemeSelectTop = 31;
+  faMemeSelectBottom = 32;
+
+  { MemeOption }
+  faMemeToggleFontColor = 33;
+  faMemeToggleTextColor = 34;
+  faMemeFontOffice = 35;
+  faMemeFontNormal = 36;
+  faMemeCycleFontP = 37;
+  faMemeCycleFontM = 38;
+
+  { MemeColor }
+  faMemeCycleDarkColorP = 39;
+  faMemeCycleDarkColorM = 40;
+  faMemeCycleLightColorP = 41;
+  faMemeCycleLightColorM = 42;
+
+  { MemeSapmples }
+  faMemeSampleT = 43;
+  faMemeSampleP = 44;
+  faMemeSampleM = 45;
+  faMemeSample00 = 46;
+  faMemeSample01 = 47;
+  faMemeSample02 = 48;
+
+  { MemePicker }
+  faMemePickFont = 49;
+  faMemePickColor = 50;
+  faMemeShowColorPicker = 51;
+  faMemeShowFontPicker = 52;
+
+  { MemeIO }
+  faMemeSaveBitmap = 53;
+  faMemeCopyBitmap = 54;
+  faMemePasteBitmap = 55;
+
+  { MemeReport }
+  faMemeToggleHelp = 56;
+  faMemeToggleReport = 57;
+  faButtonFrameReport = 58;
+
+  { MemeImage }
+  faMemeClearImage = 59;
+  faMemeInitChecker = 60;
+  faMemeToggleTiling = 61;
+
+  { Sonstiges }
+  faMemeReset = 62;
+  faMemeAdaptFormSize = 63;
+  faMemeSwapText = 64;
+  faMemeToggleDropTarget = 65;
+  faMemeToggleEdits = 66;
+
+  faMax = 67;
 
 implementation
 

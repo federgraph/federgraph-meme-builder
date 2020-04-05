@@ -122,8 +122,6 @@ type
     procedure GotoSquare;
     procedure Flash(s: string);
     procedure ApplicationEventsException(Sender: TObject; E: Exception);
-    function GetActionFromKey(Key: Word): Integer;
-    function GetActionFromKeyChar(KeyChar: char): Integer;
     procedure HA(fa: Integer);
     procedure ToggleTextColor;
     procedure SetUseOfficeFonts(const Value: Boolean);
@@ -151,6 +149,7 @@ type
   public
     procedure HandleWheel(Delta: Integer);
     procedure HandleAction(fa: Integer);
+    function GetChecked(fa: Integer): Boolean;
     procedure UpdateReport;
     procedure UpdateBackgroundColor(AColor: TAlphaColor);
     property Background: TBitmap read CheckerBitmap write SetBitmap;
@@ -160,6 +159,9 @@ type
     property SampleIndex: Integer read GetSampleIndex;
     property IsDropTargetVisible: Boolean read FDropTargetVisible;
     property WantButtonFrameReport: Boolean read FWantButtonFrameReport;
+  public
+    function GetActionFromKey(Key: Word): Integer;
+    function GetActionFromKeyChar(KeyChar: char): Integer;
   public
     HintText: TText;
     HelpText: TText;
@@ -201,7 +203,7 @@ end;
 
 procedure TFormMeme.FormCreate(Sender: TObject);
 begin
-{$ifdef DEBUG}
+{$ifdef Debug}
   ReportMemoryLeaksOnShutdown := True;
 {$endif}
   FormatSettings.DecimalSeparator := '.';
@@ -326,10 +328,10 @@ begin
   else
   begin
     fa := GetActionFromKey(Key);
-    if fa = faMemeNoop then
+    if fa = faNoop then
       fa := GetActionFromKeyChar(KeyChar);
 
-    if fa <> faMemeNoop then
+    if fa <> faNoop then
       HA(fa);
 
     UpdateReport;
@@ -1531,7 +1533,7 @@ end;
 
 function TFormMeme.GetActionFromKey(Key: Word): Integer;
 begin
-  result := faMemeNoop;
+  result := faNoop;
   case Key of
     vkEscape: result := faMemeToggleEdits;
     vkF12: result := faMemeSaveBitmap;
@@ -1630,7 +1632,7 @@ begin
     'K': fa := faCycleColorSchemeM;
 {$endif}
 
-    else fa := faMemeNoop;
+    else fa := faNoop;
 
   end;
   result := fa;
@@ -1662,6 +1664,11 @@ begin
   Main.IsUp := True;
 end;
 {$endif}
+
+function TFormMeme.GetChecked(fa: Integer): Boolean;
+begin
+  result := False;
+end;
 
 procedure TFormMeme.CreateComponents;
 begin

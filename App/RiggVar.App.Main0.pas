@@ -146,11 +146,6 @@ begin
   inherited;
 end;
 
-procedure TMain0.Init;
-begin
-  InitText;
-end;
-
 procedure TMain0.BlackText;
 begin
   MainVar.ColorScheme.BlackText;
@@ -167,6 +162,11 @@ procedure TMain0.GrayText;
 begin
   MainVar.ColorScheme.GrayText;
   FederText.UpdateColorScheme;
+end;
+
+procedure TMain0.Init;
+begin
+  InitText;
 end;
 
 procedure TMain0.InitFederText(ft: TFederTouch0);
@@ -361,6 +361,7 @@ begin
 
     faCycleColorSchemeM: CycleColorSchemeM;
     faCycleColorSchemeP: CycleColorSchemeP;
+
     else
       FormMeme.HandleAction(fa);
   end;

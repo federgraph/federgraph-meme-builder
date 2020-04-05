@@ -49,8 +49,6 @@ begin
 
     // --- Meme ---
 
-    faMemeNoop: result := 'Meme Noop';
-
     faMemeToggleEdits: result := 'Toggle Edits';
     faMemeReset: result := 'Reset';
     faMemeSwapText: result := 'Swap Text';
@@ -121,6 +119,9 @@ begin
     faMemeSaveBitmap: result := 'Save TBitmap';
     faMemeCopyBitmap: result := 'Copy TBitmap';
     faMemePasteBitmap: result := 'Paste TBitmap';
+
+    faShowActi: result := 'Show Form Action';
+    faShowMemo: result := 'Show Form Memo';
 
   end;
 end;

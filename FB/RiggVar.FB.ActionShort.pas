@@ -49,8 +49,6 @@ begin
 
     // --- Meme ---
 
-    faMemeNoop: result := '';
-
     faMemeToggleEdits: result := 'Edt';
     faMemeReset: result := 'R';
     faMemeSwapText: result := 'swp';
@@ -122,6 +120,10 @@ begin
     faMemeSaveBitmap: result := 'Sv';
     faMemeCopyBitmap: result := '^c';
     faMemePasteBitmap: result := '^v';
+
+    faShowActi: result := 'FA';
+    faShowMemo: result := 'FM';
+
   end;
 end;
 
