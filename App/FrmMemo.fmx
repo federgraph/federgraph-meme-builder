@@ -1,0 +1,61 @@
+object FormMemo: TFormMemo
+  Left = 0
+  Top = 0
+  Caption = 'Memo'
+  ClientHeight = 430
+  ClientWidth = 591
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop, iPhone, iPad]
+  OnCreate = FormCreate
+  OnClose = FormClose
+  OnDestroy = FormDestroy
+  DesignerMasterStyle = 0
+  object Memo: TMemo
+    Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
+    DataDetectorTypes = []
+    Lines.Strings = (
+      'abc')
+    StyledSettings = [Family, Style, FontColor]
+    TextSettings.Font.Family = 'Courier New'
+    TextSettings.Font.Size = 13.000000000000000000
+    Position.X = 328.000000000000000000
+    Position.Y = 72.000000000000000000
+    Size.Width = 239.000000000000000000
+    Size.Height = 310.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    Viewport.Width = 235.000000000000000000
+    Viewport.Height = 306.000000000000000000
+  end
+  object ToolbarPanel: TPanel
+    Align = Top
+    Size.Width = 591.000000000000000000
+    Size.Height = 41.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+    object ReadBtn: TButton
+      Position.X = 16.000000000000000000
+      Position.Y = 8.000000000000000000
+      Size.Width = 49.000000000000000000
+      Size.Height = 22.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 0
+      Text = 'Read'
+      OnClick = ReadBtnClick
+    end
+  end
+  object ListView: TListView
+    ItemAppearanceClassName = 'TListItemAppearance'
+    ItemEditAppearanceClassName = 'TListItemShowCheckAppearance'
+    HeaderAppearanceClassName = 'TListHeaderObjects'
+    FooterAppearanceClassName = 'TListHeaderObjects'
+    Position.X = 24.000000000000000000
+    Position.Y = 112.000000000000000000
+    Size.Width = 233.000000000000000000
+    Size.Height = 241.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 2
+    OnItemClick = ListViewItemClick
+  end
+end

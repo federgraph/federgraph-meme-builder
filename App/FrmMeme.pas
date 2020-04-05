@@ -169,6 +169,11 @@ type
     procedure CreateComponents;
     procedure LayoutComponents;
     procedure HandleShowHint(Sender: TObject);
+  protected
+    procedure DestroyForms;
+    procedure MemoBtnClick(Sender: TObject);
+    procedure ActiBtnClick(Sender: TObject);
+    procedure CheckFormBounds(AForm: TForm);
   end;
 
 var
@@ -179,6 +184,8 @@ implementation
 {$R *.fmx}
 
 uses
+  FrmAction,
+  FrmMemo,
 {$ifdef WantBtnFrame}
   RiggVar.App.Main,
 {$endif}
@@ -1523,6 +1530,9 @@ begin
     end;
 {$endif}
 
+    faShowActi: ActiBtnClick(nil);
+    faShowMemo: MemoBtnClick(nil);
+
     else
     begin
       { do nothing }
@@ -1715,6 +1725,58 @@ begin
   BottomText.Margins.Bottom := DefaultMargin;
   BottomText.Margins.Left := DefaultMargin;
   BottomText.Margins.Right := DefaultMargin;
+end;
+
+procedure TFormMeme.CheckFormBounds(AForm: TForm);
+begin
+  if Screen.Height <= 768 then
+    AForm.Top := 0;
+  if Screen.Width <= 768 then
+    AForm.Left := 0;
+  if AForm.Left + AForm.Width > Screen.Width then
+    AForm.Width := Screen.Width - AForm.Left - 20;
+  if AForm.Top + AForm.Height > Screen.Height then
+    AForm.Height := Screen.Width - AForm.Top - 20;
+end;
+
+procedure TFormMeme.MemoBtnClick(Sender: TObject);
+begin
+  if not Assigned(FormMemo) then
+  begin
+    FormMemo := TFormMemo.Create(nil);
+    FormMemo.Parent := self; //needed for Alt-Tab
+    FormMemo.Memo.Lines.Clear;
+    //Main.WriteVersion1Diff(FormMemo.Memo.Lines);
+    CheckFormBounds(FormMemo);
+  end;
+  FormMemo.Visible := True;
+  FormMemo.Show; //needed on Mac
+end;
+
+procedure TFormMeme.ActiBtnClick(Sender: TObject);
+begin
+  if not Assigned(FormAction) then
+  begin
+    FormAction := TFormAction.Create(nil);
+    FormAction.Parent := self;
+    CheckFormBounds(FormAction);
+  end;
+  FormAction.Visible := True;
+  FormAction.Show;
+end;
+
+procedure TFormMeme.DestroyForms;
+begin
+  if FormAction <> nil then
+  begin
+    FormAction.DisposeOf;
+    FormAction := nil;
+  end;
+  if FormMemo <> nil then
+  begin
+    FormMemo.DisposeOf;
+    FormMemo := nil;
+  end;
 end;
 
 end.

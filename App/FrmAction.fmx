@@ -1,0 +1,158 @@
+object FormAction: TFormAction
+  Left = 0
+  Top = 0
+  Caption = 'FC Actions'
+  ClientHeight = 598
+  ClientWidth = 992
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
+  OnClose = FormClose
+  OnDestroy = FormDestroy
+  DesignerMasterStyle = 0
+  object Edit: TEdit
+    Touch.InteractiveGestures = [LongTap, DoubleTap]
+    TabOrder = 0
+    Position.X = 16.000000000000000000
+    Position.Y = 88.000000000000000000
+    OnKeyUp = EditKeyUp
+  end
+  object ListViewS: TListView
+    ItemAppearanceClassName = 'TListItemAppearance'
+    ItemEditAppearanceClassName = 'TListItemShowCheckAppearance'
+    HeaderAppearanceClassName = 'TListHeaderObjects'
+    FooterAppearanceClassName = 'TListHeaderObjects'
+    Position.X = 16.000000000000000000
+    Position.Y = 144.000000000000000000
+    Size.Width = 145.000000000000000000
+    Size.Height = 433.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+    OnItemClick = ListViewSItemClick
+  end
+  object ListViewG: TListView
+    ItemAppearanceClassName = 'TListItemAppearance'
+    ItemEditAppearanceClassName = 'TListItemShowCheckAppearance'
+    HeaderAppearanceClassName = 'TListHeaderObjects'
+    FooterAppearanceClassName = 'TListHeaderObjects'
+    Position.X = 496.000000000000000000
+    Position.Y = 88.000000000000000000
+    Size.Width = 241.000000000000000000
+    Size.Height = 489.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 3
+    OnItemClick = ListViewGItemClick
+  end
+  object TextEdit: TText
+    AutoSize = True
+    Position.X = 16.000000000000000000
+    Position.Y = 64.000000000000000000
+    Size.Width = 39.261718750000000000
+    Size.Height = 15.960937500000000000
+    Size.PlatformDefault = False
+    Text = 'Search'
+    TextSettings.WordWrap = False
+    TextSettings.VertAlign = Leading
+  end
+  object TextCaption: TText
+    AutoSize = True
+    Position.X = 104.000000000000000000
+    Position.Y = 8.000000000000000000
+    Size.Width = 441.617187500000000000
+    Size.Height = 31.921875000000000000
+    Size.PlatformDefault = False
+    Text = 'SN = "LongName" in group ActionGroup'
+    TextSettings.Font.Size = 24.000000000000000000
+    TextSettings.WordWrap = False
+    TextSettings.VertAlign = Leading
+  end
+  object TextGroup: TText
+    AutoSize = True
+    Position.X = 496.000000000000000000
+    Position.Y = 64.000000000000000000
+    Size.Width = 79.738281250000000000
+    Size.Height = 15.960937500000000000
+    Size.PlatformDefault = False
+    Text = 'Group Actions'
+    TextSettings.WordWrap = False
+    TextSettings.VertAlign = Leading
+  end
+  object ListViewDetails: TListView
+    ItemAppearanceClassName = 'TListItemAppearance'
+    ItemEditAppearanceClassName = 'TListItemShowCheckAppearance'
+    HeaderAppearanceClassName = 'TListHeaderObjects'
+    FooterAppearanceClassName = 'TListHeaderObjects'
+    Position.X = 176.000000000000000000
+    Position.Y = 88.000000000000000000
+    Size.Width = 305.000000000000000000
+    Size.Height = 489.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 2
+  end
+  object ListViewGroups: TListView
+    ItemAppearanceClassName = 'TListItemAppearance'
+    ItemEditAppearanceClassName = 'TListItemShowCheckAppearance'
+    HeaderAppearanceClassName = 'TListHeaderObjects'
+    FooterAppearanceClassName = 'TListHeaderObjects'
+    Position.X = 752.000000000000000000
+    Position.Y = 88.000000000000000000
+    Size.Width = 225.000000000000000000
+    Size.Height = 489.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 5
+    OnItemClick = ListViewGroupsItemClick
+  end
+  object TextGroups: TText
+    AutoSize = True
+    Position.X = 752.000000000000000000
+    Position.Y = 64.000000000000000000
+    Size.Width = 59.212890625000000000
+    Size.Height = 15.960937500000000000
+    Size.PlatformDefault = False
+    Text = 'All Groups'
+  end
+  object TextDetail: TText
+    AutoSize = True
+    Position.X = 176.000000000000000000
+    Position.Y = 64.000000000000000000
+    Size.Width = 77.130859375000000000
+    Size.Height = 15.960937500000000000
+    Size.PlatformDefault = False
+    Text = 'Action Details'
+    TextSettings.WordWrap = False
+  end
+  object TextSearchResult: TText
+    AutoSize = True
+    Position.X = 16.000000000000000000
+    Position.Y = 120.000000000000000000
+    Size.Width = 79.597656250000000000
+    Size.Height = 15.960937500000000000
+    Size.PlatformDefault = False
+    Text = 'Search Results'
+  end
+  object SortBtn: TButton
+    Position.X = 784.000000000000000000
+    Position.Y = 24.000000000000000000
+    TabOrder = 6
+    Text = 'Sort Groups'
+    OnClick = SortBtnClick
+  end
+  object HideBtn: TButton
+    Position.X = 872.000000000000000000
+    Position.Y = 24.000000000000000000
+    TabOrder = 7
+    Text = 'Hide Groups'
+    OnClick = HideBtnClick
+  end
+  object CaseBtn: TButton
+    Position.X = 128.000000000000000000
+    Position.Y = 88.000000000000000000
+    Size.Width = 33.000000000000000000
+    Size.Height = 22.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 11
+    Text = 'SO'
+    OnClick = CaseBtnClick
+  end
+end

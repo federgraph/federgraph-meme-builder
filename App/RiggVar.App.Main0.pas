@@ -26,12 +26,18 @@ uses
   FMX.Layouts,
   RiggVar.FB.Action,
   RiggVar.FB.ActionConst,
+  RiggVar.FB.ActionGroups,
+  RiggVar.FB.ActionTable,
+  RiggVar.FB.ActionKeys,
   RiggVar.FB.ActionMap,
+  RiggVar.FB.ActionTest,
   RiggVar.FB.TextBase,
   RiggVar.FederModel.Action,
+  RiggVar.FederModel.Binding,
   RiggVar.FederModel.TouchBase,
   RiggVar.FederModel.Touch,
-  RiggVar.FederModel.TouchPhone;
+  RiggVar.FederModel.TouchPhone,
+  RiggVar.Util.Logger;
 
 type
   TMain0 =  class
@@ -46,12 +52,15 @@ type
     function GetIsPhone: Boolean;
     procedure SetTouch(const Value: Integer);
     function GetFederText: TFederTouchBase;
+    function GetFLText: string;
   protected
     FL: TStringList;
+    procedure CopyText;
   public
     ActionMap1: TActionMap;
     ActionMap2: TActionMap;
     ActionHandler: IFederActionHandler;
+    ActionHelper: TActionHelper;
 
     IsUp: Boolean;
 
@@ -60,7 +69,14 @@ type
     FederText1: TFederTouch;
     FederText2: TFederTouchPhone;
 
+    FederKeyboard: TFederKeyboard;
     BackgroundLock: Boolean;
+
+    Logger: TLogger;
+
+    ActionGroupList: TActionGroupList;
+    ActionTest: TActionTest;
+    FederBinding: TFederBinding;
 
     constructor Create;
     destructor Destroy; override;
@@ -99,17 +115,21 @@ type
     property ActionMapTablet: TActionMap read ActionMap1;
     property ActionMapPhone: TActionMap read ActionMap2;
 
+    property Keyboard: TFederKeyboard read FederKeyboard;
     property FederText: TFederTouchBase read GetFederText;
+    property FLText: string read GetFLText;
   end;
 
 implementation
 
 uses
   FrmMeme,
+  FMX.Platform,
   RiggVar.App.Main,
   RiggVar.MB.Def,
   RiggVar.FB.ActionShort,
   RiggVar.FB.ActionLong,
+  RiggVar.FederModel.Keyboard01,
   RiggVar.FederModel.ActionMapPhone,
   RiggVar.FederModel.ActionMapTablet;
 
@@ -120,6 +140,10 @@ begin
   Main := self;
 
   FL := TStringList.Create;
+  Logger := TLogger.Create;
+
+  ActionGroupList := TActionGroupList.Create;
+  ActionTest := TActionTest.Create;
 
   ActionMap1 := TActionMapTablet.Create;
   ActionMap2 := TActionMapPhone.Create;
@@ -129,21 +153,43 @@ begin
   TTouchBtn.WantHint := True;
   FederText1 := TFederTouch.Create(nil);
   FederText2 := TFederTouchPhone.Create(nil);
+  FederKeyboard := TFederKeyboard01.Create;
+  FederBinding := TFederBinding.Create;
 
   ActionHandler := TFederActionHandler.Create;
   ActionHandler.CheckForDuplicates(FL);
+  ActionHelper := TActionHelper.Create(ActionHandler);
 end;
 
 destructor TMain0.Destroy;
 begin
+  ActionHelper.Free;
   ActionMap1.Free;
   ActionMap2.Free;
 
+  FederKeyboard.Free;
   FederText1.Free;
   FederText2.Free;
 
+  Logger.Free;
   FL.Free;
+
+  ActionGroupList.Free;
+  ActionTest.Free;
+  FederBinding.Free;
+
   inherited;
+end;
+
+procedure TMain0.CopyText;
+var
+  cbs: IFMXClipboardService;
+begin
+  if TPlatformServices.Current.SupportsPlatformService(IFMXClipboardService, IInterface(cbs)) then
+  begin
+    cbs.SetClipboard(FL.Text);
+    Logger.Info('in CopyText ( check clipboard )');
+  end;
 end;
 
 procedure TMain0.BlackText;
@@ -350,6 +396,11 @@ begin
   end;
 end;
 
+function TMain0.GetFLText: string;
+begin
+  result := FL.Text;
+end;
+
 procedure TMain0.ExecuteAction(fa: Integer);
 begin
   if IsUp then
@@ -402,6 +453,8 @@ begin
     faMemeToggleReport: result := F.ReportText.Visible;
     faButtonFrameReport: result := F.WantButtonFrameReport;
     faMemeToggleDropTarget: result := F.IsDropTargetVisible;
+    else
+      result := F.GetChecked(fa);
   end;
 
 end;

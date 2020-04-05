@@ -25,7 +25,7 @@ uses
   RiggVar.FB.ActionMap;
 
 type
-  TActionMapTablet = class(TActionMap)
+  TActionMapTablet = class(TCollectibleActionMap)
   private
     procedure InitDefault;
     procedure InitAC(cl: TCornerLocation; bi, fa: Integer; cla: TAlphaColor);
@@ -97,8 +97,8 @@ begin
       InitAC(cl, 6, faMemeFormat1, cla);
 
       cl := TopRight;
-      InitAC(cl, 1, faNoop, cla);
-      InitAC(cl, 2, faNoop, cla);
+      InitAC(cl, 1, faShowActi, cla);
+      InitAC(cl, 2, faShowMemo, cla);
 {$ifdef MACOS}
       InitAC(cl, 1, faMemeShowColorPicker, cla);
       InitAC(cl, 2, faMemeShowFontPicker, cla);
@@ -201,8 +201,8 @@ begin
       cl := BottomRight;
       InitAC(cl, 1, faNoop, cla);
       InitAC(cl, 2, faNoop, cla);
-      InitAC(cl, 3, faNoop, cla);
-      InitAC(cl, 4, faNoop, cla);
+      InitAC(cl, 3, faShowActi, cla);
+      InitAC(cl, 4, faShowMemo, cla);
       InitAC(cl, 5, faNoop, cla);
       InitAC(cl, 6, faNoop, cla);
     end;
