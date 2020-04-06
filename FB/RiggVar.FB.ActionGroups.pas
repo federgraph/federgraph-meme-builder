@@ -2,7 +2,7 @@
 
 (*
 -
--     F            info: http://wwww.riggvar.de
+-     F
 -    * * *
 -   *   *   G
 -  *     * *   *
@@ -12,15 +12,11 @@
 -    * *     *             *
 -     D-------A---------------B
 -              *
--              (C) RiggVar Software UG (haftungsbeschr�nkt)
+-              (C) federgraph.de
 -
 *)
 
 interface
-
-{$ifdef FPC}
-{$mode delphi}
-{$endif}
 
 uses
   System.SysUtils,
@@ -29,7 +25,7 @@ uses
   RiggVar.FB.ActionGroup;
 
 type
-  TActionGroupList = class (TList<TActionGroup>)
+  TActionGroupList = class(TList<TActionGroup>)
   public
     GroupNames: TStrings;
     constructor Create;
@@ -73,7 +69,7 @@ procedure TActionGroupList.AddSpecial(const Value: TActionGroup; AName: string);
 var
   AG: TActionGroup;
 begin
-  AG := Value;
+  AG := Value; { because of RSP-16471, a bug in 10.1 }
   GroupNames.Add(AName);
   Add(AG);
 end;
@@ -89,36 +85,15 @@ begin
   AddSpecial(ActionGroupPages, 'Pages');
   AddSpecial(ActionGroupForms, 'Forms');
   AddSpecial(ActionGroupTouchLayout, 'TouchLayout');
-//  AddSpecial(ActionGroupEmptyLastLine, 'LastLine');
-//  AddSpecial(ActionGroupHelp, 'Help');
 
   { Format }
-//  AddSpecial(ActionGroupFormat, 'Format');
-//  AddSpecial(ActionGroupIconSize, 'IconSize');
   AddSpecial(ActionGroupMemeFormat, 'Format');
 
   { UI }
-//  AddSpecial(ActionGroupWheel, 'Wheel');
   AddSpecial(ActionGroupColorScheme, 'ColorScheme');
 
   { View }
-//  AddSpecial(ActionGroupViewParams, 'ViewParams');
-//  AddSpecial(ActionGroupViewOptions, 'ViewOptions');
   AddSpecial(ActionGroupViewFlags, 'ViewFlags');
-//  AddSpecial(ActionGroupViewType, 'ViewType');
-//  AddSpecial(ActionGroupReset, 'Reset');
-
-  { Texture }
-//  AddSpecial(ActionGroupParamT, 'Texture Param');
-//  AddSpecial(ActionGroupBitmapCycle, 'BitmapCycle');
-
-  { Copy }
-//  AddSpecial(ActionGroupCopyPaste, 'CopyPaste');
-//  AddSpecial(ActionGroupCopyImage, 'CopyImage');
-//  AddSpecial(ActionGroupCopyOptions, 'CopyOptions');
-
-  { Input }
-//  AddSpecial(ActionGroupInput, 'Input');
 
   { MB }
   AddSpecial(ActionGroupMemeParams, 'MemeParams');
