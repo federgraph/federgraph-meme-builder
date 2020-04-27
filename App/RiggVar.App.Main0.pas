@@ -31,7 +31,6 @@ uses
   RiggVar.FB.ActionKeys,
   RiggVar.FB.ActionMap,
   RiggVar.FB.ActionTest,
-  RiggVar.FB.SpeedColor,
   RiggVar.FB.TextBase,
   RiggVar.FederModel.Action,
   RiggVar.FederModel.Binding,
@@ -54,7 +53,6 @@ type
     procedure SetTouch(const Value: Integer);
     function GetFederText: TFederTouchBase;
     function GetFLText: string;
-    procedure ToggleDarkMode;
   protected
     FL: TStringList;
     procedure CopyText;
@@ -80,15 +78,12 @@ type
     ActionTest: TActionTest;
     FederBinding: TFederBinding;
 
-    SpeedColorScheme: TSpeedColorScheme;
-
     constructor Create;
     destructor Destroy; override;
 
     procedure HandleAction(fa: Integer); virtual;
     function GetChecked(fa: TFederAction): Boolean; virtual;
 
-    procedure Init;
     procedure InitText;
 
     procedure DoTouchbarLeft(Delta: single);
@@ -99,6 +94,7 @@ type
     procedure CycleToolSet(i: Integer); virtual;
     procedure CycleColorSchemeM; virtual;
     procedure CycleColorSchemeP; virtual;
+    procedure ToggleDarkMode;
 
     procedure BlackText;
     procedure GrayText;
@@ -213,11 +209,6 @@ begin
   FederText.UpdateColorScheme;
 end;
 
-procedure TMain0.Init;
-begin
-  InitText;
-end;
-
 procedure TMain0.InitFederText(ft: TFederTouch0);
 begin
   if ft is TLayout then
@@ -315,12 +306,10 @@ begin
     FederText.UpdateColorScheme;
   end;
 
-  SpeedColorScheme.Init(MainVar.ColorScheme.IsDark);
+  MainVar.SpeedColorScheme.Init(MainVar.ColorScheme.IsDark);
 
   if IsUp then
   begin
-//    FormMeme.SpeedPanel.DarkMode := MainVar.ColorScheme.IsDark;
-//    FormMeme.SpeedPanel.UpdateColor;
     FormMeme.UpdateColorScheme;
   end;
 end;
@@ -437,7 +426,15 @@ begin
     faMemeToggleFontColor: ToggleDarkMode;
 
     else
+    begin
+      { Make sure you do not create a cycle. }
+      { This may happen if you call Main.ActionHandler.Execute(fa)
+      {   from FormMain.HandleAction(fa) when handling a keyboard shortcut. }
       FormMeme.HandleAction(fa);
+      { So, if you feed an action to the general point of entry
+          then make sure you handle it there.
+        Search FormMain for '.Execute' or '.HandleAction' }
+    end;
   end;
 end;
 

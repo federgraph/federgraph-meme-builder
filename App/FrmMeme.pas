@@ -136,7 +136,6 @@ type
     property DropTargetVisible: Boolean read FDropTargetVisible write SetDropTargetVisible;
     property UseOfficeFonts: Boolean read FUseOfficeFonts write SetUseOfficeFonts;
     procedure InitPicker;
-    procedure InitMain;
   protected
     function FindTarget(P: TPointF; const Data: TDragObject): IControl; override;
   public
@@ -229,7 +228,9 @@ begin
   { RSP-20787 when TFormPosition.ScreenCenter}
 //  Self.Position := TFormPosition.ScreenCenter;
 
-  InitMain;
+  Main := TMain.Create;
+  Main.InitText;
+  Main.IsUp := True;
   Raster := MainVar.Raster;
 
   FontFamilyList := TStringList.Create;
@@ -1457,7 +1458,6 @@ begin
     end;
 
     faMemeToggleTiling: ToggleTiling;
-    faMemeToggleFontColor: Main.ActionHandler.Execute(faMemeToggleFontColor);
     faMemeToggleTextColor: ToggleTextColor;
 
     faMemeSampleT:
@@ -1497,10 +1497,14 @@ begin
       UpdateFormat(750, 1000)
     end;
 
+    { Attention: You must handle any action you feed to Execute in Main }
+    { otherwise there would be a loop, see TMain0.HandleAction }
     faActionPageP: Main.ActionHandler.Execute(faActionPageP);
     faActionPageM: Main.ActionHandler.Execute(faActionPageM);
     faCycleColorSchemeP: Main.ActionHandler.Execute(faCycleColorSchemeP);
     faCycleColorSchemeM: Main.ActionHandler.Execute(faCycleColorSchemeM);
+    faMemeToggleFontColor: Main.ActionHandler.Execute(faMemeToggleFontColor);
+
     faButtonFrameReport:
     begin
       FWantButtonFrameReport := not WantButtonFrameReport;
@@ -1641,13 +1645,6 @@ begin
     Picker := TPicker.Create;
 end;
 
-procedure TFormMeme.InitMain;
-begin
-  Main := TMain.Create;
-  Main.Init;
-  Main.IsUp := True;
-end;
-
 function TFormMeme.GetChecked(fa: Integer): Boolean;
 begin
   result := False;
@@ -1744,11 +1741,33 @@ begin
   if not ComponentsCreated then
     Exit;
 
-//  UpdateBackgroundColor(SpeedPanel.SpeedColorScheme.claBack);
+  HintText.TextSettings.FontColor := MainVar.SpeedColorScheme.claHintText;
+  HelpText.TextSettings.FontColor := MainVar.SpeedColorScheme.claHelpText;
+  ReportText.TextSettings.FontColor := MainVar.SpeedColorScheme.claReportText;
 
-  HintText.TextSettings.FontColor := Main.SpeedColorScheme.claHintText;
-  ReportText.TextSettings.FontColor := Main.SpeedColorScheme.claReportText;
-  HelpText.TextSettings.FontColor := Main.SpeedColorScheme.claHelpText;
+  { The above code is located here because it is application specific
+    and closely tied to the form where the elements live. }
+
+  { As for the colors, there are still competing concepts and
+      multiple points of implementation and
+      differences in recognition and/or presence of target groups and
+      differences in location of code as well as
+      legacy relations between elements,
+      possible redundance and maybe more.
+
+    Units: RiggVar.FB.Scheme vs. RiggVar.FB.SpeedColor
+    Scope: A range of schemes vs. just a boolean toggle between Dark and Light mode
+    Text: Attached to Frame vs. independent on the Form
+    Location: SpeedColorScheme located in field of MainVar vs. in TSpeedBar }
+
+  { Current situation:
+    Present Target Groups: Background, Text, ButtonFrame
+    Missing Target Groups: SpeedPanel
+    Background: Secial treatment.
+    Text: Text is now independent, much as in RG application (good)
+    Text Colors: defined in TSpeedColorScheme record (new, still playing)
+    Frame Colors: defined in TColorScheme record, as in FC, this will not change. }
+
 end;
 
 end.
