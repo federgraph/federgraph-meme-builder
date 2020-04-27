@@ -20,6 +20,7 @@ uses
   RiggVar.FB.ActionMap in 'FB\RiggVar.FB.ActionMap.pas',
   RiggVar.FB.ActionShort in 'FB\RiggVar.FB.ActionShort.pas',
   RiggVar.FB.Scheme in 'FB\RiggVar.FB.Scheme.pas',
+  RiggVar.FB.SpeedColor in 'FB\RiggVar.FB.SpeedColor.pas',
   RiggVar.FB.TextBase in 'FB\RiggVar.FB.TextBase.pas',
   RiggVar.MB.Def in 'MB\RiggVar.MB.Def.pas',
   RiggVar.MB.Picker.Mac in 'MB\RiggVar.MB.Picker.Mac.pas',

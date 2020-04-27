@@ -31,6 +31,7 @@ uses
   RiggVar.FB.ActionKeys,
   RiggVar.FB.ActionMap,
   RiggVar.FB.ActionTest,
+  RiggVar.FB.SpeedColor,
   RiggVar.FB.TextBase,
   RiggVar.FederModel.Action,
   RiggVar.FederModel.Binding,
@@ -53,6 +54,7 @@ type
     procedure SetTouch(const Value: Integer);
     function GetFederText: TFederTouchBase;
     function GetFLText: string;
+    procedure ToggleDarkMode;
   protected
     FL: TStringList;
     procedure CopyText;
@@ -78,11 +80,13 @@ type
     ActionTest: TActionTest;
     FederBinding: TFederBinding;
 
+    SpeedColorScheme: TSpeedColorScheme;
+
     constructor Create;
     destructor Destroy; override;
 
-    procedure ExecuteAction(fa: Integer);
-    function GetChecked(fa: TFederAction): Boolean;
+    procedure HandleAction(fa: Integer); virtual;
+    function GetChecked(fa: TFederAction): Boolean; virtual;
 
     procedure Init;
     procedure InitText;
@@ -157,7 +161,6 @@ begin
   FederBinding := TFederBinding.Create;
 
   ActionHandler := TFederActionHandler.Create;
-  ActionHandler.CheckForDuplicates(FL);
   ActionHelper := TActionHelper.Create(ActionHandler);
 end;
 
@@ -311,6 +314,23 @@ begin
     FormMeme.UpdateBackgroundColor(MainVar.ColorScheme.claBackground);
     FederText.UpdateColorScheme;
   end;
+
+  SpeedColorScheme.Init(MainVar.ColorScheme.IsDark);
+
+  if IsUp then
+  begin
+//    FormMeme.SpeedPanel.DarkMode := MainVar.ColorScheme.IsDark;
+//    FormMeme.SpeedPanel.UpdateColor;
+    FormMeme.UpdateColorScheme;
+  end;
+end;
+
+procedure TMain0.ToggleDarkMode;
+begin
+  if MainVar.ColorScheme.IsDark then
+    ColorScheme := MainVar.ColorScheme.Light
+  else
+    ColorScheme := MainVar.ColorScheme.Dark;
 end;
 
 procedure TMain0.SetTouch(const Value: Integer);
@@ -401,10 +421,11 @@ begin
   result := FL.Text;
 end;
 
-procedure TMain0.ExecuteAction(fa: Integer);
+procedure TMain0.HandleAction(fa: Integer);
 begin
   if IsUp then
   case fa of
+    faNoop: ;
     faToggleTouchFrame: FederText.ToggleTouchFrame;
 
     faActionPageM: CycleToolSet(-1);
@@ -412,6 +433,8 @@ begin
 
     faCycleColorSchemeM: CycleColorSchemeM;
     faCycleColorSchemeP: CycleColorSchemeP;
+
+    faMemeToggleFontColor: ToggleDarkMode;
 
     else
       FormMeme.HandleAction(fa);
@@ -453,10 +476,12 @@ begin
     faMemeToggleReport: result := F.ReportText.Visible;
     faButtonFrameReport: result := F.WantButtonFrameReport;
     faMemeToggleDropTarget: result := F.IsDropTargetVisible;
+
+    faMemeToggleFontColor: result := MainVar.ColorScheme.IsDark;
+
     else
       result := F.GetChecked(fa);
   end;
-
 end;
 
 procedure TMain0.DoTouchbarLeft(Delta: single);

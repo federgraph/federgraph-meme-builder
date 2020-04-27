@@ -39,7 +39,7 @@ uses
 procedure TFederActionHandler.Execute(fa: TFederAction);
 begin
   if Main <> nil then
-    Main.ExecuteAction(fa);
+    Main.HandleAction(fa);
 end;
 
 function TFederActionHandler.GetChecked(fa: TFederAction): Boolean;

@@ -42,6 +42,11 @@ type
     claEquationText: TAlphaColor;
     claTouchbarText: TAlphaColor;
 
+    IsDark: Boolean;
+
+    Dark: Integer;
+    Light: Integer;
+
     constructor Create(cs: Integer);
 
     procedure BlackText;
@@ -99,6 +104,8 @@ end;
 
 constructor TColorScheme.Create(cs: Integer);
 begin
+  Dark := 5;
+  Light := 2;
   WantBlackText := True;
   claTouchbarText := claBlack;
   SchemeDefault := cs;
@@ -109,11 +116,13 @@ end;
 procedure TColorScheme.Init(cs: Integer);
 begin
   Scheme := cs;
+  IsDark := True;
   case cs of
     1:
     begin
       if WantBlackText then
       begin
+        IsDark := False;
         claBackground := claWhite;
         claLabelText := claBlack;
         claSampleText := claBlack;
@@ -139,19 +148,20 @@ begin
     end;
     2:
     begin
-      claBackground := StringToAlphaColor('#FFBBBBBB');
+      IsDark := False;
+      claBackground := StringToAlphaColor('#FFF9F9F9');
       claLabelText := claWhite;
       claSampleText := claWhite;
       claToolBtnFill := claGray;
       claTouchBtnFill := claGray;
-      claCornerScrollbar := claGray;
+      claCornerScrollbar := claLavender;
       claCornerBtnText:= claBlue;
       claEquationFill := claNull;
       claEquationText := claBlack;
     end;
     3:
     begin
-      claBackground := claCornflowerblue; //claPurple;
+      claBackground := claCornflowerblue;
       claLabelText := claWhite;
       claSampleText := claWhite;
       claToolBtnFill := claWhite;

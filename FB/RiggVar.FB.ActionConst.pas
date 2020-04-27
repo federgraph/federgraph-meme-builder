@@ -21,10 +21,11 @@ interface
 type
   TFederAction = Integer;
 
-const
 // --- generated code snippet ---
 // Note that some of the defined actions
 //   may not be implemented in this version of the app.
+
+const
 
   { EmptyAction }
   faNoop = 0;

@@ -27,7 +27,7 @@ type
 const
 
 ActionGroupEmptyAction: TActionGroup = [
-  faNoop];
+faNoop];
 
 ActionGroupTouchLayout: TActionGroup = [
 faTouchTablet,
@@ -35,20 +35,20 @@ faTouchPhone,
 faTouchDesk];
 
 ActionGroupPages: TActionGroup = [
-faActionPageM,
-faActionPageP];
+  faActionPageM,
+  faActionPageP];
 
 ActionGroupColorScheme: TActionGroup = [
-faCycleColorSchemeM,
-faCycleColorSchemeP];
+  faCycleColorSchemeM,
+  faCycleColorSchemeP];
 
 ActionGroupForms: TActionGroup = [
 faShowActi,
 faShowMemo];
 
 ActionGroupViewFlags: TActionGroup = [
-faToggleAllText,
-faToggleTouchFrame];
+  faToggleAllText,
+  faToggleTouchFrame];
 
 ActionGroupMemeFormat: TActionGroup = [
   faMemeGotoLandscape,

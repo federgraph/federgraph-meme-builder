@@ -18,10 +18,6 @@
 
 interface
 
-{ To undefine WantBtnFrame, place a dot before $ }
-
-{$define WantBtnFrame}
-
 uses
   System.SysUtils,
   System.Classes,
@@ -114,7 +110,6 @@ type
     procedure InitFontList;
     function GetSelectedText: string;
     procedure PasteBitmapFromClipboard;
-    procedure ToggleFontColor;
     procedure AdaptFormSize;
     procedure GotoLandscape;
     procedure GotoNormal;
@@ -141,9 +136,7 @@ type
     property DropTargetVisible: Boolean read FDropTargetVisible write SetDropTargetVisible;
     property UseOfficeFonts: Boolean read FUseOfficeFonts write SetUseOfficeFonts;
     procedure InitPicker;
-{$ifdef WantBtnFrame}
     procedure InitMain;
-{$endif}
   protected
     function FindTarget(P: TPointF; const Data: TDragObject): IControl; override;
   public
@@ -166,7 +159,10 @@ type
     HintText: TText;
     HelpText: TText;
     ReportText: TText;
+    ComponentsCreated: Boolean;
     procedure CreateComponents;
+    procedure SetupText(T: TText; fs: single = 16);
+    procedure UpdateColorScheme;
     procedure LayoutComponents;
     procedure HandleShowHint(Sender: TObject);
   protected
@@ -186,9 +182,7 @@ implementation
 uses
   FrmAction,
   FrmMemo,
-{$ifdef WantBtnFrame}
   RiggVar.App.Main,
-{$endif}
   RiggVar.MB.Picker,
   RiggVar.MB.Picker.Win,
   RiggVar.MB.Picker.Mac,
@@ -204,8 +198,12 @@ const
   HelpCaptionText = 'press h for help';
   ApplicationTitleText = 'FC96';
 
+{ TFormMeme }
+
 procedure TFormMeme.ApplicationEventsException(Sender: TObject; E: Exception);
 begin
+  if (Main <> nil) and (Main.Logger <> nil) then
+    Main.Logger.Info(E.Message);
 end;
 
 procedure TFormMeme.FormCreate(Sender: TObject);
@@ -231,10 +229,8 @@ begin
   { RSP-20787 when TFormPosition.ScreenCenter}
 //  Self.Position := TFormPosition.ScreenCenter;
 
-{$ifdef WantBtnFrame}
   InitMain;
   Raster := MainVar.Raster;
-{$endif}
 
   FontFamilyList := TStringList.Create;
 
@@ -262,6 +258,7 @@ begin
 
   TopText.BringToFront;
   BottomText.BringToFront;
+  HelpText.BringToFront;
 
   InitMemo(TopEdit);
   InitMemo(BottomEdit);
@@ -278,10 +275,6 @@ begin
   HelpText.BringToFront;
   ReportText.BringToFront;
 
-  HintText.TextSettings.FontColor := claYellow;
-  HelpText.TextSettings.FontColor := claWhite;
-  ReportText.TextSettings.FontColor := claWhite;
-
   InitHelpText;
 
   if Application.Title = 'FC96' then
@@ -289,17 +282,13 @@ begin
     DropTargetVisible := true;
   end;
 
-{$ifdef WantBtnFrame}
   UpdateBackgroundColor(MainVar.ColorScheme.claBackground);
-{$endif}
 
   SL := TStringList.Create;
 
   Caption := HelpCaptionText;
 
-{$ifdef WantBtnFrame}
-    Main.FederText.CheckState;
-{$endif}
+  Main.FederText.CheckState;
 
 {$ifdef MACOS}
   { OnKeyUp does not work well on Mac, RSP-2766 }
@@ -309,14 +298,13 @@ begin
 {$endif}
 
   Application.OnHint := HandleShowHint;
+  Main.ColorScheme := MainVar.ColorScheme.Dark;
 end;
 
 procedure TFormMeme.FormDestroy(Sender: TObject);
 begin
-{$ifdef WantBtnFrame}
   Main.Free;
   Main := nil;
-{$endif}
 
   CheckerBitmap.Free;
   FontFamilyList.Free;
@@ -343,9 +331,7 @@ begin
 
     UpdateReport;
 
-{$ifdef WantBtnFrame}
     Main.FederText.CheckState;
-{$endif}
   end
 end;
 
@@ -395,11 +381,7 @@ begin
 
   if WantButtonFrameReport then
   begin
-{$ifdef WantBtnFrame}
     Main.FederText.Report(SL);
-{$else}
-    SL.Add('WantBtnFrame not defined.')
-{$endif}
   end
   else
   begin
@@ -467,13 +449,11 @@ begin
 
   UpdateChecker;
 
-{$ifdef WantBtnFrame}
   if (Main <> nil) and Main.IsUp then
   begin
     Main.UpdateTouch;
     Main.UpdateText;
   end;
-{$endif}
   UpdateReport;
 end;
 
@@ -596,20 +576,6 @@ begin
     CheckerImage.WrapMode := TImageWrapMode.Fit
   else
     CheckerImage.WrapMode := TImageWrapMode.Tile;
-end;
-
-procedure TFormMeme.ToggleFontColor;
-begin
-  if ReportText.TextSettings.FontColor = claWhite then
-  begin
-    ReportText.TextSettings.FontColor := claBlack;
-    HelpText.TextSettings.FontColor := claBlack;
-  end
-  else
-  begin
-    ReportText.TextSettings.FontColor := claWhite;
-    HelpText.TextSettings.FontColor := claWhite;
-  end;
 end;
 
 procedure TFormMeme.ToggleTextColor;
@@ -1273,6 +1239,17 @@ begin
   Caption := s;
 end;
 
+procedure TFormMeme.SetupText(T: TText; fs: single);
+begin
+  T.Parent := Self;
+  T.WordWrap := False;
+  T.HorzTextAlign := TTextAlign.Leading;
+  T.Font.Family := 'Consolas';
+  T.Font.Size := fs;
+  T.AutoSize := True;
+  T.HitTest := False;
+end;
+
 procedure TFormMeme.InitMemo(Memo: TMemo);
 begin
   Memo.Position.X := DefaultMargin;
@@ -1480,7 +1457,7 @@ begin
     end;
 
     faMemeToggleTiling: ToggleTiling;
-    faMemeToggleFontColor: ToggleFontColor;
+    faMemeToggleFontColor: Main.ActionHandler.Execute(faMemeToggleFontColor);
     faMemeToggleTextColor: ToggleTextColor;
 
     faMemeSampleT:
@@ -1493,12 +1470,14 @@ begin
     begin
       SampleManager.Next;
       Reset;
+      UpdateReport;
     end;
 
     faMemeSampleM:
     begin
       SampleManager.Previous;
       Reset;
+      UpdateReport;
     end;
 
     faMemeSwapText: SwapText;
@@ -1518,7 +1497,6 @@ begin
       UpdateFormat(750, 1000)
     end;
 
-{$ifdef WantBtnFrame}
     faActionPageP: Main.ActionHandler.Execute(faActionPageP);
     faActionPageM: Main.ActionHandler.Execute(faActionPageM);
     faCycleColorSchemeP: Main.ActionHandler.Execute(faCycleColorSchemeP);
@@ -1528,7 +1506,6 @@ begin
       FWantButtonFrameReport := not WantButtonFrameReport;
       UpdateReport;
     end;
-{$endif}
 
     faShowActi: ActiBtnClick(nil);
     faShowMemo: MemoBtnClick(nil);
@@ -1634,13 +1611,11 @@ begin
     'ö': fa := faMemeShowColorPicker;
     'Ö': fa := faMemeShowFontPicker;
 
-{$ifdef WantBtnFrame}
     '+': fa := faActionPageP;
     '*': fa := faActionPageM;
 
     'k': fa := faCycleColorSchemeP;
     'K': fa := faCycleColorSchemeM;
-{$endif}
 
     else fa := faNoop;
 
@@ -1666,14 +1641,12 @@ begin
     Picker := TPicker.Create;
 end;
 
-{$ifdef WantBtnFrame}
 procedure TFormMeme.InitMain;
 begin
   Main := TMain.Create;
   Main.Init;
   Main.IsUp := True;
 end;
-{$endif}
 
 function TFormMeme.GetChecked(fa: Integer): Boolean;
 begin
@@ -1683,28 +1656,15 @@ end;
 procedure TFormMeme.CreateComponents;
 begin
   HintText := TText.Create(Self);
-  HintText.Parent := Self;
-  HintText.WordWrap := False;
-  HintText.AutoSize := True;
-  HintText.HorzTextAlign := TTextAlign.Leading;
-  HintText.Font.Family := 'Consolas';
-  HintText.Font.Size := 18;
+  SetupText(HintText, 18);
 
   HelpText := TText.Create(Self);
-  HelpText.Parent := Self;
-  HelpText.WordWrap := False;
-  HelpText.HorzTextAlign := TTextAlign.Leading;
-  HelpText.Font.Family := 'Courier New';
-  HelpText.Font.Size := 16;
-  HelpText.AutoSize := True;
+  SetupText(HelpText);
 
   ReportText := TText.Create(Self);
-  ReportText.Parent := Self;
-  ReportText.WordWrap := False;
-  ReportText.HorzTextAlign := TTextAlign.Leading;
-  ReportText.Font.Family := 'Courier New';
-  ReportText.Font.Size := 16;
-  ReportText.AutoSize := True;
+  SetupText(ReportText);
+
+  ComponentsCreated := True;
 end;
 
 procedure TFormMeme.LayoutComponents;
@@ -1777,6 +1737,18 @@ begin
     FormMemo.DisposeOf;
     FormMemo := nil;
   end;
+end;
+
+procedure TFormMeme.UpdateColorScheme;
+begin
+  if not ComponentsCreated then
+    Exit;
+
+//  UpdateBackgroundColor(SpeedPanel.SpeedColorScheme.claBack);
+
+  HintText.TextSettings.FontColor := Main.SpeedColorScheme.claHintText;
+  ReportText.TextSettings.FontColor := Main.SpeedColorScheme.claReportText;
+  HelpText.TextSettings.FontColor := Main.SpeedColorScheme.claHelpText;
 end;
 
 end.

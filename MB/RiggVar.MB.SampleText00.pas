@@ -86,10 +86,10 @@ begin
   Caption := 'Federgraph Meme Builder App';
 
   Top.Text := 'federgraph.de/federgraph-meme-builder.html';
-  Top.FontCourierNew;
+  Top.FontConsolas;
 
   Bottom.Text := 'press h to toggle help text';
-  Bottom.FontCourierNew;
+  Bottom.FontConsolas;
 end;
 
 procedure TSampleData.Sample1;
