@@ -94,7 +94,7 @@ end;
 
 procedure TSampleData.Sample1;
 begin
-  Caption := 'FC96';
+  Caption := 'MB01';
 
   Top.Text := 'Made with Delphi';
   Top.FontImpact(84);

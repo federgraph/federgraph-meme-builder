@@ -195,7 +195,7 @@ const
   BoolStr: array[Boolean] of string = ('False', 'True');
 
   HelpCaptionText = 'press h for help';
-  ApplicationTitleText = 'FC96';
+  ApplicationTitleText = 'MB01';
 
 { TFormMeme }
 
@@ -278,10 +278,7 @@ begin
 
   InitHelpText;
 
-  if Application.Title = 'FC96' then
-  begin
-    DropTargetVisible := true;
-  end;
+  DropTargetVisible := true;
 
   UpdateBackgroundColor(MainVar.ColorScheme.claBackground);
 
