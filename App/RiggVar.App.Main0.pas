@@ -123,7 +123,7 @@ type
 implementation
 
 uses
-  FrmMeme,
+  FrmMain,
   FMX.Platform,
   RiggVar.App.Main,
   RiggVar.MB.Def,
@@ -213,14 +213,14 @@ procedure TMain0.InitFederText(ft: TFederTouch0);
 begin
   if ft is TLayout then
   begin
-    ft.Parent := FormMeme;
+    ft.Parent := FormMain;
     TFederTouchBase.OwnerComponent := ft;
     TFederTouchBase.ParentObject := ft;
   end
   else
   begin
-    TFederTouchBase.OwnerComponent := FormMeme;
-    TFederTouchBase.ParentObject := FormMeme;
+    TFederTouchBase.OwnerComponent := FormMain;
+    TFederTouchBase.ParentObject := FormMain;
   end;
 
   ft.Position.X := 0;
@@ -232,14 +232,14 @@ end;
 
 procedure TMain0.InitRaster;
 begin
-  MainVar.ClientWidth := FormMeme.ClientWidth;
-  MainVar.ClientHeight := FormMeme.ClientHeight;
+  MainVar.ClientWidth := FormMain.ClientWidth;
+  MainVar.ClientHeight := FormMain.ClientHeight;
 end;
 
 procedure TMain0.InitText;
 begin
-  MainVar.ClientWidth := FormMeme.ClientWidth;
-  MainVar.ClientHeight := FormMeme.ClientHeight;
+  MainVar.ClientWidth := FormMain.ClientWidth;
+  MainVar.ClientHeight := FormMain.ClientHeight;
   InitFederText(FederText1);
   InitFederText(FederText2);
   Touch := faTouchDesk;
@@ -261,8 +261,8 @@ procedure TMain0.UpdateTouch;
 begin
   if Assigned(FederText) and FederText.InitOK then
   begin
-    MainVar.ClientWidth := FormMeme.ClientWidth;
-    MainVar.ClientHeight := FormMeme.ClientHeight;
+    MainVar.ClientWidth := FormMain.ClientWidth;
+    MainVar.ClientHeight := FormMain.ClientHeight;
     InitTouch;
     FederText.UpdateShape;
   end;
@@ -270,7 +270,7 @@ end;
 
 function TMain0.GetIsLandscape: Boolean;
 begin
-  result := FormMeme.ClientWidth >= FormMeme.ClientHeight;
+  result := FormMain.ClientWidth >= FormMain.ClientHeight;
 end;
 
 function TMain0.GetIsPhone: Boolean;
@@ -282,8 +282,8 @@ begin
     faTouchTablet: result := False;
     else
     begin
-      MinCount := Min(FormMeme.ClientHeight, FormMeme.ClientWidth) div MainVar.Raster;
-      MaxCount := Max(FormMeme.ClientHeight, FormMeme.ClientWidth) div MainVar.Raster;
+      MinCount := Min(FormMain.ClientHeight, FormMain.ClientWidth) div MainVar.Raster;
+      MaxCount := Max(FormMain.ClientHeight, FormMain.ClientWidth) div MainVar.Raster;
       result  := (MinCount < 8) or (MaxCount < 12);
     end;
   end;
@@ -291,7 +291,7 @@ end;
 
 function TMain0.GetIsPortrait: Boolean;
 begin
-  result := FormMeme.ClientWidth < FormMeme.ClientHeight;
+  result := FormMain.ClientWidth < FormMain.ClientHeight;
 end;
 
 procedure TMain0.SetColorScheme(const Value: Integer);
@@ -302,24 +302,22 @@ begin
     MainVar.ColorScheme.Init(Value);
     if MainVar.ColorScheme.claBackground = claNull then
       BlackText;
-    FormMeme.UpdateBackgroundColor(MainVar.ColorScheme.claBackground);
+    FormMain.UpdateBackgroundColor(MainVar.ColorScheme.claBackground);
     FederText.UpdateColorScheme;
   end;
 
-  MainVar.SpeedColorScheme.Init(MainVar.ColorScheme.IsDark);
-
   if IsUp then
   begin
-    FormMeme.UpdateColorScheme;
+    FormMain.UpdateColorScheme;
   end;
 end;
 
 procedure TMain0.ToggleDarkMode;
 begin
   if MainVar.ColorScheme.IsDark then
-    ColorScheme := MainVar.ColorScheme.Light
+    ColorScheme := MainVar.ColorScheme.LightScheme
   else
-    ColorScheme := MainVar.ColorScheme.Dark;
+    ColorScheme := MainVar.ColorScheme.DarkScheme;
 end;
 
 procedure TMain0.SetTouch(const Value: Integer);
@@ -380,7 +378,7 @@ end;
 procedure TMain0.CycleToolSet(i: Integer);
 begin
   FederText.UpdateToolSet(i);
-  FormMeme.UpdateReport;
+  FormMain.UpdateReport;
 end;
 
 function TMain0.GetColorScheme: Integer;
@@ -430,7 +428,7 @@ begin
       { Make sure you do not create a cycle. }
       { This may happen if you call Main.ActionHandler.Execute(fa)
       {   from FormMain.HandleAction(fa) when handling a keyboard shortcut. }
-      FormMeme.HandleAction(fa);
+      FormMain.HandleAction(fa);
       { So, if you feed an action to the general point of entry
           then make sure you handle it there.
         Search FormMain for '.Execute' or '.HandleAction' }
@@ -440,9 +438,9 @@ end;
 
 function TMain0.GetChecked(fa: TFederAction): Boolean;
 var
-  F: TFormMeme;
+  F: TFormMain;
 begin
-  F := FormMeme;
+  F := FormMain;
   result := false;
   if not IsUp then
     Exit;
@@ -491,7 +489,7 @@ end;
 
 procedure TMain0.DoTouchbarRight(Delta: single);
 begin
-  FormMeme.HandleWheel(Round(Sign(Delta)));
+  FormMain.HandleWheel(Round(Sign(Delta)));
 end;
 
 procedure TMain0.DoTouchbarBottom(Delta: single);

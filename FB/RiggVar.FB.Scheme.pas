@@ -44,8 +44,8 @@ type
 
     IsDark: Boolean;
 
-    Dark: Integer;
-    Light: Integer;
+    DarkScheme: Integer;
+    LightScheme: Integer;
 
     constructor Create(cs: Integer);
 
@@ -104,8 +104,8 @@ end;
 
 constructor TColorScheme.Create(cs: Integer);
 begin
-  Dark := 5;
-  Light := 2;
+  DarkScheme := 5;
+  LightScheme := 2;
   WantBlackText := True;
   claTouchbarText := claBlack;
   SchemeDefault := cs;
@@ -150,8 +150,8 @@ begin
     begin
       IsDark := False;
       claBackground := StringToAlphaColor('#FFF9F9F9');
-      claLabelText := claWhite;
-      claSampleText := claWhite;
+      claLabelText := claBlue;
+      claSampleText := claBlue;
       claToolBtnFill := claGray;
       claTouchBtnFill := claGray;
       claCornerScrollbar := claLavender;

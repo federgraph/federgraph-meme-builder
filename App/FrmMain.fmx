@@ -1,0 +1,82 @@
+object FormMain: TFormMain
+  Left = 0
+  Top = 0
+  Caption = 'FC Meme Builder'
+  ClientHeight = 750
+  ClientWidth = 1000
+  Fill.Color = claSlateblue
+  Fill.Kind = Solid
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop, iPhone, iPad]
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnKeyUp = FormKeyUp
+  OnMouseWheel = FormMouseWheel
+  OnResize = FormResize
+  DesignerMasterStyle = 0
+  object TopText: TText
+    Align = Top
+    AutoSize = True
+    HitTest = False
+    Margins.Top = 10.000000000000000000
+    Position.Y = 10.000000000000000000
+    Size.Width = 1000.000000000000000000
+    Size.Height = 51.987304687500000000
+    Size.PlatformDefault = False
+    Text = 'Look'
+    TextSettings.Font.Family = 'Showcard Gothic'
+    TextSettings.Font.Size = 42.000000000000000000
+    TextSettings.FontColor = claWhite
+    object TopGlow: TGlowEffect
+      Softness = 0.400000005960464500
+      GlowColor = claBlack
+      Opacity = 0.500000000000000000
+    end
+  end
+  object BottomText: TText
+    Align = Bottom
+    AutoSize = True
+    HitTest = False
+    Margins.Bottom = 10.000000000000000000
+    Position.Y = 662.437500000000000000
+    Size.Width = 1000.000000000000000000
+    Size.Height = 77.562500000000000000
+    Size.PlatformDefault = False
+    Text = 'This App is so cool !'
+    TextSettings.Font.Family = 'Vladimir Script'
+    TextSettings.Font.Size = 64.000000000000000000
+    TextSettings.FontColor = claWhite
+    object BottomGlow: TGlowEffect
+      Softness = 0.400000005960464500
+      GlowColor = claBlack
+      Opacity = 0.500000000000000000
+    end
+  end
+  object TopEdit: TMemo
+    Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
+    DataDetectorTypes = []
+    Position.X = 16.000000000000000000
+    Position.Y = 200.000000000000000000
+    Size.Width = 297.000000000000000000
+    Size.Height = 97.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 2
+    OnKeyUp = TopEditKeyUp
+    Viewport.Width = 293.000000000000000000
+    Viewport.Height = 93.000000000000000000
+  end
+  object BottomEdit: TMemo
+    Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
+    DataDetectorTypes = []
+    Position.X = 16.000000000000000000
+    Position.Y = 312.000000000000000000
+    Size.Width = 297.000000000000000000
+    Size.Height = 89.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 4
+    OnKeyUp = BottomEditKeyUp
+    Viewport.Width = 293.000000000000000000
+    Viewport.Height = 85.000000000000000000
+  end
+end

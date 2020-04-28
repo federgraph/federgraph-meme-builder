@@ -34,7 +34,7 @@ type
 implementation
 
 uses
-  FrmMeme;
+  FrmMain;
 
 { TFederKeyboard01 }
 
@@ -54,9 +54,9 @@ begin
   end
   else
   begin
-    fa := FormMeme.GetActionFromKey(Key);
+    fa := FormMain.GetActionFromKey(Key);
     if fa = faNoop then
-      fa := FormMeme.GetActionFromKeyChar(KeyChar);
+      fa := FormMain.GetActionFromKeyChar(KeyChar);
   end;
   result := fa;
 end;

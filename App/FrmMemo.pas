@@ -89,7 +89,7 @@ implementation
 uses
   RiggVar.App.Main,
 //  RiggVar.Util.DriverTest,
-  FrmMeme;
+  FrmMain;
 
 {$R *.fmx}
 

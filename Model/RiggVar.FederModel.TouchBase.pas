@@ -602,7 +602,7 @@ begin
   if Value then
     ToolBtn.Opacity := 0.1
   else
-    ToolBtn.Opacity := 0.05;
+    ToolBtn.Opacity := 0.0; //0.05;
 
   for b in CornerBtnList do
     b.Visible := Value;

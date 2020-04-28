@@ -20,7 +20,6 @@ interface
 
 uses
   RiggVar.FB.Scheme,
-  RiggVar.FB.SpeedColor,
   RiggVar.App.Main0;
 
 type
@@ -39,7 +38,6 @@ type
   public
   class var
     ColorScheme: TColorScheme;
-    SpeedColorScheme: TSpeedColorScheme;
     Raster: Integer;
     ClientWidth: Integer;
     ClientHeight: Integer;

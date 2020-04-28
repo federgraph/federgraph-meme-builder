@@ -1,4 +1,4 @@
-﻿unit FrmMeme;
+﻿unit FrmMain;
 
 (*
 -
@@ -38,13 +38,12 @@ uses
   FMX.Edit,
   FMX.Surfaces,
   FMX.Controls.Presentation,
-  RiggVar.FB.SpeedColor,
   RiggVar.MB.Def,
   FMX.ScrollBox,
   FMX.Memo;
 
 type
-  TFormMeme = class(TForm)
+  TFormMain = class(TForm)
     TopText: TText;
     BottomText: TText;
     BottomGlow: TGlowEffect;
@@ -160,22 +159,29 @@ type
     HelpText: TText;
     ReportText: TText;
     ComponentsCreated: Boolean;
-    ColorScheme: TSpeedColorScheme;
     procedure CreateComponents;
     procedure SetupText(T: TText; fs: single = 16);
     procedure UpdateColorScheme;
     procedure LayoutComponents;
     procedure HandleShowHint(Sender: TObject);
+  protected
+    procedure DestroyForms;
+    procedure MemoBtnClick(Sender: TObject);
+    procedure ActiBtnClick(Sender: TObject);
+    procedure CheckFormBounds(AForm: TForm);
   end;
 
 var
-  FormMeme: TFormMeme;
+  FormMain: TFormMain;
 
 implementation
 
 {$R *.fmx}
 
 uses
+  FrmAction,
+  FrmMemo,
+  RiggVar.App.Main,
   RiggVar.MB.Picker,
   RiggVar.MB.Picker.Win,
   RiggVar.MB.Picker.Mac,
@@ -193,17 +199,18 @@ const
 
 { TFormMeme }
 
-procedure TFormMeme.ApplicationEventsException(Sender: TObject; E: Exception);
+procedure TFormMain.ApplicationEventsException(Sender: TObject; E: Exception);
 begin
+  if (Main <> nil) and (Main.Logger <> nil) then
+    Main.Logger.Info(E.Message);
 end;
 
-procedure TFormMeme.FormCreate(Sender: TObject);
+procedure TFormMain.FormCreate(Sender: TObject);
 begin
 {$ifdef Debug}
   ReportMemoryLeaksOnShutdown := True;
 {$endif}
   FormatSettings.DecimalSeparator := '.';
-  Raster := 70;
 
   FScale := 1.0;
 {$ifdef MSWINDOWS}
@@ -216,10 +223,15 @@ begin
 
   Application.OnException := ApplicationEventsException;
 
-  FormMeme := self;
+  FormMain := self;
 
   { RSP-20787 when TFormPosition.ScreenCenter}
 //  Self.Position := TFormPosition.ScreenCenter;
+
+  Main := TMain.Create;
+  Main.InitText;
+  Main.IsUp := True;
+  Raster := MainVar.Raster;
 
   FontFamilyList := TStringList.Create;
 
@@ -271,9 +283,13 @@ begin
     DropTargetVisible := true;
   end;
 
+  UpdateBackgroundColor(MainVar.ColorScheme.claBackground);
+
   SL := TStringList.Create;
 
   Caption := HelpCaptionText;
+
+  Main.FederText.CheckState;
 
 {$ifdef MACOS}
   { OnKeyUp does not work well on Mac, RSP-2766 }
@@ -283,16 +299,20 @@ begin
 {$endif}
 
   Application.OnHint := HandleShowHint;
+  Main.ColorScheme := MainVar.ColorScheme.DarkScheme;
 end;
 
-procedure TFormMeme.FormDestroy(Sender: TObject);
+procedure TFormMain.FormDestroy(Sender: TObject);
 begin
+  Main.Free;
+  Main := nil;
+
   CheckerBitmap.Free;
   FontFamilyList.Free;
   SL.Free;
 end;
 
-procedure TFormMeme.FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char;
+procedure TFormMain.FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char;
   Shift: TShiftState);
 var
   fa: Integer;
@@ -311,10 +331,12 @@ begin
       HA(fa);
 
     UpdateReport;
+
+    Main.FederText.CheckState;
   end
 end;
 
-procedure TFormMeme.InitHelpText;
+procedure TFormMain.InitHelpText;
 var
   ML: TStringList;
 begin
@@ -351,33 +373,40 @@ begin
   ML.Free;
 end;
 
-procedure TFormMeme.UpdateReport;
+procedure TFormMain.UpdateReport;
 begin
   if not ReportText.Visible then
     Exit;
 
   SL.Clear;
 
-  SL.Add(Application.Title + ', see Federgraph.de');
-  Sl.Add('');
-  SL.Add('TopText.Font.Family = ' + TopText.Font.Family);
-  SL.Add('BottomText.Font.Family = ' + BottomText.Font.Family);
-  SL.Add(Format('TopText.Font.Family = %.g', [TopText.Font.Size]));
-  SL.Add(Format('BottomText.Font.Family = %.g', [BottomText.Font.Size]));
-  SL.Add('');
-  SL.Add('UseOfficeFonts = ' + BoolStr[UseOfficeFonts]);
-  SL.Add('TextID = ' + IntToStr(SampleManager.GetCurrentIndex));
-  SL.Add('Current Text = ' + GetSelectedText);
-  SL.Add('Current Param = ' + GetParamText);
-  SL.Add(Format('Client-W-H = (%d, %d)', [ClientWidth, ClientHeight]));
-  SL.Add(Format('Bitmap-W-H = (%d, %d)', [CheckerBitmap.Width, CheckerBitmap.Height]));
-  SL.Add(Format('Handle.Scale = %.1f', [Handle.Scale]));
+  if WantButtonFrameReport then
+  begin
+    Main.FederText.Report(SL);
+  end
+  else
+  begin
+    SL.Add(Application.Title + ', see Federgraph.de');
+    Sl.Add('');
+    SL.Add('TopText.Font.Family = ' + TopText.Font.Family);
+    SL.Add('BottomText.Font.Family = ' + BottomText.Font.Family);
+    SL.Add(Format('TopText.Font.Family = %.g', [TopText.Font.Size]));
+    SL.Add(Format('BottomText.Font.Family = %.g', [BottomText.Font.Size]));
+    SL.Add('');
+    SL.Add('UseOfficeFonts = ' + BoolStr[UseOfficeFonts]);
+    SL.Add('TextID = ' + IntToStr(SampleManager.GetCurrentIndex));
+    SL.Add('Current Text = ' + GetSelectedText);
+    SL.Add('Current Param = ' + GetParamText);
+    SL.Add(Format('Client-W-H = (%d, %d)', [ClientWidth, ClientHeight]));
+    SL.Add(Format('Bitmap-W-H = (%d, %d)', [CheckerBitmap.Width, CheckerBitmap.Height]));
+    SL.Add(Format('Handle.Scale = %.1f', [Handle.Scale]));
+  end;
 
   ReportText.Text := SL.Text;
   ReportText.Visible := True;
 end;
 
-procedure TFormMeme.ToggleEdits;
+procedure TFormMain.ToggleEdits;
 begin
   HelpText.Visible := False;
   ReportText.Visible := False;
@@ -393,14 +422,14 @@ begin
     You can use this application as a test case. }
 end;
 
-procedure TFormMeme.UpdateFormat(w, h: Integer);
+procedure TFormMain.UpdateFormat(w, h: Integer);
 begin
   ClientWidth := w;
   ClientHeight := h;
   Flash(Format('%d x %d', [ClientWidth, ClientHeight]));
 end;
 
-procedure TFormMeme.FormMouseWheel(Sender: TObject; Shift: TShiftState;
+procedure TFormMain.FormMouseWheel(Sender: TObject; Shift: TShiftState;
   WheelDelta: Integer; var Handled: Boolean);
 begin
   if WheelDelta > 0 then
@@ -409,7 +438,7 @@ begin
     HandleWheel(-1)
 end;
 
-procedure TFormMeme.FormResize(Sender: TObject);
+procedure TFormMain.FormResize(Sender: TObject);
 begin
   { if I do not force AutoSize off/on
       then the text does not center in the middle after resizing ? }
@@ -420,10 +449,16 @@ begin
   TopText.AutoSize := True;
 
   UpdateChecker;
+
+  if (Main <> nil) and Main.IsUp then
+  begin
+    Main.UpdateTouch;
+    Main.UpdateText;
+  end;
   UpdateReport;
 end;
 
-function TFormMeme.GetSelectedText: string;
+function TFormMain.GetSelectedText: string;
 begin
   if SelectedText = stTop then
     result := 'Top'
@@ -431,7 +466,7 @@ begin
     result := 'Bottom';
 end;
 
-function TFormMeme.GetParamText: string;
+function TFormMain.GetParamText: string;
 begin
   case FParam of
     fpTopMargin: result := 'Margin Top';
@@ -445,7 +480,7 @@ begin
   end;
 end;
 
-procedure TFormMeme.HandleWheel(Delta: Integer);
+procedure TFormMain.HandleWheel(Delta: Integer);
 var
   f: single;
 begin
@@ -513,7 +548,7 @@ begin
   end;
 end;
 
-procedure TFormMeme.InitChecker(WantNewChecker: Boolean);
+procedure TFormMain.InitChecker(WantNewChecker: Boolean);
 begin
   if CheckerImage = nil then
   begin
@@ -536,7 +571,7 @@ begin
   UpdateChecker;
 end;
 
-procedure TFormMeme.ToggleTiling;
+procedure TFormMain.ToggleTiling;
 begin
   if CheckerImage.WrapMode = TImageWrapMode.Tile then
     CheckerImage.WrapMode := TImageWrapMode.Fit
@@ -544,7 +579,7 @@ begin
     CheckerImage.WrapMode := TImageWrapMode.Tile;
 end;
 
-procedure TFormMeme.ToggleTextColor;
+procedure TFormMain.ToggleTextColor;
 begin
   if TopText.TextSettings.FontColor = claWhite then
   begin
@@ -558,32 +593,32 @@ begin
   end;
 end;
 
-procedure TFormMeme.BottomEditKeyUp(Sender: TObject; var Key: Word;
+procedure TFormMain.BottomEditKeyUp(Sender: TObject; var Key: Word;
   var KeyChar: Char; Shift: TShiftState);
 begin
   BottomText.Text := BottomEdit.Text;
 end;
 
-procedure TFormMeme.ClearImage;
+procedure TFormMain.ClearImage;
 begin
   CheckerImage.Bitmap.Clear(claPurple);
 end;
 
-procedure TFormMeme.UpdateBackgroundColor(AColor: TAlphaColor);
+procedure TFormMain.UpdateBackgroundColor(AColor: TAlphaColor);
 begin
   if CheckerImage <> nil then
     if CheckerImage.Bitmap <> nil then
       CheckerImage.Bitmap.Clear(AColor);
 end;
 
-function TFormMeme.GetSampleIndex: Integer;
+function TFormMain.GetSampleIndex: Integer;
 begin
   result := 0;
   if SampleManager <> nil then
     result := SampleManager.GetCurrentIndex;
 end;
 
-function TFormMeme.GetScreenshot: TBitmap;
+function TFormMain.GetScreenshot: TBitmap;
 var
   bmp: TBitmap;
 begin
@@ -598,7 +633,7 @@ begin
   result := bmp;
 end;
 
-procedure TFormMeme.CopyBitmap;
+procedure TFormMain.CopyBitmap;
 var
   bmp: TBitmap;
 begin
@@ -611,7 +646,7 @@ begin
   end;
 end;
 
-procedure TFormMeme.SaveBitmap;
+procedure TFormMain.SaveBitmap;
 var
   bmp: TBitmap;
   ret: Boolean;
@@ -639,7 +674,7 @@ begin
     Flash('TODO: check implementation of SaveScreenshot()');
 end;
 
-procedure TFormMeme.UpdateChecker;
+procedure TFormMain.UpdateChecker;
 begin
   CheckerImage.Position.X := 0;
   CheckerImage.Position.Y := 0;
@@ -647,7 +682,7 @@ begin
   CheckerImage.Height := ClientHeight;
 end;
 
-procedure TFormMeme.InitDropTarget;
+procedure TFormMain.InitDropTarget;
 begin
   if Assigned(DropTarget) then
   begin
@@ -661,7 +696,7 @@ begin
   end;
 end;
 
-procedure TFormMeme.DropTargetDropped(Sender: TObject; const Data: TDragObject;
+procedure TFormMain.DropTargetDropped(Sender: TObject; const Data: TDragObject;
   const Point: TPointF);
 var
   fn: string;
@@ -673,13 +708,13 @@ begin
   end;
 end;
 
-procedure TFormMeme.TopEditKeyUp(Sender: TObject; var Key: Word;
+procedure TFormMain.TopEditKeyUp(Sender: TObject; var Key: Word;
   var KeyChar: Char; Shift: TShiftState);
 begin
   TopText.Text := TopEdit.Text;
 end;
 
-procedure TFormMeme.SetDropTargetVisible(const Value: Boolean);
+procedure TFormMain.SetDropTargetVisible(const Value: Boolean);
 begin
   FDropTargetVisible := Value;
   if Value then
@@ -703,7 +738,7 @@ begin
   end;
 end;
 
-procedure TFormMeme.SetUseOfficeFonts(const Value: Boolean);
+procedure TFormMain.SetUseOfficeFonts(const Value: Boolean);
 begin
   FUseOfficeFonts := Value;
 
@@ -712,17 +747,17 @@ begin
   SampleManager02.SetUseOfficeFonts(Value);
 end;
 
-procedure TFormMeme.ShowColorPicker;
+procedure TFormMain.ShowColorPicker;
 begin
   Picker.ShowColorPicker;
 end;
 
-procedure TFormMeme.ShowFontPicker;
+procedure TFormMain.ShowFontPicker;
 begin
   Picker.ShowFontPicker;
 end;
 
-procedure TFormMeme.CreateCheckerBitmap;
+procedure TFormMain.CreateCheckerBitmap;
 var
   cb: TBitmap;
   sr, dr: TRectF;
@@ -757,7 +792,7 @@ begin
   cb.Free;
 end;
 
-procedure TFormMeme.CycleFontP;
+procedure TFormMain.CycleFontP;
 begin
   Inc(fo);
   if fo >= FontFamilyList.Count then
@@ -765,7 +800,7 @@ begin
   CycleFont(fo);
 end;
 
-procedure TFormMeme.CycleFontM;
+procedure TFormMain.CycleFontM;
 begin
   Dec(fo);
   if fo < 0 then
@@ -773,7 +808,7 @@ begin
   CycleFont(fo);
 end;
 
-procedure TFormMeme.InitOfficeFonts;
+procedure TFormMain.InitOfficeFonts;
 var
   ML: TStrings;
 begin
@@ -806,7 +841,7 @@ begin
 {$endif}
 end;
 
-procedure TFormMeme.InitNormalFonts;
+procedure TFormMain.InitNormalFonts;
 var
   ML: TStrings;
 begin
@@ -841,7 +876,7 @@ begin
 {$endif}
 end;
 
-procedure TFormMeme.CycleFont(Value: Integer);
+procedure TFormMain.CycleFont(Value: Integer);
 var
   s: string;
 begin
@@ -858,7 +893,7 @@ begin
   Flash(IntToStr(Value) + ' ' + s);
 end;
 
-procedure TFormMeme.OnDropTargetDropped(fn: string);
+procedure TFormMain.OnDropTargetDropped(fn: string);
 begin
   CheckerBitmap.LoadFromFile(fn);
   CheckerImage.Bitmap := CheckerBitmap;
@@ -868,7 +903,7 @@ begin
     AdaptFormSize;
 end;
 
-function TFormMeme.FindTarget(P: TPointF; const Data: TDragObject): IControl;
+function TFormMain.FindTarget(P: TPointF; const Data: TDragObject): IControl;
 var
   i: Integer;
   NewObj: IControl;
@@ -884,7 +919,7 @@ begin
     end;
 end;
 
-procedure TFormMeme.Reset;
+procedure TFormMain.Reset;
 var
   i: TSampleTextItem;
 begin
@@ -922,7 +957,7 @@ begin
   Flash(DefaultCaption);
 end;
 
-procedure TFormMeme.UpdateParam(fp: TMemeParam);
+procedure TFormMain.UpdateParam(fp: TMemeParam);
 begin
   FParam := fp;
 
@@ -937,7 +972,7 @@ begin
   Flash(GetParamText);
 end;
 
-procedure TFormMeme.CopyBitmapToClipboard(ABitmap: TBitmap);
+procedure TFormMain.CopyBitmapToClipboard(ABitmap: TBitmap);
 var
   Svc: IFMXClipboardService;
 begin
@@ -947,7 +982,7 @@ begin
     Svc.SetClipboard(ABitmap);
 end;
 
-procedure TFormMeme.PasteBitmapFromClipboard;
+procedure TFormMain.PasteBitmapFromClipboard;
 var
   Svc: IFMXClipboardService;
   Value: TValue;
@@ -982,7 +1017,7 @@ begin
   end;
 end;
 
-function TFormMeme.GetCurrentTextControl: TText;
+function TFormMain.GetCurrentTextControl: TText;
 begin
   if SelectedText = TSelectedText.stTop then
     result := TopText
@@ -990,7 +1025,7 @@ begin
     result := BottomText;
 end;
 
-procedure TFormMeme.PickColor;
+procedure TFormMain.PickColor;
 var
   tt: TText;
   cla: TAlphaColor;
@@ -1001,7 +1036,7 @@ begin
   tt.TextSettings.FontColor := cla;
 end;
 
-procedure TFormMeme.PickFont;
+procedure TFormMain.PickFont;
 var
   tt: TText;
   fn: string;
@@ -1012,7 +1047,7 @@ begin
   tt.Font.Family := fn;
 end;
 
-procedure TFormMeme.SetBitmap(value: TBitmap);
+procedure TFormMain.SetBitmap(value: TBitmap);
 begin
   CheckerImage.Bitmap.Clear(claPurple);
 
@@ -1037,7 +1072,7 @@ begin
   AdaptFormSize;
 end;
 
-procedure TFormMeme.InitFontList;
+procedure TFormMain.InitFontList;
 var
   f: string;
   SL: TStringList;
@@ -1069,7 +1104,7 @@ begin
     InitNormalFonts;
 end;
 
-procedure TFormMeme.AdaptFormSize;
+procedure TFormMain.AdaptFormSize;
 var
   w, h: Integer;
   wmin, hmin: Integer;
@@ -1128,7 +1163,7 @@ begin
   Flash('AdpatFormSize');
 end;
 
-procedure TFormMeme.GotoNormal;
+procedure TFormMain.GotoNormal;
 begin
   if WindowState = TWindowState.wsMaximized then
     WindowState := TWindowState.wsNormal;
@@ -1145,7 +1180,7 @@ begin
   end;
 end;
 
-procedure TFormMeme.GotoLandscape;
+procedure TFormMain.GotoLandscape;
 begin
   GotoNormal;
   if Screen.Width > Screen.Height then
@@ -1163,7 +1198,7 @@ begin
   Flash('Landscape');
 end;
 
-procedure TFormMeme.GotoPortrait;
+procedure TFormMain.GotoPortrait;
 begin
   GotoNormal;
   if Screen.Width > Screen.Height then
@@ -1182,7 +1217,7 @@ begin
   Flash('Portrait');
 end;
 
-procedure TFormMeme.GotoSquare;
+procedure TFormMain.GotoSquare;
 begin
   GotoNormal;
   if Screen.Width > Screen.Height then
@@ -1200,12 +1235,12 @@ begin
   Flash('Square');
 end;
 
-procedure TFormMeme.Flash(s: string);
+procedure TFormMain.Flash(s: string);
 begin
   Caption := s;
 end;
 
-procedure TFormMeme.SetupText(T: TText; fs: single);
+procedure TFormMain.SetupText(T: TText; fs: single);
 begin
   T.Parent := Self;
   T.WordWrap := False;
@@ -1216,7 +1251,7 @@ begin
   T.HitTest := False;
 end;
 
-procedure TFormMeme.InitMemo(Memo: TMemo);
+procedure TFormMain.InitMemo(Memo: TMemo);
 begin
   Memo.Position.X := DefaultMargin;
   Memo.Width := ClientWidth - 2 * DefaultMargin;
@@ -1237,7 +1272,7 @@ begin
     ];
 end;
 
-procedure TFormMeme.SwapText;
+procedure TFormMain.SwapText;
 var
   s: string;
 begin
@@ -1246,7 +1281,7 @@ begin
   BottomText.Text := s;
 end;
 
-procedure TFormMeme.CycleColorDark(delta: Integer);
+procedure TFormMain.CycleColorDark(delta: Integer);
 var
   cla: TColor;
   l: Integer;
@@ -1268,7 +1303,7 @@ begin
   GetCurrentTextControl.TextSettings.FontColor := cla;
 end;
 
-procedure TFormMeme.CycleColorLight(delta: Integer);
+procedure TFormMain.CycleColorLight(delta: Integer);
 var
   cla: TColor;
   l: Integer;
@@ -1289,17 +1324,17 @@ begin
   GetCurrentTextControl.TextSettings.FontColor := cla;
 end;
 
-procedure TFormMeme.HandleAction(fa: Integer);
+procedure TFormMain.HandleAction(fa: Integer);
 begin
   HA(fa);
 end;
 
-procedure TFormMeme.HandleShowHint(Sender: TObject);
+procedure TFormMain.HandleShowHint(Sender: TObject);
 begin
   HintText.Text := Application.Hint;
 end;
 
-procedure TFormMeme.HA(fa: Integer);
+procedure TFormMain.HA(fa: Integer);
 begin
   case fa of
     faMemeToggleEdits: ToggleEdits;
@@ -1462,17 +1497,23 @@ begin
       UpdateFormat(750, 1000)
     end;
 
-    faMemeToggleFontColor:
-    begin
-      ColorScheme.Init(not ColorScheme.IsDark);
-      UpdateColorScheme;
-    end;
+    { Attention: You must handle any action you feed to Execute in Main }
+    { otherwise there would be a loop, see TMain0.HandleAction }
+    faActionPageP: Main.ActionHandler.Execute(faActionPageP);
+    faActionPageM: Main.ActionHandler.Execute(faActionPageM);
+    faCycleColorSchemeP: Main.ActionHandler.Execute(faCycleColorSchemeP);
+    faCycleColorSchemeM: Main.ActionHandler.Execute(faCycleColorSchemeM);
+    faMemeToggleFontColor: Main.ActionHandler.Execute(faMemeToggleFontColor);
+    faToggleTouchFrame: Main.ActionHandler.Execute(faToggleTouchFrame);
 
     faButtonFrameReport:
     begin
       FWantButtonFrameReport := not WantButtonFrameReport;
       UpdateReport;
     end;
+
+    faShowActi: ActiBtnClick(nil);
+    faShowMemo: MemoBtnClick(nil);
 
     else
     begin
@@ -1482,7 +1523,7 @@ begin
   end;
 end;
 
-function TFormMeme.GetActionFromKey(Key: Word): Integer;
+function TFormMain.GetActionFromKey(Key: Word): Integer;
 begin
   result := faNoop;
   case Key of
@@ -1493,7 +1534,7 @@ begin
   end
 end;
 
-function TFormMeme.GetActionFromKeyChar(KeyChar: char): Integer;
+function TFormMain.GetActionFromKeyChar(KeyChar: char): Integer;
 var
   fa: Integer;
 begin
@@ -1526,6 +1567,9 @@ begin
     'j': fa := faMemeCycleDarkColorP;
     'J': fa := faMemeCycleDarkColorM;
 
+    'k': fa := faCycleColorSchemeP;
+    'K': fa := faCycleColorSchemeM;
+
     'l': fa := faMemeGotoLandscape;
 
     'm': fa := faMemeParamTopMargin;
@@ -1550,6 +1594,8 @@ begin
 
     'v': fa := faMemeToggleFontColor;
     'V': fa := faMemeToggleTextColor;
+
+    'w': fa := faToggleTouchFrame;
 
     'x': fa := faMemeSampleT;
 
@@ -1578,16 +1624,13 @@ begin
     '+': fa := faActionPageP;
     '*': fa := faActionPageM;
 
-    'k': fa := faCycleColorSchemeP;
-    'K': fa := faCycleColorSchemeM;
-
     else fa := faNoop;
 
   end;
   result := fa;
 end;
 
-procedure TFormMeme.InitPicker;
+procedure TFormMain.InitPicker;
 begin
 {$ifdef MSWINDOWS}
   Picker := TPickerWin.Create;
@@ -1605,12 +1648,12 @@ begin
     Picker := TPicker.Create;
 end;
 
-function TFormMeme.GetChecked(fa: Integer): Boolean;
+function TFormMain.GetChecked(fa: Integer): Boolean;
 begin
   result := False;
 end;
 
-procedure TFormMeme.CreateComponents;
+procedure TFormMain.CreateComponents;
 begin
   HintText := TText.Create(Self);
   SetupText(HintText, 18);
@@ -1624,7 +1667,7 @@ begin
   ComponentsCreated := True;
 end;
 
-procedure TFormMeme.LayoutComponents;
+procedure TFormMain.LayoutComponents;
 begin
   HintText.Position.X := 5 * Raster + 20;
   HintText.Position.Y := 0 * Raster + 20;
@@ -1644,14 +1687,66 @@ begin
   BottomText.Margins.Right := DefaultMargin;
 end;
 
-procedure TFormMeme.UpdateColorScheme;
+procedure TFormMain.CheckFormBounds(AForm: TForm);
+begin
+  if Screen.Height <= 768 then
+    AForm.Top := 0;
+  if Screen.Width <= 768 then
+    AForm.Left := 0;
+  if AForm.Left + AForm.Width > Screen.Width then
+    AForm.Width := Screen.Width - AForm.Left - 20;
+  if AForm.Top + AForm.Height > Screen.Height then
+    AForm.Height := Screen.Width - AForm.Top - 20;
+end;
+
+procedure TFormMain.MemoBtnClick(Sender: TObject);
+begin
+  if not Assigned(FormMemo) then
+  begin
+    FormMemo := TFormMemo.Create(nil);
+    FormMemo.Parent := self; //needed for Alt-Tab
+    FormMemo.Memo.Lines.Clear;
+    //Main.WriteVersion1Diff(FormMemo.Memo.Lines);
+    CheckFormBounds(FormMemo);
+  end;
+  FormMemo.Visible := True;
+  FormMemo.Show; //needed on Mac
+end;
+
+procedure TFormMain.ActiBtnClick(Sender: TObject);
+begin
+  if not Assigned(FormAction) then
+  begin
+    FormAction := TFormAction.Create(nil);
+    FormAction.Parent := self;
+    CheckFormBounds(FormAction);
+  end;
+  FormAction.Visible := True;
+  FormAction.Show;
+end;
+
+procedure TFormMain.DestroyForms;
+begin
+  if FormAction <> nil then
+  begin
+    FormAction.DisposeOf;
+    FormAction := nil;
+  end;
+  if FormMemo <> nil then
+  begin
+    FormMemo.DisposeOf;
+    FormMemo := nil;
+  end;
+end;
+
+procedure TFormMain.UpdateColorScheme;
 begin
   if not ComponentsCreated then
     Exit;
 
-  HintText.TextSettings.FontColor := ColorScheme.claHintText;
-  HelpText.TextSettings.FontColor := ColorScheme.claHelpText;
-  ReportText.TextSettings.FontColor := ColorScheme.claReportText;
+  HintText.TextSettings.FontColor := MainVar.ColorScheme.claLabelText;
+  HelpText.TextSettings.FontColor := MainVar.ColorScheme.claSampleText;
+  ReportText.TextSettings.FontColor := MainVar.ColorScheme.claEquationText;
 end;
 
 end.

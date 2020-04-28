@@ -3,7 +3,7 @@
         <ProjectGuid>{D6F26781-D429-49BA-9EB6-D47378E46046}</ProjectGuid>
         <ProjectVersion>18.8</ProjectVersion>
         <FrameworkType>FMX</FrameworkType>
-        <MainSource>FC96.dpr</MainSource>
+        <MainSource>MB01.dpr</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
@@ -111,7 +111,7 @@
         <AUP_READ_PHONE_STATE>true</AUP_READ_PHONE_STATE>
         <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <Icns_MainIcns>$(BDS)\bin\delphi_PROJECTICNS.icns</Icns_MainIcns>
-        <SanitizedProjectName>FC96</SanitizedProjectName>
+        <SanitizedProjectName>MB01</SanitizedProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Android)'!=''">
         <DCC_UsePackage>DBXSqliteDriver;IndyIPCommon;RESTComponents;bindcompdbx;DBXInterBaseDriver;IndyIPServer;IndySystem;tethering;fmxFireDAC;FireDAC;bindcompfmx;FireDACSqliteDriver;FMXTee;soaprtl;DbxCommonDriver;FmxTeeUI;fmx;FireDACIBDriver;xmlrtl;soapmidas;rtl;DbxClientDriver;CustomIPTransport;dbexpress;IndyCore;bindcomp;dsnap;FireDACCommon;IndyIPClient;RESTBackendComponents;soapserver;dbxcds;bindengine;CloudService;dsnapxml;dbrtl;IndyProtocols;FireDACCommonDriver;inet;$(DCC_UsePackage)</DCC_UsePackage>
@@ -373,6 +373,8 @@
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
@@ -396,15 +398,33 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="App\FrmMeme.pas">
-            <Form>FormMeme</Form>
+        <DCCReference Include="App\FrmMain.pas">
+            <Form>FormMain</Form>
             <FormType>fmx</FormType>
         </DCCReference>
+        <DCCReference Include="App\FrmAction.pas">
+            <Form>FormAction</Form>
+            <FormType>fmx</FormType>
+        </DCCReference>
+        <DCCReference Include="App\FrmMemo.pas">
+            <Form>FormMemo</Form>
+            <FormType>fmx</FormType>
+        </DCCReference>
+        <DCCReference Include="App\RiggVar.App.Main.pas"/>
+        <DCCReference Include="App\RiggVar.App.Main0.pas"/>
         <DCCReference Include="FB\RiggVar.FB.Action.pas"/>
         <DCCReference Include="FB\RiggVar.FB.ActionConst.pas"/>
+        <DCCReference Include="FB\RiggVar.FB.ActionGroup.pas"/>
+        <DCCReference Include="FB\RiggVar.FB.ActionGroups.pas"/>
+        <DCCReference Include="FB\RiggVar.FB.ActionKeys.pas"/>
         <DCCReference Include="FB\RiggVar.FB.ActionLong.pas"/>
+        <DCCReference Include="FB\RiggVar.FB.ActionName.pas"/>
+        <DCCReference Include="FB\RiggVar.FB.ActionTable.pas"/>
+        <DCCReference Include="FB\RiggVar.FB.ActionTest.pas"/>
+        <DCCReference Include="FB\RiggVar.FB.ActionMap.pas"/>
         <DCCReference Include="FB\RiggVar.FB.ActionShort.pas"/>
-        <DCCReference Include="FB\RiggVar.FB.SpeedColor.pas"/>
+        <DCCReference Include="FB\RiggVar.FB.Scheme.pas"/>
+        <DCCReference Include="FB\RiggVar.FB.TextBase.pas"/>
         <DCCReference Include="MB\RiggVar.MB.Def.pas"/>
         <DCCReference Include="MB\RiggVar.MB.Picker.Mac.pas"/>
         <DCCReference Include="MB\RiggVar.MB.Picker.pas"/>
@@ -412,6 +432,15 @@
         <DCCReference Include="MB\RiggVar.MB.SampleText00.pas"/>
         <DCCReference Include="MB\RiggVar.MB.SampleText01.pas"/>
         <DCCReference Include="MB\RiggVar.MB.SampleText02.pas"/>
+        <DCCReference Include="MB\RiggVar.MB.SampleText03.pas"/>
+        <DCCReference Include="Model\RiggVar.FederModel.Action.pas"/>
+        <DCCReference Include="Model\RiggVar.FederModel.ActionMapPhone.pas"/>
+        <DCCReference Include="Model\RiggVar.FederModel.ActionMapTablet.pas"/>
+        <DCCReference Include="Model\RiggVar.FederModel.Keyboard01.pas"/>
+        <DCCReference Include="Model\RiggVar.FederModel.Touch.pas"/>
+        <DCCReference Include="Model\RiggVar.FederModel.TouchBase.pas"/>
+        <DCCReference Include="Model\RiggVar.FederModel.TouchPhone.pas"/>
+        <DCCReference Include="Model\RiggVar.FederModel.Binding.pas"/>
         <DCCReference Include="Util\RiggVar.Util.Logger.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
@@ -431,8 +460,12 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">FC96.dpr</Source>
+                    <Source Name="MainSource">MB01.dpr</Source>
                 </Source>
+                <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k260.bpl">Microsoft Office 2000 Beispiele für gekapselte Komponenten für Automatisierungsserver</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp260.bpl">Microsoft Office XP Beispiele für gekapselte Komponenten für Automation Server</Excluded_Packages>
+                </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">
                 <DeployFile LocalName="OSX64\Debug\FC96.entitlements" Configuration="Debug" Class="ProjectOSXEntitlements">
@@ -440,15 +473,21 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="OSX32\Debug\FC96" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="OSX32\Debug\MB01" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="OSX32">
-                        <RemoteName>FC96</RemoteName>
+                        <RemoteName>MB01</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="OSX64\Debug\FC96" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="OSX64\Debug\MB01" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="OSX64">
-                        <RemoteName>FC96</RemoteName>
+                        <RemoteName>MB01</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Win32\Debug\MB01.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>MB01.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -499,12 +538,6 @@
                 <DeployFile LocalName="OSX64\Debug\FC96.dSYM" Configuration="Debug" Class="ProjectOSXDebug">
                     <Platform Name="OSX64">
                         <RemoteName>FC96</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="Win32\Debug\FC96.exe" Configuration="Debug" Class="ProjectOutput">
-                    <Platform Name="Win32">
-                        <RemoteName>FC96.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
