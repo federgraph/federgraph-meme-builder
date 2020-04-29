@@ -5,13 +5,19 @@
 
 Website [link](https://federgraph.de/federgraph-meme-builder-examples.html) has more pictures.
 
-It could be used as a companion app to the Federgraph application,
-just in case you wanted to build a Meme with one of the Federgraph *Emoji* pictures.
+There are two projects now in this repository.
 
-Drop the background image onto the drop target,
+The Main Form of FR96 is very similar to the Form that is included in the Federgraph application.
+It was intended to help with adding text to one of the Federgraph *Emoji* pictures.
+
+MB01 adds a buttons located on a button frame which can be hidden before you make a screenshot.
+This application can be used to create social card images or GitHub repositories.
+
+No matter which project you use, the first action is to drop a background image onto the drop target,
 then press Escape key to show the text edit controls.
 
-Press key h to toggle keyboard shortcut help text.
+Key h will toggle keyboard shortcut help text. It should tell you that you can show and hide the drop target control with key d,
+toggle the button frame - if any - with key w, and copy the final image to the clipboard with ctrl c.
 
 ## Design
 
@@ -39,31 +45,20 @@ The *invisible* application state (no visual feedback) includes the selected tex
 - If you cycle through fonts, it effects the **selected text**.
 - If you scroll the mouse wheel, it effects the **selected param**, for the selected text.
 
-## Fonts
-
-Currently the list of hardcoded font family names is optimized for Windows 10 with Office installed.
-
-I have just started to implement a fallback mode when those Office fonts are not available.
-
-> I guess you want to change the Font used.
-
 ## Params
 
-Look at actions first, because you need to trigger an action to select a parameter.
+There are 6 params:
 
 ```pascal
-const
-  //fa = Federgraph Action
-  faTopMargin = 1;
-  faBottomMargin = 2;
-  faTopSize = 3;
-  faBottomSize = 4;
-  faTopGlow = 5;
-  faBottomGlow = 6;
+  TMemeParam = (
+    fpTopMargin,
+    fpBottomMargin,
+    fpTopSize,
+    fpBottomSize,
+    fpTopGlow,
+    fpBottomGlow
+  );
 ```
-
-The actions in the snippet above are *mapped* to params.
-If one of those actions is triggered, the corresponding parameter is selected as current.
 
 > The **mouse wheel** can be used to change the value of the current parameter.
 
@@ -73,8 +68,6 @@ Parameters are at the heart of the App.
 - then use the scroll wheel of the mouse to change the value of the current parameter.
 
 This is the very basic principle of using the App, as in the Federgraph App.
-
-> And then there are Options, which you can toggle on or off.
 
 ## Keyboard usage
 

@@ -432,7 +432,6 @@
         <DCCReference Include="MB\RiggVar.MB.SampleText00.pas"/>
         <DCCReference Include="MB\RiggVar.MB.SampleText01.pas"/>
         <DCCReference Include="MB\RiggVar.MB.SampleText02.pas"/>
-        <DCCReference Include="MB\RiggVar.MB.SampleText03.pas"/>
         <DCCReference Include="Model\RiggVar.FederModel.Action.pas"/>
         <DCCReference Include="Model\RiggVar.FederModel.ActionMapPhone.pas"/>
         <DCCReference Include="Model\RiggVar.FederModel.ActionMapTablet.pas"/>

@@ -66,10 +66,7 @@ begin
 end;
 
 function TFederBinding.InitShortcutKeys(ML: TStrings): string;
-var
-  WantBtnFrame: Boolean;
 begin
-  WantBtnFrame := True;
   ML.Add('    = : fa := faMemeSample00;');
   ML.Add('    ? : fa := faMemeSample01;');
   ML.Add('    ! : fa := faMemeSample02;');
@@ -98,6 +95,9 @@ begin
   ML.Add('    j : fa := faMemeCycleDarkColorP;');
   ML.Add('    J : fa := faMemeCycleDarkColorM;');
   ML.Add('');
+  ML.Add('    k : fa := faCycleColorSchemeP;');
+  ML.Add('    K : fa := faCycleColorSchemeM;');
+  ML.Add('');
   ML.Add('    l : fa := faMemeGotoLandscape;');
   ML.Add('');
   ML.Add('    m : fa := faMemeParamTopMargin;');
@@ -123,6 +123,8 @@ begin
   ML.Add('    v : fa := faMemeToggleFontColor;');
   ML.Add('    V : fa := faMemeToggleTextColor;');
   ML.Add('');
+  ML.Add('    w: fa := faToggleTouchFrame;');
+  ML.Add('');
   ML.Add('    x : fa := faMemeSampleT;');
   ML.Add('');
   ML.Add('    y : fa := faMemeSampleP;');
@@ -147,14 +149,8 @@ begin
   ML.Add('    ö : fa := faMemeShowColorPicker;');
   ML.Add('    Ö : fa := faMemeShowFontPicker;');
   ML.Add('');
-  if WantBtnFrame then
-  begin
-  ML.Add('     + : fa := faActionPageP;');
-  ML.Add('     * : fa := faActionPageM;');
-  ML.Add('');
-  ML.Add('     k : fa := faCycleColorSchemeP;');
-  ML.Add('     K : fa := faCycleColorSchemeM;');
-  end;
+  ML.Add('    + : fa := faActionPageP;');
+  ML.Add('    * : fa := faActionPageM;');
   ML.Add('');
   ML.Add(' vkEscape : fa := faMemeToggleEdits;');
   ML.Add(' vkF12    : fa := faMemeSaveBitmap;');
