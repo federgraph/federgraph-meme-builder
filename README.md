@@ -5,19 +5,20 @@
 
 Website [link](https://federgraph.de/federgraph-meme-builder-examples.html) has more pictures.
 
-There are two projects now in this repository, FR96 and MB01.
+There are two projects now in this repository, FC96.dpr and MB01.dpr.
 
-The Main Form of FR96 is very similar to the Form that is included in the Federgraph application.
-It was intended to help with adding text to one of the Federgraph pictures.
+The Main Form of FR96 (TFormMeme) is very similar to the Form that is included in the Federgraph application.
+It was intended to help with adding text to the pictures rendered by the Federgraph App.
 
-MB01 adds a buttons located on a Layout which can be hidden before you make a screenshot.
-MB01 can be used to create social card images for GitHub repositories.
+Project MB01 adds buttons located on a Layout which can be hidden before you make a screenshot.
+This project can be used standalone to create social card images for GitHub repositories, for example.
 
-No matter which project you use, the first action is usually to drop a background image onto the drop target,
-then you press Escape key to show the text edit controls, before you fiddle with the properties of the text.
-Finally you will export the image to the clipboard. So far, saving an image is done via another application like notepad.
+No matter which project you use, the first action is usually to drop a background image onto the drop target.
+Then you press Escape key to show the text edit controls, before you fiddle with the properties of the text.
+Finally you can export the image to the clipboard.
+As of now saving of an image is done via notepad, but I may add dialogs to the form later.
 
-Key h will toggle keyboard shortcut help text. It should tell you that you can
+Key h will toggle on and off the help text. The help text should inform you that you can
 - show and hide the drop target control with key d,
 - toggle the button frame - if any - with key w,
 - and copy the final image to the clipboard with ctrl c.
@@ -65,9 +66,9 @@ There are 6 params:
 
 > The **mouse wheel** can be used to change the value of the current parameter.
 
-Parameters are at the heart of the App.
+Parameters are at the heart of the App:
 
-- First use the keyboard to select a param,
+- First use the keyboard to select a param as current,
 - then use the scroll wheel of the mouse to change the value of the current parameter.
 
 This is the very basic principle of using the App, as in the Federgraph App.
