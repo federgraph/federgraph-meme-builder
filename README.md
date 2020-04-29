@@ -5,19 +5,22 @@
 
 Website [link](https://federgraph.de/federgraph-meme-builder-examples.html) has more pictures.
 
-There are two projects now in this repository.
+There are two projects now in this repository, FR96 and MB01.
 
 The Main Form of FR96 is very similar to the Form that is included in the Federgraph application.
-It was intended to help with adding text to one of the Federgraph *Emoji* pictures.
+It was intended to help with adding text to one of the Federgraph pictures.
 
-MB01 adds a buttons located on a button frame which can be hidden before you make a screenshot.
-This application can be used to create social card images or GitHub repositories.
+MB01 adds a buttons located on a Layout which can be hidden before you make a screenshot.
+MB01 can be used to create social card images for GitHub repositories.
 
-No matter which project you use, the first action is to drop a background image onto the drop target,
-then press Escape key to show the text edit controls.
+No matter which project you use, the first action is usually to drop a background image onto the drop target,
+then you press Escape key to show the text edit controls, before you fiddle with the properties of the text.
+Finally you will export the image to the clipboard. So far, saving an image is done via another application like notepad.
 
-Key h will toggle keyboard shortcut help text. It should tell you that you can show and hide the drop target control with key d,
-toggle the button frame - if any - with key w, and copy the final image to the clipboard with ctrl c.
+Key h will toggle keyboard shortcut help text. It should tell you that you can
+- show and hide the drop target control with key d,
+- toggle the button frame - if any - with key w,
+- and copy the final image to the clipboard with ctrl c.
 
 ## Design
 
@@ -86,6 +89,3 @@ Using the keyboard you can:
 The OnKeyUp event of the Form looks at the key strokes.
 But note that it does so only if the text edit controls are hidden.
 When the text edit controls are visible the keyboard is used to edit the text of course.
-
-First thing you do after the application starts up is to press key h for help,
-which I hope, helps.
