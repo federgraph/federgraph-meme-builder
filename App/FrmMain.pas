@@ -256,12 +256,15 @@ begin
   CreateComponents;
   LayoutComponents;
 
-  TopText.BringToFront;
-  BottomText.BringToFront;
-  HelpText.BringToFront;
-
   InitMemo(TopEdit);
   InitMemo(BottomEdit);
+
+  TopText.BringToFront;
+  BottomText.BringToFront;
+
+  HintText.BringToFront;
+  HelpText.BringToFront;
+  ReportText.BringToFront;
 
   TopEdit.BringToFront;
   BottomEdit.BringToFront;
@@ -270,10 +273,6 @@ begin
   BottomEdit.Visible := false;
   ReportText.Visible := false;
   HelpText.Visible := false;
-
-  HintText.BringToFront;
-  HelpText.BringToFront;
-  ReportText.BringToFront;
 
   InitHelpText;
 

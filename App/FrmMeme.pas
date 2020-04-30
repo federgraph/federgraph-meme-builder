@@ -237,12 +237,14 @@ begin
   CreateComponents;
   LayoutComponents;
 
-  TopText.BringToFront;
-  BottomText.BringToFront;
-  HelpText.BringToFront;
-
   InitMemo(TopEdit);
   InitMemo(BottomEdit);
+
+  TopText.BringToFront;
+  BottomText.BringToFront;
+
+  HelpText.BringToFront;
+  ReportText.BringToFront;
 
   TopEdit.BringToFront;
   BottomEdit.BringToFront;
