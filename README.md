@@ -7,10 +7,10 @@ Website [link](https://federgraph.de/federgraph-meme-builder-examples.html) has 
 
 There are two projects now in this repository, FC96.dpr and MB01.dpr.
 
-The Main Form of FR96 (TFormMeme) is very similar to the Form that is included in the Federgraph application.
+The Main Form of FC96 (TFormMeme) is very similar to the Form that is included in the Federgraph application.
 It was intended to help with adding text to the pictures rendered by the Federgraph App.
 
-Project MB01 adds buttons located on a Layout which can be hidden before you make a screenshot.
+Project MB01 (with TFormMain as Main Form) adds buttons located on a Layout which can be hidden before you make a screenshot.
 This project can be used standalone to create social card images for GitHub repositories, for example.
 
 No matter which project you use, the first action is usually to drop a background image onto the drop target.

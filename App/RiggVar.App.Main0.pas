@@ -302,7 +302,9 @@ begin
     MainVar.ColorScheme.Init(Value);
     if MainVar.ColorScheme.claBackground = claNull then
       BlackText;
-    FormMain.UpdateBackgroundColor(MainVar.ColorScheme.claBackground);
+    { ok, this would be appropriate in RG app but not in MB app }
+//    FormMain.UpdateBackgroundColor(MainVar.ColorScheme.claBackground);
+    { because we need to preserve the loaded image. }
     FederText.UpdateColorScheme;
   end;
 
