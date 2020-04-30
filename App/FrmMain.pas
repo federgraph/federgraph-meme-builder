@@ -117,7 +117,6 @@ type
     procedure GotoSquare;
     procedure Flash(s: string);
     procedure ApplicationEventsException(Sender: TObject; E: Exception);
-    procedure HA(fa: Integer);
     procedure ToggleTextColor;
     procedure SetUseOfficeFonts(const Value: Boolean);
     procedure InitMemo(Memo: TMemo);
@@ -315,7 +314,7 @@ var
   fa: Integer;
 begin
   if Key = vkEscape then
-    HA(faMemeToggleEdits)
+    HandleAction(faMemeToggleEdits)
   else if TopEdit.Visible then
     Exit
   else
@@ -325,7 +324,7 @@ begin
       fa := GetActionFromKeyChar(KeyChar);
 
     if fa <> faNoop then
-      HA(fa);
+      HandleAction(fa);
 
     UpdateReport;
 
@@ -1323,16 +1322,6 @@ end;
 
 procedure TFormMain.HandleAction(fa: Integer);
 begin
-  HA(fa);
-end;
-
-procedure TFormMain.HandleShowHint(Sender: TObject);
-begin
-  HintText.Text := Application.Hint;
-end;
-
-procedure TFormMain.HA(fa: Integer);
-begin
   case fa of
     faMemeToggleEdits: ToggleEdits;
     faMemeSaveBitmap: SaveBitmap;
@@ -1645,11 +1634,6 @@ begin
     Picker := TPicker.Create;
 end;
 
-function TFormMain.GetChecked(fa: Integer): Boolean;
-begin
-  result := False;
-end;
-
 procedure TFormMain.CreateComponents;
 begin
   HintText := TText.Create(Self);
@@ -1744,6 +1728,16 @@ begin
   HintText.TextSettings.FontColor := MainVar.ColorScheme.claLabelText;
   HelpText.TextSettings.FontColor := MainVar.ColorScheme.claSampleText;
   ReportText.TextSettings.FontColor := MainVar.ColorScheme.claEquationText;
+end;
+
+function TFormMain.GetChecked(fa: Integer): Boolean;
+begin
+  result := False;
+end;
+
+procedure TFormMain.HandleShowHint(Sender: TObject);
+begin
+  HintText.Text := Application.Hint;
 end;
 
 end.

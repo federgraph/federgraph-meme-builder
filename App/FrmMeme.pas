@@ -38,7 +38,6 @@ uses
   FMX.Edit,
   FMX.Surfaces,
   FMX.Controls.Presentation,
-  RiggVar.FB.SpeedColor,
   RiggVar.MB.Def,
   FMX.ScrollBox,
   FMX.Memo;
@@ -61,7 +60,6 @@ type
     procedure DropTargetDropped(Sender: TObject; const Data: TDragObject; const Point: TPointF);
   private
     FParam: TMemeParam;
-    FWantButtonFrameReport: Boolean;
     FSelectedText: TSelectedText;
     FActiveSampleManagerID: Integer;
     fo: Integer;
@@ -118,8 +116,8 @@ type
     procedure GotoSquare;
     procedure Flash(s: string);
     procedure ApplicationEventsException(Sender: TObject; E: Exception);
-    procedure HA(fa: Integer);
     procedure ToggleTextColor;
+    procedure ToggleFontColor;
     procedure SetUseOfficeFonts(const Value: Boolean);
     procedure InitMemo(Memo: TMemo);
     procedure SwapText;
@@ -142,7 +140,6 @@ type
   public
     procedure HandleWheel(Delta: Integer);
     procedure HandleAction(fa: Integer);
-    function GetChecked(fa: Integer): Boolean;
     procedure UpdateReport;
     procedure UpdateBackgroundColor(AColor: TAlphaColor);
     property Background: TBitmap read CheckerBitmap write SetBitmap;
@@ -151,21 +148,16 @@ type
     property ActiveSampleManagerID: Integer read FActiveSampleManagerID;
     property SampleIndex: Integer read GetSampleIndex;
     property IsDropTargetVisible: Boolean read FDropTargetVisible;
-    property WantButtonFrameReport: Boolean read FWantButtonFrameReport;
   public
     function GetActionFromKey(Key: Word): Integer;
     function GetActionFromKeyChar(KeyChar: char): Integer;
   public
-    HintText: TText;
     HelpText: TText;
     ReportText: TText;
     ComponentsCreated: Boolean;
-    ColorScheme: TSpeedColorScheme;
     procedure CreateComponents;
     procedure SetupText(T: TText; fs: single = 16);
-    procedure UpdateColorScheme;
     procedure LayoutComponents;
-    procedure HandleShowHint(Sender: TObject);
   end;
 
 var
@@ -260,16 +252,9 @@ begin
   ReportText.Visible := false;
   HelpText.Visible := false;
 
-  HintText.BringToFront;
-  HelpText.BringToFront;
-  ReportText.BringToFront;
-
   InitHelpText;
 
-  if Application.Title = 'FC96' then
-  begin
-    DropTargetVisible := true;
-  end;
+  DropTargetVisible := true;
 
   SL := TStringList.Create;
 
@@ -281,8 +266,6 @@ begin
   { we will use OnKeyDown instead }
   OnKeyDown := FormKeyUp;
 {$endif}
-
-  Application.OnHint := HandleShowHint;
 end;
 
 procedure TFormMeme.FormDestroy(Sender: TObject);
@@ -298,7 +281,7 @@ var
   fa: Integer;
 begin
   if Key = vkEscape then
-    HA(faMemeToggleEdits)
+    HandleAction(faMemeToggleEdits)
   else if TopEdit.Visible then
     Exit
   else
@@ -308,7 +291,7 @@ begin
       fa := GetActionFromKeyChar(KeyChar);
 
     if fa <> faNoop then
-      HA(fa);
+      HandleAction(fa);
 
     UpdateReport;
   end
@@ -542,6 +525,20 @@ begin
     CheckerImage.WrapMode := TImageWrapMode.Fit
   else
     CheckerImage.WrapMode := TImageWrapMode.Tile;
+end;
+
+procedure TFormMeme.ToggleFontColor;
+begin
+  if ReportText.TextSettings.FontColor = claWhite then
+  begin
+    ReportText.TextSettings.FontColor := claBlack;
+    HelpText.TextSettings.FontColor := claBlack;
+  end
+  else
+  begin
+    ReportText.TextSettings.FontColor := claWhite;
+    HelpText.TextSettings.FontColor := claWhite;
+  end;
 end;
 
 procedure TFormMeme.ToggleTextColor;
@@ -1291,16 +1288,6 @@ end;
 
 procedure TFormMeme.HandleAction(fa: Integer);
 begin
-  HA(fa);
-end;
-
-procedure TFormMeme.HandleShowHint(Sender: TObject);
-begin
-  HintText.Text := Application.Hint;
-end;
-
-procedure TFormMeme.HA(fa: Integer);
-begin
   case fa of
     faMemeToggleEdits: ToggleEdits;
     faMemeSaveBitmap: SaveBitmap;
@@ -1423,6 +1410,7 @@ begin
     end;
 
     faMemeToggleTiling: ToggleTiling;
+    faMemeToggleFontColor: ToggleFontColor;
     faMemeToggleTextColor: ToggleTextColor;
 
     faMemeSampleT:
@@ -1462,18 +1450,6 @@ begin
       UpdateFormat(750, 1000)
     end;
 
-    faMemeToggleFontColor:
-    begin
-      ColorScheme.Init(not ColorScheme.IsDark);
-      UpdateColorScheme;
-    end;
-
-    faButtonFrameReport:
-    begin
-      FWantButtonFrameReport := not WantButtonFrameReport;
-      UpdateReport;
-    end;
-
     else
     begin
       { do nothing }
@@ -1505,7 +1481,6 @@ begin
     'a': fa := faMemeAdaptFormSize;
 
     'b': fa := faMemeSelectBottom;
-    'B': fa := faButtonFrameReport;
 
     'c': fa := faMemeClearImage;
     'C': fa := faMemeInitChecker;
@@ -1578,9 +1553,6 @@ begin
     '+': fa := faActionPageP;
     '*': fa := faActionPageM;
 
-    'k': fa := faCycleColorSchemeP;
-    'K': fa := faCycleColorSchemeM;
-
     else fa := faNoop;
 
   end;
@@ -1605,16 +1577,8 @@ begin
     Picker := TPicker.Create;
 end;
 
-function TFormMeme.GetChecked(fa: Integer): Boolean;
-begin
-  result := False;
-end;
-
 procedure TFormMeme.CreateComponents;
 begin
-  HintText := TText.Create(Self);
-  SetupText(HintText, 18);
-
   HelpText := TText.Create(Self);
   SetupText(HelpText);
 
@@ -1626,9 +1590,6 @@ end;
 
 procedure TFormMeme.LayoutComponents;
 begin
-  HintText.Position.X := 5 * Raster + 20;
-  HintText.Position.Y := 0 * Raster + 20;
-
   ReportText.Position.X := DefaultMargin;
   ReportText.Position.Y := 2 * Raster + 10;
 
@@ -1642,16 +1603,6 @@ begin
   BottomText.Margins.Bottom := DefaultMargin;
   BottomText.Margins.Left := DefaultMargin;
   BottomText.Margins.Right := DefaultMargin;
-end;
-
-procedure TFormMeme.UpdateColorScheme;
-begin
-  if not ComponentsCreated then
-    Exit;
-
-  HintText.TextSettings.FontColor := ColorScheme.claHintText;
-  HelpText.TextSettings.FontColor := ColorScheme.claHelpText;
-  ReportText.TextSettings.FontColor := ColorScheme.claReportText;
 end;
 
 end.

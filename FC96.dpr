@@ -5,7 +5,6 @@ uses
   FMX.Forms,
   FrmMeme in 'App\FrmMeme.pas' {FormMeme},
   RiggVar.FB.ActionConst in 'FB\RiggVar.FB.ActionConst.pas',
-  RiggVar.FB.SpeedColor in 'FB\RiggVar.FB.SpeedColor.pas',
   RiggVar.MB.Def in 'MB\RiggVar.MB.Def.pas',
   RiggVar.MB.Picker.Mac in 'MB\RiggVar.MB.Picker.Mac.pas',
   RiggVar.MB.Picker in 'MB\RiggVar.MB.Picker.pas',
