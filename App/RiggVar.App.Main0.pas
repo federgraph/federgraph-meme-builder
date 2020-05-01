@@ -431,9 +431,6 @@ begin
       { This may happen if you call Main.ActionHandler.Execute(fa)
       {   from FormMain.HandleAction(fa) when handling a keyboard shortcut. }
       FormMain.HandleAction(fa);
-      { So, if you feed an action to the general point of entry
-          then make sure you handle it there.
-        Search FormMain for '.Execute' or '.HandleAction' }
     end;
   end;
 end;

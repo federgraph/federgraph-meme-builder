@@ -323,7 +323,7 @@ begin
       fa := GetActionFromKeyChar(KeyChar);
 
     if fa <> faNoop then
-      HandleAction(fa);
+      Main.ActionHandler.Execute(fa);
 
     UpdateReport;
 
@@ -412,7 +412,7 @@ begin
 
   { When you have copied an image (TBitmap) to the clipboard,
     and you make the Memos visible,
-    and the paste into them with ^v or via context menu,
+    and then paste into them with ^v or via context menu,
     then there is a bug, reported as RSP-26546.
     You can use this application as a test case. }
 end;
@@ -1481,15 +1481,6 @@ begin
       Top := 0;
       UpdateFormat(750, 1000)
     end;
-
-    { Attention: You must handle any action you feed to Execute in Main }
-    { otherwise there would be a loop, see TMain0.HandleAction }
-    faActionPageP: Main.ActionHandler.Execute(faActionPageP);
-    faActionPageM: Main.ActionHandler.Execute(faActionPageM);
-    faCycleColorSchemeP: Main.ActionHandler.Execute(faCycleColorSchemeP);
-    faCycleColorSchemeM: Main.ActionHandler.Execute(faCycleColorSchemeM);
-    faMemeToggleFontColor: Main.ActionHandler.Execute(faMemeToggleFontColor);
-    faToggleTouchFrame: Main.ActionHandler.Execute(faToggleTouchFrame);
 
     faButtonFrameReport:
     begin
