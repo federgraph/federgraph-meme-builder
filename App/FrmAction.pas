@@ -59,6 +59,7 @@ type
     CaseBtn: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
     procedure ListViewSItemClick(const Sender: TObject;const AItem: TListViewItem);
     procedure ListViewGItemClick(const Sender: TObject; const AItem: TListViewItem);
@@ -67,7 +68,8 @@ type
     procedure SortBtnClick(Sender: TObject);
     procedure HideBtnClick(Sender: TObject);
     procedure CaseBtnClick(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+  private
+    Margin: Integer;
   private
     ofa, ofg: Integer;
     osn, oln, oan, ogn: string;
@@ -121,6 +123,12 @@ begin
   Caption := 'Feder Actions';
   ML := TStringList.Create;
 
+  Left := 10;
+  Top := 120;
+  Width := 1000;
+  Height := 650;
+  Margin := 10;
+
   TextDetail.AutoSize := True;
   TextCaption.AutoSize := True;
   TextEdit.AutoSize := True;
@@ -133,10 +141,16 @@ begin
   TextGroups.TextSettings.WordWrap := False;
   TextDetail.TextSettings.WordWrap := False;
 
+  ListViewS.Height := ClientHeight - ListViewS.Position.Y - Margin;
+  ListViewDetails.Height := ClientHeight - ListViewDetails.Position.Y - Margin;
+  ListViewG.Height := ClientHeight - ListViewG.Position.Y - Margin;
+  ListViewGroups.Height := ClientHeight - ListViewGroups.Position.Y - Margin;
+
   ListViewS.Anchors := [TAnchorKind.akLeft, TAnchorKind.akTop, TAnchorKind.akBottom];
-  ListViewG.Anchors := [TAnchorKind.akLeft, TAnchorKind.akTop, TAnchorKind.akBottom];
   ListViewDetails.Anchors := [TAnchorKind.akLeft, TAnchorKind.akTop, TAnchorKind.akBottom];
+  ListViewG.Anchors := [TAnchorKind.akLeft, TAnchorKind.akTop, TAnchorKind.akBottom];
   ListViewGroups.Anchors := [TAnchorKind.akLeft, TAnchorKind.akTop, TAnchorKind.akBottom];
+
   ListGroups;
 
   UpdateCaseBtnCaption;

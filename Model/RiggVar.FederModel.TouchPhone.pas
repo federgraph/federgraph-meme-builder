@@ -34,7 +34,6 @@ uses
 type
   TFederTouchPhone = class(TFederTouchBase)
   private
-    procedure ToolBtnClick(Sender: TObject);
     procedure InitCornerMenu;
   protected
     procedure InitShapes;
@@ -44,8 +43,6 @@ type
     procedure Init; override;
     procedure InitActions(Layout: Integer); override;
     procedure UpdateColorScheme; override;
-    procedure UpdateText; override;
-    procedure ToggleTouchFrame; override;
   end;
 
 implementation
@@ -66,8 +63,6 @@ end;
 
 procedure TFederTouchPhone.Init;
 begin
-  Width := MainVar.ClientWidth;
-  Height := MainVar.ClientHeight;
   if not InitOK then
   begin
     InitShapes;
@@ -138,22 +133,6 @@ begin
   SR00.Text.Color := tc2;
 end;
 
-procedure TFederTouchPhone.ToolBtnClick(Sender: TObject);
-begin
-  FrameVisible := not FrameVisible;
-
-  if FrameVisible then
-  begin
-    ToolBtn.Opacity := 0.1;
-   end
-  else
-  begin
-    ToolBtn.Opacity := 0.05;
-  end;
-
-  MoveText;
-end;
-
 procedure TFederTouchPhone.InitCornerMenu;
 var
   cp: TCornerPos;
@@ -209,20 +188,6 @@ begin
   SR00.Text.Font.Size := MainConst.DefaultBtnFontSize;
 
   InitActions(1);
-end;
-
-procedure TFederTouchPhone.UpdateText;
-begin
-  if InitOK then
-  begin
-    PageBtnP.Text.Text := IntToStr(ActionPage);
-    PageBtnM.Text.Text := IntToStr(ActionPage);
-  end;
-end;
-
-procedure TFederTouchPhone.ToggleTouchFrame;
-begin
-  FrameVisible := not FrameVisible;
 end;
 
 procedure TFederTouchPhone.InitActions(Layout: Integer);

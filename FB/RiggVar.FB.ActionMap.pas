@@ -41,7 +41,6 @@ type
     procedure InitAction(BtnID: Integer; Action: Integer);
     procedure IAC(BtnID, Action: Integer; cla: TAlphaColor); virtual;
   public
-    class var CurrentPageCaption: string;
     constructor Create;
     procedure InitActions(Layout: Integer); virtual;
     property ActionProc: TInitActionProc read FActionProc write SetActionProc;
@@ -172,10 +171,7 @@ var
   p: Integer;
   iap: TInitActionProc;
   iacp: TInitActionColorProc;
-  savedPageCaption: string;
 begin
-  savedPageCaption := CurrentPageCaption;
-
   iap := ActionProc;
   iacp := ActionColorProc;
 
@@ -190,8 +186,6 @@ begin
 
   ActionProc := iap;
   ActionColorProc := iacp;
-
-  CurrentPageCaption := savedPageCaption;
 end;
 
 procedure TCollectibleActionMap.CollectAll(ML: TStrings);

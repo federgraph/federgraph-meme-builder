@@ -23,17 +23,15 @@ uses
 
 type
   TFederBinding = class
-  private
   public
-    function InitInfoText(SL: TStrings): string;
-    function InitHelpText(SL: TStrings): string;
-
-    function InitShortcutKeys(ML: TStrings): string;
+    procedure InitInfoText(SL: TStrings);
+    procedure InitHelpText(SL: TStrings);
+    procedure InitShortcutKeys(ML: TStrings);
   end;
 
 implementation
 
-function TFederBinding.InitInfoText(SL: TStrings): string;
+procedure TFederBinding.InitInfoText(SL: TStrings);
 begin
   SL.Add('For info about MB (Meme Builder)');
   SL.Add('');
@@ -55,7 +53,7 @@ begin
   SL.Add('  github.com/federgraph/federgraph-meme-builder')
 end;
 
-function TFederBinding.InitHelpText(SL: TStrings): string;
+procedure TFederBinding.InitHelpText(SL: TStrings);
 begin
   SL.Add('Help Text');
   SL.Add('=========');
@@ -65,7 +63,7 @@ begin
   InitShortcutKeys(SL);
 end;
 
-function TFederBinding.InitShortcutKeys(ML: TStrings): string;
+procedure TFederBinding.InitShortcutKeys(ML: TStrings);
 begin
   ML.Add('    = : fa := faMemeSample00;');
   ML.Add('    ? : fa := faMemeSample01;');

@@ -47,7 +47,7 @@ type
     function GetShortcutString(fa: TFederAction): string;
     function GetActionName(fa: TFederAction): string;
     function GetActionGroup(fa: TFederAction): Integer;
-    function GetShortcutReport(ML: TStrings): string;
+    procedure GetShortcutReport(ML: TStrings);
   end;
 
 implementation
@@ -217,7 +217,7 @@ begin
   ML.Add('</html>');
 end;
 
-function TActionHelper.GetShortcutReport(ML: TStrings): string;
+procedure TActionHelper.GetShortcutReport(ML: TStrings);
 var
   c: Char;
   H: TShortcutReportHelper;

@@ -150,11 +150,11 @@ begin
 end;
 
 class function TUtils.Cut(delim: string; s: string; var token: string): string;
-//Trennt einen String beim Trennzeichen
-// delim : Trennzeichen -> erstes Auftreten = Trennposition
-// parameter s : input
-// var parameter token : output, vorn abgeschnitten
-// Result liefert den rest
+{ Trennt einen String beim Trennzeichen
+    delim : Trennzeichen -> erstes Auftreten = Trennposition
+    parameter s : input
+    var parameter token : output, vorn abgeschnitten
+    Result liefert den rest }
 var
   posi: integer; // Trennposition
 begin

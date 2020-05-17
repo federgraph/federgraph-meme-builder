@@ -373,7 +373,7 @@ begin
 
   { When you have copied an image (TBitmap) to the clipboard,
     and you make the Memos visible,
-    and the paste into them with ^v or via context menu,
+    and then paste into them with ^v or via context menu,
     then there is a bug, reported as RSP-26546.
     You can use this application as a test case. }
 end;

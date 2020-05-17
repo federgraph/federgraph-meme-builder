@@ -31,24 +31,16 @@ type
   TFederTouch = class(TFederTouchBase)
   private
     FCornerBtnOpacity: single;
-
-    procedure ToolBtnClick(Sender: TObject);
-
     procedure InitCornerMenu;
     procedure ResetCornerMenu;
   protected
     procedure InitShapes;
-
     procedure SetActionMap(const Value: Integer); override;
   public
     constructor Create(AOwner: TComponent); override;
-
     procedure Init; override;
     procedure InitActions(Layout: Integer); override;
     procedure UpdateColorScheme; override;
-    procedure UpdateText; override;
-
-    procedure ToggleTouchFrame; override;
   end;
 
 implementation
@@ -63,7 +55,6 @@ begin
   inherited;
   ActionMap := 1;
   OpacityValue := 0.5;
-
   Main.ActionMapTablet.ActionProc := InitAction;
   Main.ActionMapTablet.ActionColorProc := InitActionWithColor;
 end;
@@ -84,7 +75,7 @@ begin
   if not InitOK then
   begin
     ToolBtn := TCircle.Create(OwnerComponent);
-//  Position set in TFederTouchBase.UpdateShape
+    { Position set in TFederTouchBase.UpdateShape }
     ToolBtn.Width := MainVar.Raster;
     ToolBtn.Height := MainVar.Raster;
     ToolBtn.Opacity := 0.1;
@@ -135,11 +126,6 @@ begin
   SL00.Text.Color := tc2;
   SR00.Shape.Fill.Color := tc1;
   SR00.Text.Color := tc2;
-end;
-
-procedure TFederTouch.ToolBtnClick(Sender: TObject);
-begin
-  Main.ActionHandler.Execute(faToggleTouchFrame);
 end;
 
 procedure TFederTouch.InitCornerMenu;
@@ -223,22 +209,6 @@ begin
   FCornerBtnOpacity := PageBtnM.Opacity;
 
   ResetCornerMenu;
-end;
-
-procedure TFederTouch.UpdateText;
-begin
-  { Text has been removed,
-    there used to be Text inside here as well, which needed an update.
-  }
-  if InitOK then
-  begin
-    UpdatePageBtnText;
-  end;
-end;
-
-procedure TFederTouch.ToggleTouchFrame;
-begin
-  FrameVisible := not FrameVisible;
 end;
 
 procedure TFederTouch.InitActions(Layout: Integer);

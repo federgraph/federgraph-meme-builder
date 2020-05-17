@@ -134,9 +134,9 @@ type
 
     ToolBtn: TCircle;
 
-    procedure OnMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
-    procedure OnMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Single);
-    procedure OnMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
+    procedure OnMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: single);
+    procedure OnMouseMove(Sender: TObject; Shift: TShiftState; X, Y: single);
+    procedure OnMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: single);
     procedure OnMouseLeave(Sender: TObject);
     procedure BorderTrack(Sender: TObject; X, Y: single);
 
@@ -165,12 +165,13 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
+    procedure ToolBtnClick(Sender: TObject);
+    procedure ToggleTouchFrame; override;
+    procedure UpdateText; override;
+
     procedure Init; override;
     procedure CheckState;
     procedure UpdateWH;
-    procedure CheckCircleState; virtual;
-    procedure MoveText; virtual;
-    procedure CheckBtnOrder; virtual;
 
     procedure Report(ML: TStrings);
     function FindCornerBtn(id: Integer): TCornerBtn;
@@ -192,7 +193,6 @@ const
   BtnBorderColor: TAlphaColor = claNull;
   BtnBorderWidth: Integer = 4;
   BtnBorderRadius: Integer = 8;
-  DockStartX: Integer = 2;
 
 implementation
 
@@ -279,14 +279,16 @@ end;
 procedure TTouchBtn.SetHint(const Value: string);
 begin
   if Assigned(FText) then
+  begin
     FText.Hint := Value;
+  end;
 end;
 
 procedure TTouchBtn.UpdateHint;
 begin
   if WantHint then
   begin
-  Hint := Main.ActionHandler.GetCaption(FAction);
+    Hint := Main.ActionHandler.GetCaption(FAction);
   end;
 end;
 
@@ -352,6 +354,7 @@ var
   b: TCornerBtn;
 begin
   b := TCornerBtn.Create(TFederTouchBase.OwnerComponent);
+  TFederTouchBase.ParentObject.AddObject(b);
   b.CornerPos := CornerPos;
   b.FID := BtnID;
   b.X := X;
@@ -360,7 +363,6 @@ begin
   b.Opacity := TFederTouchBase.OpacityValue;
   b.Init;
   b.Color := BtnColor;
-  TFederTouchBase.ParentObject.AddObject(b);
 
   b.Caption := Main.ActionHandler.GetShortCaption(Action);
   b.FText.Color := MainVar.ColorScheme.claCornerBtnText;
@@ -512,32 +514,12 @@ begin
   Height := MainVar.ClientHeight;
 end;
 
-procedure TFederTouchBase.MoveText;
-begin
-  UpdateWH;
-
-  { There used to be some text as well, not only buttons.
-    This version is a light version.
-    Has been part of a bigger application. }
-end;
-
 procedure TFederTouchBase.CheckState;
 var
   b: TCornerBtn;
 begin
   for b in CornerBtnList do
     b.CheckState;
-  CheckCircleState;
-end;
-
-procedure TFederTouchBase.CheckCircleState;
-begin
-  //virtual
-end;
-
-procedure TFederTouchBase.CheckBtnOrder;
-begin
-  //virtual
 end;
 
 constructor TFederTouchBase.Create(AOwner: TComponent);
@@ -659,7 +641,7 @@ begin
 end;
 
 procedure TFederTouchBase.OnMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
+  Shift: TShiftState; X, Y: single);
 begin
   Down := True;
   OldX := X;
@@ -667,8 +649,7 @@ begin
   FOwnsMouse := True;
 end;
 
-procedure TFederTouchBase.OnMouseMove(Sender: TObject; Shift: TShiftState; X,
-  Y: Single);
+procedure TFederTouchBase.OnMouseMove(Sender: TObject; Shift: TShiftState; X, Y: single);
 begin
   if Main.IsUp then
   begin
@@ -678,7 +659,7 @@ begin
 end;
 
 procedure TFederTouchBase.OnMouseUp(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Single);
+  Shift: TShiftState; X, Y: single);
 begin
   Down := False;
   FOwnsMouse := False;
@@ -698,6 +679,8 @@ procedure TFederTouchBase.UpdateShape;
 var
   b: TCornerBtn;
 begin
+  UpdateWH;
+
   if InitOK then
   begin
     TCornerMenu.TStart := 1;
@@ -733,9 +716,6 @@ begin
     ToolBtn.Position.X := MainVar.Raster;
     ToolBtn.Position.Y := MainVar.Raster;
     ToolBtn.Width := MainVar.Raster;
-
-    MoveText;
-    CheckBtnOrder;
   end;
 end;
 
@@ -789,11 +769,18 @@ begin
     end;
 end;
 
+procedure TFederTouchBase.UpdateText;
+begin
+  if InitOK then
+  begin
+    UpdatePageBtnText;
+  end;
+end;
+
 procedure TFederTouchBase.UpdatePageBtnText;
 begin
   PageBtnP.Text.Text := IntToStr(ActionPage);
   PageBtnM.Text.Text := IntToStr(ActionPage);
-  ST00.Text.Text := TActionMap.CurrentPageCaption;
 end;
 
 procedure TFederTouchBase.Report(ML: TStrings);
@@ -829,6 +816,25 @@ var
 begin
   for cb in CornerBtnList do
     AddLine(cb);
+end;
+
+procedure TFederTouchBase.ToolBtnClick(Sender: TObject);
+begin
+  ToggleTouchFrame;
+end;
+
+procedure TFederTouchBase.ToggleTouchFrame;
+begin
+  FrameVisible := not FrameVisible;
+
+  if FrameVisible then
+  begin
+    ToolBtn.Opacity := 0.1;
+   end
+  else
+  begin
+    ToolBtn.Opacity := 0.05;
+  end;
 end;
 
 end.
